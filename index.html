@@ -2,51 +2,41 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <!-- Настройка для мобильных устройств, чтобы интерфейс не ломался и не масштабировался случайно -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>인생네컷 AR 포토부스</title>
   
-  <!-- [ВАЖНО] Подключаем p5.js — без этой строчки камера на ноутбуке НЕ включится! -->
+  <!-- p5.js: библиотека для работы с холстом и веб-камерой -->
   <script src="https://cloudflare.com"></script>
 
-  <!-- Подключаем библиотеку ИИ ml5.js для работы Face Mesh (для Нгуена) -->
+  <!-- ml5.js: библиотека искусственного интеллекта для распознавания лиц -->
   <script src="https://unpkg.com"></script>
 
-  <!-- Подключаем файл стилей (style.css), который лежит в корне проекта -->
+  <!-- Подключение стилей -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Главный адаптивный контейнер приложения (телефон на ПК / весь экран на смартфоне) -->
   <div class="app-container">
 
-    <!-- ==========================================================================
-         화면 1: 시작 화면 (Start Screen)
-         ========================================================================== -->
+    <!-- 화면 1: 시작 화면 -->
     <div id="start-screen" class="screen">
       <div class="logo-area">
         <div class="logo-animation">📸</div>
         <h1>인생네컷<br>AR 포토부스</h1>
       </div>
-      <!-- Кнопка "Начать съемку" — запускает всю цепочку событий -->
       <button id="btn-start" class="btn">촬영 시작하기</button>
     </div>
 
-    <!-- ==========================================================================
-         화면 2: 카메라 및 AR 필터 화면 (Camera Screen)
-         ========================================================================== -->
+    <!-- 화면 2: 카메라 및 AR 필터 화면 -->
     <div id="camera-screen" class="screen hidden">
       <h1>예쁘게 웃어주세요! 🌟</h1>
       
-      <!-- Контейнер для живой веб-камеры и графики p5.js -->
       <div class="camera-box">
-        <!-- Текст обратного отсчета 3... 2... 1... (управляется из camera.js) -->
         <div id="countdown-overlay" class="countdown-text hidden">3</div>
-        <!-- Белая вспышка экрана при съемке (управляется из camera.js) -->
         <div id="flash-overlay" class="flash-effect"></div>
       </div>
 
-      <!-- Меню выбора AR-фильтров (Зона ответственности Нгуен Бао Дама) -->
+      <!-- Меню выбора AR-фильтров -->
       <div class="filter-menu">
         <div class="filter-btn active" data-filter="none">❌</div>
         <div class="filter-btn" data-filter="cat">🐱</div>
@@ -56,18 +46,15 @@
       </div>
     </div>
 
-    <!-- ==========================================================================
-         화면 3: 결과 및 프레임 선택 화면 (Result Screen)
-         ========================================================================== -->
+    <!-- 화면 3: 결과 및 프레임 선택 화면 -->
     <div id="result-screen" class="screen hidden">
       <h1>사진이 완성되었습니다!</h1>
 
-      <!-- Контейнер для превью готовой вертикальной фотополоски (Зона ответственности Май) -->
       <div id="result-view-wrapper" class="strip-preview">
-        <!-- Сюда скрипт result.js автоматически вставит склеенные кадры, рамку и дату -->
+        <!-- Сюда вставится готовая фотополоска -->
       </div>
 
-      <!-- Меню выбора цвета фоновой рамки из 4 видов (Зона ответственности Май) -->
+      <!-- Menю выбора рамок -->
       <div class="frame-menu">
         <div class="frame-btn f-black active" data-frame="frame-1"></div>
         <div class="frame-btn f-white" data-frame="frame-2"></div>
@@ -75,7 +62,6 @@
         <div class="frame-btn f-blue" data-frame="frame-4"></div>
       </div>
 
-      <!-- Кнопки управления на финальном экране -->
       <div class="action-block">
         <button id="btn-save" class="btn">사진 저장하기</button>
         <button id="btn-restart" class="btn btn-secondary">처음으로 돌아가기</button>
@@ -84,15 +70,10 @@
 
   </div>
 
-  <!-- ==========================================================================
-       ПОДКЛЮЧЕНИЕ JAVASCRIPT-ФАЙЛОВ (Порядок подключения ОЧЕНЬ важен!)
-       ========================================================================== -->
-  <!-- 1. Сначала загружаем функциональные модули участников из папки js/ -->
+  <!-- Подключение JS-скриптов в строгом порядке -->
   <script src="js/camera.js"></script>
   <script src="js/ar-filter.js"></script>
   <script src="js/result.js"></script>
-  
-  <!-- 2. Последним загружаем главный файл управления, который их связывает -->
   <script src="js/main.js"></script>
 
 </body>
