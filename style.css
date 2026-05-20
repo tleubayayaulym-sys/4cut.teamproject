@@ -1,0 +1,277 @@
+/* ==========================================================================
+   1. СБРОС СТИЛЕЙ И ОБЩИЕ НАСТРОЙКИ (RESET & BASE)
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+body {
+  background-color: #121212; /* Темный фон в стиле фотобудки */
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Контейнер приложения (имитация экрана автомата) */
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 480px; /* Адаптивный мобильный интерфейс */
+  max-height: 850px;
+  background-color: #1a1a1a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   2. УПРАВЛЕНИЕ ЭКРАНАМИ (SCREEN MANAGEMENT)
+   ========================================================================== */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Класс для скрытия неактивных экранов (управляется через JS) */
+.hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   3. КОМПОНЕНТЫ ИНТЕРФЕЙСА (UI COMPONENTS)
+   ========================================================================== */
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 20px;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn {
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 40px;
+  width: 80%;
+  text-align: center;
+}
+
+.btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   4. СТАРТОВЫЙ ЭКРАН (START SCREEN)
+   ========================================================================== */
+#start-screen {
+  justify-content: center;
+  gap: 30px;
+}
+
+.logo-area {
+  text-align: center;
+}
+
+.logo-icon {
+  font-size: 5rem;
+  margin-bottom: 10px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ==========================================================================
+   5. ЭКРАН СЪЕМКИ И АР-ФИЛЬТРОВ (CAMERA & AR SCREEN)
+   ========================================================================== */
+#camera-screen {
+  padding: 20px;
+}
+
+/* Контейнер для p5.js canvas и камеры */
+.camera-view-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4; /* Пропорции классического фото */
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Сам холст p5.js / видео-поток */
+canvas, video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Элемент каунтдауна (3, 2, 1) */
+.countdown-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0,0,0,0.8);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Эффект вспышки (активируется через JS добавлением класса .flash-active) */
+.flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.flash-active {
+  animation: flashEffect 0.4s ease-out;
+}
+
+@keyframes flashEffect {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Панель выбора фильтров (Снизу камеры) */
+.filter-selector {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: none; /* Скрыть скроллбар для Firefox */
+}
+
+.filter-selector::-webkit-scrollbar {
+  display: none; /* Скрыть скроллбар для Chrome/Safari */
+}
+
+.filter-item {
+  flex: 0 0 70px;
+  height: 70px;
+  background-color: #2a2a2a;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-item.active {
+  border-color: #ff416c;
+  background-color: #3a3a3a;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   6. ЭКРАН РЕЗУЛЬТАТА И ВЫБОРА РАМОК (RESULT SCREEN)
+   ========================================================================== */
+#result-screen {
+  overflow-y: auto;
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+/* Контейнер для предпросмотра готовой фотополоски */
+.result-view-wrapper {
+  width: 60%;
+  max-width: 260px;
+  aspect-ratio: 1 / 3; /* Длинная вертикальная полоска 인생네컷 */
+  background-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+/* Горизонтальный выбор 4 видов рамок */
+.frame-selector {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.frame-item {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-size: cover;
+  background-position: center;
+}
+
+.frame-item.active {
+  border-color: #ff4b2b;
+  box-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+}
+
+/* Кнопки действий на экране результата */
+.action-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-secondary {
+  background: #333;
+  color: #ccc;
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  background: #444;
+  color: #fff;
+  box-shadow: none;
+}
