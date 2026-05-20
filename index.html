@@ -1,5 +1,95 @@
-<!-- MediaPipe для распознавания лиц -->
-<script src="https://jsdelivr.net"></script>
-<script src="https://jsdelivr.net"></script>
-<!-- p5.js для рисования фильтров и создания фотостроки -->
-<script src="https://cloudflare.com"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <!-- 모바일 화면에서 앱이 깨지지 않고 완벽하게 최적화되도록 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>인생네컷 AR 포토부스</title>
+  
+  <!-- 1. 스타일시트 연결 (style.css) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 전체 앱을 감싸는 반응형 컨테이너 -->
+  <div class="app-container">
+
+    <!-- ==========================================
+         화면 1: 시작 화면 (Start Screen)
+         ========================================== -->
+    <div id="start-screen" class="screen">
+      <div class="logo-area">
+        <div class="logo-animation">📸</div>
+        <h1>인생네컷<br>AR 포토부스</h1>
+      </div>
+      <button id="btn-start" class="btn">촬영 시작하기</button>
+    </div>
+
+    <!-- ==========================================
+         화면 2: 카메라 및 AR 필터 화면 (Camera Screen)
+         ========================================== -->
+    <div id="camera-screen" class="screen hidden">
+      <h1>예쁘게 웃어주세요! 🌟</h1>
+      
+      <!-- 웹캠 화면과 p5.js 그래픽이 그려질 카메라 박스 -->
+      <div class="camera-box">
+        <!-- 3, 2, 1 카운트다운 텍스트 표시 -->
+        <div id="countdown-overlay" class="countdown-text hidden">3</div>
+        <!-- 촬영 순간 반짝이는 백색 플래시 효과 -->
+        <div id="flash-overlay" class="flash-effect"></div>
+      </div>
+
+      <!-- 테스트용 임시 촬영 버튼 (카메라 연동 전 흐름 확인용) -->
+      <button id="btn-capture" class="btn" style="margin-bottom:0; padding:12px; font-size:0.9rem;">[테스트] 4장 연속 촬영 시뮬레이션</button>
+
+      <!-- 실시간 AR 필터 선택 메뉴 (응웬 바오 담 담당) -->
+      <div class="filter-menu">
+        <div class="filter-btn active" data-filter="none">❌</div>
+        <div class="filter-btn" data-filter="cat">🐱</div>
+        <div class="filter-btn" data-filter="rabbit">🐰</div>
+        <div class="filter-btn" data-filter="glasses">👓</div>
+        <div class="filter-btn" data-filter="crown">👑</div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         화면 3: 결과 및 프레임 선택 화면 (Result Screen)
+         ========================================== -->
+    <div id="result-screen" class="screen hidden">
+      <h1>사진이 완성되었습니다!</h1>
+
+      <!-- 완성된 네 컷 사진 스트립이 들어갈 프리뷰 공간 (마이 티 투 짜نگ 담당) -->
+      <div id="result-view-wrapper" class="strip-preview">
+        <!-- 자바스크립트가 여기에 실시간으로 4장의 사진과 프레임, 날짜를 조합합니다 -->
+      </div>
+
+      <!-- 배경 프레임 테마 선택 메뉴 4종 (마이 티 투 짜نگ 담당) -->
+      <div class="frame-menu">
+        <div class="frame-btn f-black active" data-frame="frame-1"></div>
+        <div class="frame-btn f-white" data-frame="frame-2"></div>
+        <div class="frame-btn f-pink" data-frame="frame-3"></div>
+        <div class="frame-btn f-blue" data-frame="frame-4"></div>
+      </div>
+
+      <!-- 하단 작업 버튼 블록 -->
+      <div class="action-block">
+        <button id="btn-save" class="btn">사진 저장하기</button>
+        <button id="btn-restart" class="btn btn-secondary">처음으로 돌아가기</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       자바스크립트 파일 연결 (연결 순서가 매우 중요합니다!)
+       ========================================== -->
+  <!-- 1. 각 팀원이 편집할 기능별 스크립트 먼저 로드 -->
+  <script src="js/camera.js"></script>
+  <script src="js/ar-filter.js"></script>
+  <script src="js/result.js"></script>
+  
+  <!-- 2. 전체 상태를 총괄 제어하는 main.js를 마지막에 로드 -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
