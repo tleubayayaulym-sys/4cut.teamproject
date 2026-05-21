@@ -1,124 +1,116 @@
-/* ==========================================================================
-   ЛОГИКА КАМЕРЫ И СЪЕМКИ (ONLY CAMERA & COUNTDOWN)
-   ========================================================================== */
+let video;
+let capturedPhotos = [];
 
-let videoCapture;            
-let p5Canvas;                
-let isSessionActive = false; 
+let countdownNumber = 3;
+let isCountingDown = false;
 
-let currentPhotoCount = 0;   
-const MAX_PHOTOS = 4;        
-let countdownTimer = null;   
+function setupCamera() {
 
-function setup() {
-  const cameraBox = document.querySelector('.camera-box');
-  if (!cameraBox) return;
+    // video element
+    video = createCapture(VIDEO);
 
-  const w = cameraBox.clientWidth;
-  const h = cameraBox.clientHeight;
+    video.size(400, 300);
 
-  // Создаем холст и привязываем его к HTML
-  p5Canvas = createCanvas(w, h);
-  p5Canvas.parent(cameraBox);
-
-  // Обычный запуск камеры БЕЗ подключения к сторонним ИИ-библиотекам
-  videoCapture = createCapture(VIDEO);
-  videoCapture.size(w, h);
-  videoCapture.hide(); 
+    video.hide();
 }
 
-function draw() {
-  background(0); // Черный фон по умолчанию
+// draw camera screen
+function drawCamera() {
 
-  if (videoCapture) {
-    // Эффект зеркала, чтобы удобно позировать
-    translate(width, 0);
-    scale(-1, 1);
-    
-    // Рисуем живое видео на холсте
-    image(videoCapture, 0, 0, width, height);
-    
-    // Возвращаем координаты обратно
-    scale(-1, 1);
-    translate(-width, 0);
-  }
+    image(video, 0, 0, 400, 300);
 
-  // Временно рисуем только конфетти (для красоты), пока ИИ отключен
-  if (typeof drawAROverlay === 'function') {
-    drawAROverlay(p5Canvas);
-  }
-}
+    // countdown text
+    if (isCountingDown) {
 
-function startPhotoSession() {
-  isSessionActive = true;
-  currentPhotoCount = 0;
-  window.AppState.capturedImages = []; 
+        fill(255);
+        textAlign(CENTER, CENTER);
 
-  setTimeout(() => {
-    runCountdownSequence();
-  }, 2000);
-}
+        textSize(80);
 
-function runCountdownSequence() {
-  if (currentPhotoCount >= MAX_PHOTOS) {
-    endPhotoSession();
-    return;
-  }
-
-  let timeLeft = 3; 
-  const countdownOverlay = document.getElementById("countdown-overlay");
-  
-  if (countdownOverlay) {
-    countdownOverlay.textContent = timeLeft;
-    countdownOverlay.classList.remove("hidden");
-  }
-
-  countdownTimer = setInterval(() => {
-    timeLeft--;
-    
-    if (timeLeft > 0) {
-      if (countdownOverlay) countdownOverlay.textContent = timeLeft;
-    } else {
-      clearInterval(countdownTimer);
-      if (countdownOverlay) countdownOverlay.classList.add("hidden");
-      triggerFlashAndCapture();
+        text(countdownNumber, 200, 150);
     }
-  }, 1000);
 }
 
-function triggerFlashAndCapture() {
-  const flashOverlay = document.getElementById("flash-overlay");
-  if (flashOverlay) {
-    flashOverlay.classList.add("flash-active");
-    setTimeout(() => {
-      flashOverlay.classList.remove("flash-active");
-    }, 350);
-  }
-  captureCanvasFrame();
+// start 4-photo capture
+function startPhotoSequence() {
+
+    if (isCountingDown) {
+        return;
+    }
+
+    capturedPhotos = [];
+
+    takePhotoSequence(0);
 }
 
-function captureCanvasFrame() {
-  let snapshot = get(); 
-  currentPhotoCount++;
+// recursive photo sequence
+function takePhotoSequence(index) {
 
-  window.AppState.capturedImages.push(snapshot);
+    if (index >= 4) {
 
-  if (currentPhotoCount < MAX_PHOTOS) {
-    setTimeout(() => {
-      runCountdownSequence();
-    }, 2000);
-  } else {
-    setTimeout(() => {
-      endPhotoSession();
+        console.log("4 photos captured!");
+        console.log(capturedPhotos);
+
+        return;
+    }
+
+    countdownNumber = 3;
+
+    isCountingDown = true;
+
+    let countdownInterval = setInterval(function() {
+
+        countdownNumber--;
+
+        if (countdownNumber <= 0) {
+
+            clearInterval(countdownInterval);
+
+            flashEffect();
+
+            captureCurrentPhoto();
+
+            isCountingDown = false;
+
+            setTimeout(function() {
+
+                takePhotoSequence(index + 1);
+
+            }, 800);
+        }
+
     }, 1000);
-  }
 }
 
-function endPhotoSession() {
-  isSessionActive = false;
-  switchScreen("result-screen");
+// capture image
+function captureCurrentPhoto() {
 
-  if (typeof renderPhotoStrip === "function") {
-    renderPhotoStrip();
-  }
+    let photo = get(0, 0, 400, 300);
+
+    capturedPhotos.push(photo);
+}
+
+// flash effect
+function flashEffect() {
+
+    fill(255);
+
+    rect(0, 0, width, height);
+}
+
+// preview photos
+function showCapturedPhotos() {
+
+    background(255);
+
+    for (let i = 0; i < capturedPhotos.length; i++) {
+
+        image(
+            capturedPhotos[i],
+            20 + i * 95,
+            320,
+            80,
+            60
+        );
+    }
 }
