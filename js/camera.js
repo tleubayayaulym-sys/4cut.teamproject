@@ -1,35 +1,72 @@
 let video;
+
 let capturedPhotos = [];
 
 let countdown = 0;
+
 let isCapturing = false;
+
+function setup() {
+
+    createCanvas(400, 400);
+
+    background(255, 240, 245);
+
+    textAlign(CENTER, CENTER);
+
+    textSize(24);
+
+    text("Loading Camera...", 200, 200);
+
+    setupCamera();
+}
 
 function setupCamera() {
 
-    video = createCapture(VIDEO);
+    video = createCapture({
+        video: true,
+        audio: false
+    });
 
     video.size(400, 300);
 
     video.hide();
 }
 
-function drawCamera() {
+function draw() {
 
-    // camera image
-    image(video, 0, 0, 400, 300);
+    background(255, 240, 245);
 
-    // countdown text
+    // camera
+    if (video) {
+
+        image(video, 0, 0, 400, 300);
+    }
+
+    // countdown
     if (countdown > 0) {
 
         fill(255);
-        stroke(0);
-        strokeWeight(4);
 
-        textAlign(CENTER, CENTER);
+        stroke(0);
+
+        strokeWeight(4);
 
         textSize(80);
 
         text(countdown, 200, 150);
+    }
+
+    // preview photos
+    for (let i = 0; i < capturedPhotos.length; i++) {
+
+        image(
+            capturedPhotos[i],
+            10 + i * 95,
+            320,
+            80,
+            60
+        );
     }
 }
 
@@ -52,14 +89,12 @@ function takePhoto(index) {
 
         isCapturing = false;
 
-        console.log("Done!");
-
         return;
     }
 
     countdown = 3;
 
-    let timer = setInterval(function() {
+    let timer = setInterval(() => {
 
         countdown--;
 
@@ -69,15 +104,15 @@ function takePhoto(index) {
 
             flashEffect();
 
-            let img = get(0, 0, 400, 300);
+            let img = video.get();
 
             capturedPhotos.push(img);
 
-            setTimeout(function() {
+            setTimeout(() => {
 
                 takePhoto(index + 1);
 
-            }, 800);
+            }, 1000);
         }
 
     }, 1000);
@@ -88,18 +123,4 @@ function flashEffect() {
     fill(255);
 
     rect(0, 0, width, height);
-}
-
-function showCapturedPhotos() {
-
-    for (let i = 0; i < capturedPhotos.length; i++) {
-
-        image(
-            capturedPhotos[i],
-            10 + i * 95,
-            320,
-            80,
-            60
-        );
-    }
 }
