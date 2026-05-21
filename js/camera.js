@@ -15,7 +15,7 @@ function setupCamera() {
         audio: false
     });
 
-    video.size(width, height);
+    video.size(windowWidth, windowHeight);
 
     video.hide();
 }
@@ -23,7 +23,13 @@ function setupCamera() {
 // draw camera
 function drawCamera() {
 
-    image(video, 0, 0, width, height);
+    image(
+        video,
+        0,
+        0,
+        windowWidth,
+        windowHeight
+    );
 
     // silver overlay
     fill(255, 255, 255, 40);
@@ -43,14 +49,17 @@ function drawCamera() {
 
         textSize(width * 0.15);
 
-        text(countdown, width / 2, height / 2);
+        text(
+            countdown,
+            width / 2,
+            height / 2
+        );
     }
 
-    // sparkle stars
     drawStars();
 }
 
-// start photo sequence
+// start sequence
 function startPhotoSequence() {
 
     if (isCapturing) {
@@ -102,7 +111,7 @@ function takePhoto(index) {
     }, 1000);
 }
 
-// flash effect
+// flash
 function flashEffect() {
 
     fill(255);
@@ -115,7 +124,7 @@ function drawStars() {
 
     noStroke();
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 20; i++) {
 
         fill(255, random(80, 180));
 
