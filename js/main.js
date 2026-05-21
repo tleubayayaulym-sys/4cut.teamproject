@@ -1,4 +1,4 @@
-let currentScreen = "start";
+et currentScreen = "start";
 
 // setup
 function setup() {
@@ -8,7 +8,7 @@ function setup() {
     setupCamera();
 }
 
-// draw loop
+// draw
 function draw() {
 
     background(220);
@@ -34,7 +34,7 @@ function draw() {
     }
 }
 
-// START SCREEN
+// start screen
 function drawStartScreen() {
 
     background(210, 210, 210);
@@ -98,7 +98,7 @@ function drawStartScreen() {
     );
 }
 
-// CAMERA BUTTON
+// capture button
 function drawCameraButton() {
 
     fill(245);
@@ -109,7 +109,7 @@ function drawCameraButton() {
 
     rect(
         width / 2 - width * 0.2,
-        height - 100,
+        height - 140,
         width * 0.4,
         60,
         20
@@ -126,28 +126,46 @@ function drawCameraButton() {
     text(
         "CAPTURE",
         width / 2,
-        height - 70
+        height - 110
     );
 }
 
-// RESULT SCREEN
+// result screen
 function drawResultScreen() {
 
     background(235);
 
-    // responsive strip
-    let stripWidth = width * 0.42;
+    let stripWidth;
 
-    let stripX = width / 2 - stripWidth / 2;
+    // mobile
+    if (width < 700) {
 
-    let photoWidth = stripWidth - 30;
+        stripWidth = width * 0.55;
+    }
 
-    let photoHeight = photoWidth * 0.75;
+    // desktop
+    else {
+
+        stripWidth = 260;
+    }
+
+    let stripX =
+        width / 2 - stripWidth / 2;
+
+    let photoWidth =
+        stripWidth - 20;
+
+    let photoHeight =
+        photoWidth * 0.75;
+
+    let gap = 12;
 
     let stripHeight =
-        photoHeight * 4 + 140;
+        photoHeight * 4 +
+        gap * 3 +
+        120;
 
-    // strip background
+    // strip
     fill(255);
 
     rect(
@@ -159,11 +177,13 @@ function drawResultScreen() {
     );
 
     // title
-    fill(160);
+    fill(170);
 
     textAlign(CENTER);
 
-    textSize(width * 0.06);
+    textSize(
+        min(width * 0.05, 28)
+    );
 
     text(
         "Your Photos ✨",
@@ -176,15 +196,15 @@ function drawResultScreen() {
 
         image(
             capturedPhotos[i],
-            stripX + 15,
-            100 + i * (photoHeight + 15),
+            stripX + 10,
+            100 + i * (photoHeight + gap),
             photoWidth,
             photoHeight
         );
     }
 }
 
-// mouse
+// click
 function mousePressed() {
 
     handleButtons();
@@ -218,8 +238,8 @@ function handleButtons() {
         currentScreen === "camera" &&
         mouseX > width / 2 - width * 0.2 &&
         mouseX < width / 2 + width * 0.2 &&
-        mouseY > height - 100 &&
-        mouseY < height - 40
+        mouseY > height - 140 &&
+        mouseY < height - 80
     ) {
 
         startPhotoSequence();
