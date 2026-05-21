@@ -6,70 +6,51 @@ let countdown = 0;
 
 let isCapturing = false;
 
-function setup() {
-
-    createCanvas(400, 400);
-
-    background(255, 240, 245);
-
-    textAlign(CENTER, CENTER);
-
-    textSize(24);
-
-    text("Loading Camera...", 200, 200);
-
-    setupCamera();
-}
-
+// setup camera
 function setupCamera() {
 
     video = createCapture({
+
         video: true,
         audio: false
     });
 
-    video.size(400, 300);
+    video.size(width, height);
 
     video.hide();
 }
 
-function draw() {
+// draw camera
+function drawCamera() {
 
-    background(255, 240, 245);
+    image(video, 0, 0, width, height);
 
-    // camera
-    if (video) {
+    // silver overlay
+    fill(255, 255, 255, 40);
 
-        image(video, 0, 0, 400, 300);
-    }
+    rect(0, 0, width, height);
 
     // countdown
     if (countdown > 0) {
 
         fill(255);
 
-        stroke(0);
+        stroke(180);
 
-        strokeWeight(4);
+        strokeWeight(6);
 
-        textSize(80);
+        textAlign(CENTER, CENTER);
 
-        text(countdown, 200, 150);
+        textSize(width * 0.15);
+
+        text(countdown, width / 2, height / 2);
     }
 
-    // preview photos
-    for (let i = 0; i < capturedPhotos.length; i++) {
-
-        image(
-            capturedPhotos[i],
-            10 + i * 95,
-            320,
-            80,
-            60
-        );
-    }
+    // sparkle stars
+    drawStars();
 }
 
+// start photo sequence
 function startPhotoSequence() {
 
     if (isCapturing) {
@@ -83,11 +64,14 @@ function startPhotoSequence() {
     takePhoto(0);
 }
 
+// take 4 photos
 function takePhoto(index) {
 
     if (index >= 4) {
 
         isCapturing = false;
+
+        currentScreen = "result";
 
         return;
     }
@@ -118,9 +102,27 @@ function takePhoto(index) {
     }, 1000);
 }
 
+// flash effect
 function flashEffect() {
 
     fill(255);
 
     rect(0, 0, width, height);
+}
+
+// stars
+function drawStars() {
+
+    noStroke();
+
+    for (let i = 0; i < 30; i++) {
+
+        fill(255, random(80, 180));
+
+        ellipse(
+            random(width),
+            random(height),
+            random(2, 5)
+        );
+    }
 }
