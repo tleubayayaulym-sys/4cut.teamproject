@@ -1,12 +1,11 @@
 let video;
 let capturedPhotos = [];
 
-let countdownNumber = 3;
-let isCountingDown = false;
+let countdown = 0;
+let isCapturing = false;
 
 function setupCamera() {
 
-    // video element
     video = createCapture(VIDEO);
 
     video.size(400, 300);
@@ -14,67 +13,69 @@ function setupCamera() {
     video.hide();
 }
 
-// draw camera screen
 function drawCamera() {
 
+    // camera image
     image(video, 0, 0, 400, 300);
 
     // countdown text
-    if (isCountingDown) {
+    if (countdown > 0) {
 
         fill(255);
+        stroke(0);
+        strokeWeight(4);
+
         textAlign(CENTER, CENTER);
 
         textSize(80);
 
-        text(countdownNumber, 200, 150);
+        text(countdown, 200, 150);
     }
 }
 
-// start 4-photo capture
 function startPhotoSequence() {
 
-    if (isCountingDown) {
+    if (isCapturing) {
         return;
     }
 
     capturedPhotos = [];
 
-    takePhotoSequence(0);
+    isCapturing = true;
+
+    takePhoto(0);
 }
 
-// recursive photo sequence
-function takePhotoSequence(index) {
+function takePhoto(index) {
 
     if (index >= 4) {
 
-        console.log("4 photos captured!");
-        console.log(capturedPhotos);
+        isCapturing = false;
+
+        console.log("Done!");
 
         return;
     }
 
-    countdownNumber = 3;
+    countdown = 3;
 
-    isCountingDown = true;
+    let timer = setInterval(function() {
 
-    let countdownInterval = setInterval(function() {
+        countdown--;
 
-        countdownNumber--;
+        if (countdown <= 0) {
 
-        if (countdownNumber <= 0) {
-
-            clearInterval(countdownInterval);
+            clearInterval(timer);
 
             flashEffect();
 
-            captureCurrentPhoto();
+            let img = get(0, 0, 400, 300);
 
-            isCountingDown = false;
+            capturedPhotos.push(img);
 
             setTimeout(function() {
 
-                takePhotoSequence(index + 1);
+                takePhoto(index + 1);
 
             }, 800);
         }
@@ -82,15 +83,6 @@ function takePhotoSequence(index) {
     }, 1000);
 }
 
-// capture image
-function captureCurrentPhoto() {
-
-    let photo = get(0, 0, 400, 300);
-
-    capturedPhotos.push(photo);
-}
-
-// flash effect
 function flashEffect() {
 
     fill(255);
@@ -98,16 +90,13 @@ function flashEffect() {
     rect(0, 0, width, height);
 }
 
-// preview photos
 function showCapturedPhotos() {
-
-    background(255);
 
     for (let i = 0; i < capturedPhotos.length; i++) {
 
         image(
             capturedPhotos[i],
-            20 + i * 95,
+            10 + i * 95,
             320,
             80,
             60
