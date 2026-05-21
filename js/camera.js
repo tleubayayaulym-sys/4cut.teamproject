@@ -20,9 +20,10 @@ function setupCamera() {
     video.hide();
 }
 
-// draw camera
+// draw camera screen
 function drawCamera() {
 
+    // camera
     image(
         video,
         0,
@@ -32,9 +33,26 @@ function drawCamera() {
     );
 
     // silver overlay
-    fill(255, 255, 255, 40);
+    fill(255, 255, 255, 35);
 
     rect(0, 0, width, height);
+
+    // title
+    fill(255);
+
+    stroke(180);
+
+    strokeWeight(3);
+
+    textAlign(CENTER, CENTER);
+
+    textSize(min(width * 0.06, 32));
+
+    text(
+        "Silver Photo Booth ✨",
+        width / 2,
+        40
+    );
 
     // countdown
     if (countdown > 0) {
@@ -45,8 +63,6 @@ function drawCamera() {
 
         strokeWeight(6);
 
-        textAlign(CENTER, CENTER);
-
         textSize(width * 0.15);
 
         text(
@@ -56,6 +72,10 @@ function drawCamera() {
         );
     }
 
+    // preview photos
+    drawPhotoPreview();
+
+    // stars
     drawStars();
 }
 
@@ -133,5 +153,64 @@ function drawStars() {
             random(height),
             random(2, 5)
         );
+    }
+}
+
+// preview photos
+function drawPhotoPreview() {
+
+    let previewSize;
+
+    // mobile
+    if (width < 700) {
+
+        previewSize = width * 0.18;
+    }
+
+    // desktop
+    else {
+
+        previewSize = 110;
+    }
+
+    let gap = 10;
+
+    let totalWidth =
+        previewSize * 4 + gap * 3;
+
+    let startX =
+        width / 2 - totalWidth / 2;
+
+    let y =
+        height - previewSize - 20;
+
+    // slots
+    for (let i = 0; i < 4; i++) {
+
+        fill(255, 180);
+
+        stroke(200);
+
+        strokeWeight(2);
+
+        rect(
+            startX + i * (previewSize + gap),
+            y,
+            previewSize,
+            previewSize * 0.75,
+            12
+        );
+
+        // image
+        if (capturedPhotos[i]) {
+
+            image(
+                capturedPhotos[i],
+                startX + i * (previewSize + gap),
+                y,
+                previewSize,
+                previewSize * 0.75
+            );
+        }
     }
 }
