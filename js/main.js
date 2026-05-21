@@ -1,146 +1,206 @@
-/* ==========================================================================
-   ГЛАВНЫЙ СКРИПТ УПРАВЛЕНИЯ ПРИЛОЖЕНИЕМ (MAIN LOGIC)
-   ========================================================================== */
+let currentScreen = "start";
 
-// Ждем полной загрузки DOM-структуры страницы
-document.addEventListener("DOMContentLoaded", () => {
-  initApp();
-});
+// setup
+function setup() {
 
-// Глобальный объект состояния приложения (переменные для всей команды)
-window.AppState = {
-  currentScreen: "start-screen", // Название активного экрана
-  selectedFilter: "none",        // Выбранный AR-фильтр
-  selectedFrame: "frame-1",      // Выбранная фоторамка
-  capturedImages: []             // Массив для хранения 4 фоток
-};
+    createCanvas(windowWidth, windowHeight);
 
-/**
- * Инициализация приложения, поиск элементов и навешивание кликов
- */
-function initApp() {
-  console.log("🚀 Фотобудка успешно инициализирована!");
-
-  // --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА ---
-  const btnStart = document.getElementById("btn-start");
-  const btnCapture = document.getElementById("btn-capture"); // Временная кнопка для теста
-  const btnSave = document.getElementById("btn-save");
-  const btnRestart = document.getElementById("btn-restart");
-  
-  const filterItems = document.querySelectorAll(".filter-item");
-  const frameItems = document.querySelectorAll(".frame-item");
-
-  // --- НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ ---
-  
-  // Клик "Начать" на стартовом экране
-  if (btnStart) {
-    btnStart.addEventListener("click", () => {
-      switchScreen("camera-screen");
-      // Здесь Тлеубай Аяулым в будущем запустит камеру: startCamera();
-    });
-  }
-
-  // Временная кнопка симуляции съемки 4 кадров (для тестов, пока нет камеры)
-  if (btnCapture) {
-    btnCapture.addEventListener("click", () => {
-      simulatePhotoSession();
-    });
-  }
-
-  // Клик "Сохранить" на экране результата
-  if (btnSave) {
-    btnSave.addEventListener("click", () => {
-      // Здесь Май Ти Ту Чжанг вызовет свою функцию: savePhotoStrip();
-      alert("💾 Функция сохранения сработает, когда Май напишет result.js!");
-    });
-  }
-
-  // Клик "Главный экран" (Сброс всего)
-  if (btnRestart) {
-    btnRestart.addEventListener("click", () => {
-      resetApp();
-    });
-  }
-
-  // --- ЛОГИКА ВЫБОРА ФИЛЬТРОВ (Для Нгуен Бао Дам) ---
-  filterItems.forEach(item => {
-    item.addEventListener("click", (e) => {
-      // Убираем активный класс у всех и даем текущему
-      filterItems.forEach(i => i.classList.remove("active"));
-      const selectedItem = e.currentTarget;
-      selectedItem.classList.add("active");
-      
-      // Обновляем глобальный статус
-      window.AppState.selectedFilter = selectedItem.dataset.filter;
-      console.log(`🎭 Выбран фильтр: ${window.AppState.selectedFilter}`);
-    });
-  });
-
-  // --- ЛОГИКА ВЫБОРА РАМОК (Для Май Ти Ту Чжанг) ---
-  frameItems.forEach(item => {
-    item.addEventListener("click", (e) => {
-      frameItems.forEach(i => i.classList.remove("active"));
-      const selectedItem = e.currentTarget;
-      selectedItem.classList.add("active");
-      
-      window.AppState.selectedFrame = selectedItem.dataset.frame;
-      console.log(`🖼️ Выбрана рамка: ${window.AppState.selectedFrame}`);
-      // Здесь Май вызовет перерисовку канваса с новой рамкой: redrawCanvas();
-    });
-  });
+    setupCamera();
 }
 
-/**
- * Переключение экранов
- * @param {string} screenId - ID экрана, который нужно показать
- */
-function switchScreen(screenId) {
-  // Скрываем все экраны, добавляя класс .hidden
-  document.querySelectorAll(".screen").forEach(screen => {
-    screen.classList.add("hidden");
-  });
+// draw loop
+function draw() {
 
-  // Показываем нужный экран, удаляя .hidden
-  const targetScreen = document.getElementById(screenId);
-  if (targetScreen) {
-    targetScreen.classList.remove("hidden");
-    window.AppState.currentScreen = screenId;
-    console.log(`📺 Переключение на экран: ${screenId}`);
-  }
+    background(220);
+
+    // START SCREEN
+    if (currentScreen === "start") {
+
+        drawStartScreen();
+    }
+
+    // CAMERA SCREEN
+    else if (currentScreen === "camera") {
+
+        drawCamera();
+
+        drawCameraButton();
+    }
+
+    // RESULT SCREEN
+    else if (currentScreen === "result") {
+
+        drawResultScreen();
+    }
 }
 
-/**
- * Временная функция: Симуляция автоматической съемки 4 кадров
- */
-function simulatePhotoSession() {
-  console.log("📸 Запуск симуляции съемки 4 кадров...");
-  
-  // В будущем тут будет интервал Тлеубай Аяулым со вспышкой и звуком.
-  // Сейчас мы просто мгновенно забиваем массив фейковыми данными
-  window.AppState.capturedImages = ["img1", "img2", "img3", "img4"];
-  
-  alert("📸 Снято 4 кадра! Переходим к результату.");
-  switchScreen("result-screen");
+// START SCREEN
+function drawStartScreen() {
+
+    background(210, 210, 210);
+
+    // silver glow
+    fill(255, 120);
+
+    ellipse(width / 2, height / 2, 500);
+
+    // title
+    fill(255);
+
+    stroke(170);
+
+    strokeWeight(4);
+
+    textAlign(CENTER, CENTER);
+
+    textSize(width * 0.07);
+
+    text("Silver Photo Booth ✨", width / 2, height * 0.25);
+
+    // bow
+    textSize(width * 0.1);
+
+    text("🎀", width / 2, height * 0.38);
+
+    // start button
+    fill(245);
+
+    stroke(180);
+
+    strokeWeight(3);
+
+    rect(
+        width / 2 - 120,
+        height * 0.65,
+        240,
+        70,
+        20
+    );
+
+    fill(120);
+
+    noStroke();
+
+    textSize(28);
+
+    text(
+        "START",
+        width / 2,
+        height * 0.65 + 35
+    );
 }
 
-/**
- * Полный сброс приложения в начальное состояние
- */
-function resetApp() {
-  window.AppState.capturedImages = [];
-  window.AppState.selectedFilter = "none";
-  window.AppState.selectedFrame = "frame-1";
-  
-  // Сбрасываем визуальные активные классы на дефолт
-  document.querySelectorAll(".filter-item").forEach(i => i.classList.remove("active"));
-  document.querySelectorAll(".frame-item").forEach(i => i.classList.remove("active"));
-  
-  const defaultFilter = document.querySelector('[data-filter="none"]');
-  const defaultFrame = document.querySelector('[data-frame="frame-1"]');
-  
-  if (defaultFilter) defaultFilter.classList.add("active");
-  if (defaultFrame) defaultFrame.classList.add("active");
+// camera button
+function drawCameraButton() {
 
-  switchScreen("start-screen");
-  console.log("🔄 Состояние приложения сброшено.");
+    fill(245);
+
+    stroke(180);
+
+    strokeWeight(3);
+
+    rect(
+        width / 2 - 110,
+        height - 100,
+        220,
+        60,
+        20
+    );
+
+    fill(120);
+
+    noStroke();
+
+    textAlign(CENTER, CENTER);
+
+    textSize(24);
+
+    text(
+        "CAPTURE",
+        width / 2,
+        height - 70
+    );
+}
+
+// result screen
+function drawResultScreen() {
+
+    background(235);
+
+    fill(255);
+
+    rect(width / 2 - 110, 40, 220, height - 80, 30);
+
+    // title
+    fill(160);
+
+    textAlign(CENTER);
+
+    textSize(30);
+
+    text(
+        "Your Photos ✨",
+        width / 2,
+        90
+    );
+
+    // photos
+    for (let i = 0; i < capturedPhotos.length; i++) {
+
+        image(
+            capturedPhotos[i],
+            width / 2 - 80,
+            120 + i * 140,
+            160,
+            120
+        );
+    }
+}
+
+// mouse
+function mousePressed() {
+
+    handleButtons();
+}
+
+// touch
+function touchStarted() {
+
+    handleButtons();
+
+    return false;
+}
+
+// buttons
+function handleButtons() {
+
+    // START
+    if (
+        currentScreen === "start" &&
+        mouseX > width / 2 - 120 &&
+        mouseX < width / 2 + 120 &&
+        mouseY > height * 0.65 &&
+        mouseY < height * 0.65 + 70
+    ) {
+
+        currentScreen = "camera";
+    }
+
+    // CAPTURE
+    else if (
+        currentScreen === "camera" &&
+        mouseX > width / 2 - 110 &&
+        mouseX < width / 2 + 110 &&
+        mouseY > height - 100 &&
+        mouseY < height - 40
+    ) {
+
+        startPhotoSequence();
+    }
+}
+
+// resize
+function windowResized() {
+
+    resizeCanvas(windowWidth, windowHeight);
 }
