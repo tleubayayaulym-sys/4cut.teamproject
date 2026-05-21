@@ -1,50 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
 
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+  <title>Photo Booth</title>
 
-    <title>My Photo Booth</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-    <h1>My Photo Booth 📸</h1>
+  <h1>My Photo Booth 📸</h1>
 
-    <button onclick="startPhotoSequence()">
-        START PHOTO
-    </button>
+  <button onclick="startPhotoSequence()">
+    START PHOTO
+  </button>
 
-    <script src="js/camera.js"></script>
-
-    <script>
-
-        function setup() {
-
-            createCanvas(400, 400);
-
-            setupCamera();
-        }
-
-        function draw() {
-
-            background(255, 240, 245);
-
-            drawCamera();
-
-            showCapturedPhotos();
-        }
-
-    </script>
+  <script src="js/camera.js"></script>
 
 </body>
 
