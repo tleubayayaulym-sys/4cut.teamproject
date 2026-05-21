@@ -39,10 +39,10 @@ function drawStartScreen() {
 
     background(210, 210, 210);
 
-    // silver glow
+    // glow
     fill(255, 120);
 
-    ellipse(width / 2, height / 2, 500);
+    ellipse(width / 2, height / 2, width * 0.7);
 
     // title
     fill(255);
@@ -53,14 +53,22 @@ function drawStartScreen() {
 
     textAlign(CENTER, CENTER);
 
-    textSize(width * 0.07);
+    textSize(width * 0.08);
 
-    text("Silver Photo Booth ✨", width / 2, height * 0.25);
+    text(
+        "Silver Photo Booth ✨",
+        width / 2,
+        height * 0.22
+    );
 
     // bow
-    textSize(width * 0.1);
+    textSize(width * 0.12);
 
-    text("🎀", width / 2, height * 0.38);
+    text(
+        "🎀",
+        width / 2,
+        height * 0.35
+    );
 
     // start button
     fill(245);
@@ -70,9 +78,9 @@ function drawStartScreen() {
     strokeWeight(3);
 
     rect(
-        width / 2 - 120,
-        height * 0.65,
-        240,
+        width / 2 - width * 0.22,
+        height * 0.68,
+        width * 0.44,
         70,
         20
     );
@@ -81,16 +89,16 @@ function drawStartScreen() {
 
     noStroke();
 
-    textSize(28);
+    textSize(width * 0.05);
 
     text(
         "START",
         width / 2,
-        height * 0.65 + 35
+        height * 0.68 + 35
     );
 }
 
-// camera button
+// CAMERA BUTTON
 function drawCameraButton() {
 
     fill(245);
@@ -100,9 +108,9 @@ function drawCameraButton() {
     strokeWeight(3);
 
     rect(
-        width / 2 - 110,
+        width / 2 - width * 0.2,
         height - 100,
-        220,
+        width * 0.4,
         60,
         20
     );
@@ -113,7 +121,7 @@ function drawCameraButton() {
 
     textAlign(CENTER, CENTER);
 
-    textSize(24);
+    textSize(width * 0.05);
 
     text(
         "CAPTURE",
@@ -122,26 +130,45 @@ function drawCameraButton() {
     );
 }
 
-// result screen
+// RESULT SCREEN
 function drawResultScreen() {
 
     background(235);
 
+    // responsive strip
+    let stripWidth = width * 0.42;
+
+    let stripX = width / 2 - stripWidth / 2;
+
+    let photoWidth = stripWidth - 30;
+
+    let photoHeight = photoWidth * 0.75;
+
+    let stripHeight =
+        photoHeight * 4 + 140;
+
+    // strip background
     fill(255);
 
-    rect(width / 2 - 110, 40, 220, height - 80, 30);
+    rect(
+        stripX,
+        30,
+        stripWidth,
+        stripHeight,
+        30
+    );
 
     // title
     fill(160);
 
     textAlign(CENTER);
 
-    textSize(30);
+    textSize(width * 0.06);
 
     text(
         "Your Photos ✨",
         width / 2,
-        90
+        70
     );
 
     // photos
@@ -149,10 +176,10 @@ function drawResultScreen() {
 
         image(
             capturedPhotos[i],
-            width / 2 - 80,
-            120 + i * 140,
-            160,
-            120
+            stripX + 15,
+            100 + i * (photoHeight + 15),
+            photoWidth,
+            photoHeight
         );
     }
 }
@@ -177,10 +204,10 @@ function handleButtons() {
     // START
     if (
         currentScreen === "start" &&
-        mouseX > width / 2 - 120 &&
-        mouseX < width / 2 + 120 &&
-        mouseY > height * 0.65 &&
-        mouseY < height * 0.65 + 70
+        mouseX > width / 2 - width * 0.22 &&
+        mouseX < width / 2 + width * 0.22 &&
+        mouseY > height * 0.68 &&
+        mouseY < height * 0.68 + 70
     ) {
 
         currentScreen = "camera";
@@ -189,8 +216,8 @@ function handleButtons() {
     // CAPTURE
     else if (
         currentScreen === "camera" &&
-        mouseX > width / 2 - 110 &&
-        mouseX < width / 2 + 110 &&
+        mouseX > width / 2 - width * 0.2 &&
+        mouseX < width / 2 + width * 0.2 &&
         mouseY > height - 100 &&
         mouseY < height - 40
     ) {
