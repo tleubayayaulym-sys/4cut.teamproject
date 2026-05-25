@@ -1,33 +1,34 @@
 /* ==========================================================================
-   ЛОГИКА РЕЗУЛЬТАТА, ВЫБОРА РАМОК И СОХРАНЕНИЯ (RESULT & CANVAS LOGIC)
+   js/result.js-담당:마이티투짱 
+   결과 로직, 프레임 선택 및 저장 
    ========================================================================== */
 
 /**
- * Отрисовка финального фотострипа (Вызывается автоматически из camera.js)
+ * 최종 포토 스트립 렌더링 (camera.js에서 자동 호출됨)
  */
 function renderPhotoStrip() {
-  console.log("🖼️ Сборка фотострипа началась...");
+  console.log("🖼️ 포토 스트립 생성 시작...");
 
-  // Получаем данные из глобального состояния приложения
+  // 앱 전역 상태에서 데이터 가져오기
   const photos = window.AppState.capturedImages;
   const currentFrame = window.AppState.selectedFrame;
   
-  // Находим контейнер для предпросмотра на экране результатов
+  // 결과 화면의 컨테이너 찾기
   const resultWrapper = document.getElementById("result-view-wrapper");
   if (!resultWrapper) {
-    console.error("❌ Элемент #result-view-wrapper не найден в HTML!");
+    console.error("❌ #result-view-wrapper 요소를 찾을 수 없습니다!");
     return;
   }
 
-  // Очищаем контейнер перед новой сборкой
+  // 기존 내용 초기화
   resultWrapper.innerHTML = "";
 
-  // 1. Создаем структуру фотострипа (вертикальная полоска)
+  // 1. 포토 스트립 구조 생성 (세로 형태)
   const photoStrip = document.createElement("div");
   photoStrip.id = "generated-photo-strip";
   
-  // Задаем стили для полоски в зависимости от выбранной рамки
-  // В будущем здесь будут полноценные PNG-картинки из assets/frames/
+  // 선택된 프레임에 따른 스타일 적용
+  // (추후 assets/frames의 PNG 이미지로 교체 예정)
   photoStrip.style.width = "100%";
   photoStrip.style.height = "100%";
   photoStrip.style.display = "flex";
@@ -37,30 +38,30 @@ function renderPhotoStrip() {
   photoStrip.style.padding = "20px 15px 40px 15px";
   photoStrip.style.position = "relative";
   
-  // Применяем цвет рамки в зависимости от выбора пользователя (для теста)
+  // 프레임 스타일 적용 (임시 테스트용)
   applyMockFrameStyle(photoStrip, currentFrame);
 
-  // 2. Добавляем 4 фотографии (последовательно сверху вниз)
+  // 2. 4장의 사진 추가 (위에서 아래로)
   photos.forEach((photoData, index) => {
     const photoCell = document.createElement("div");
     photoCell.className = "photo-cell";
     photoCell.style.width = "100%";
-    photoCell.style.aspectRatio = "4 / 3"; // Классический формат кадра
+    photoCell.style.aspectRatio = "4 / 3"; // 기본 사진 비율
     photoCell.style.borderRadius = "4px";
-    photoCell.style.backgroundColor = photoData; // Используем цвет-заглушку из camera.js
+    photoCell.style.backgroundColor = photoData; // camera.js에서 전달된 데이터
     
-    // Текст для наглядности внутри каждого кадра
+    // 각 사진 번호 표시
     photoCell.style.display = "flex";
     photoCell.style.justifyContent = "center";
     photoCell.style.alignItems = "center";
     photoCell.style.color = "#fff";
     photoCell.style.fontWeight = "bold";
-    photoCell.innerHTML = `Кадр ${index + 1}`;
+    photoCell.innerHTML = `사진 ${index + 1}`;
 
     photoStrip.appendChild(photoCell);
   });
 
-  // 3. ДОБАВЛЕНИЕ ТЕКУЩЕЙ ДАТЫ (Логика Май Ти Ту Чжанг)
+  // 3. 현재 날짜 추가 (마이티투짱 담당 기능)
   const dateElement = document.createElement("div");
   dateElement.className = "strip-date";
   dateElement.innerText = getFormattedDate();
@@ -70,19 +71,18 @@ function renderPhotoStrip() {
   dateElement.style.fontWeight = "600";
   dateElement.style.letterSpacing = "1px";
   
-  // Цвет даты меняется под цвет текста на рамке
+  // 프레임에 따라 날짜 색상 변경
   dateElement.style.color = (currentFrame === "frame-2") ? "#333333" : "#ffffff";
 
   photoStrip.appendChild(dateElement);
 
-  // Вставляем готовую полоску в контейнер на экране
+  // 결과 화면에 추가
   resultWrapper.appendChild(photoStrip);
-  console.log("🎉 Фотострип успешно собран и выведен на экран!");
+  console.log("🎉 포토 스트립 생성 완료!");
 }
 
 /**
- * Получение текущей даты в красивом формате (YYYY.MM.DD)
- * @returns {string} - Отформатированная строка даты
+ * 현재 날짜를 YYYY.MM.DD 형식으로 반환
  */
 function getFormattedDate() {
   const now = new Date();
@@ -93,24 +93,24 @@ function getFormattedDate() {
 }
 
 /**
- * ВРЕМЕННАЯ ФУНКЦИЯ: Применение цвета рамок (пока нет картинок PNG)
+ * 임시 프레임 스타일 적용 (PNG 이미지 전 단계)
  */
 function applyMockFrameStyle(element, frameType) {
   switch (frameType) {
     case "frame-1":
-      element.style.backgroundColor = "#1a1a1a"; // Классический черный
+      element.style.backgroundColor = "#1a1a1a";
       element.style.border = "2px solid #333";
       break;
     case "frame-2":
-      element.style.backgroundColor = "#f5f5f5"; // Белый минимализм
+      element.style.backgroundColor = "#f5f5f5";
       element.style.border = "2px solid #ddd";
       break;
     case "frame-3":
-      element.style.backgroundColor = "#ff758c"; // Розовый неон
+      element.style.backgroundColor = "#ff758c";
       element.style.border = "2px solid #ff758c";
       break;
     case "frame-4":
-      element.style.backgroundColor = "#4776e6"; // Синий градиент
+      element.style.backgroundColor = "#4776e6";
       element.style.border = "2px solid #4776e6";
       break;
     default:
@@ -119,12 +119,10 @@ function applyMockFrameStyle(element, frameType) {
 }
 
 /**
- * Имитация функции saveCanvas для скачивания готовой фотополоски
+ * 포토 스트립 다운로드 (saveCanvas 대체 기능)
  */
 function downloadPhotoStrip() {
-  console.log("💾 Запуск сохранения фотострипа...");
+  console.log("💾 포토 스트립 저장 시작...");
   
-  // В будущем здесь будет реальная функция p5.js: saveCanvas(canvas, 'my-four-cuts', 'png');
-  // Сейчас мы делаем симуляцию скачивания файла
-  alert(`🎉 Успешно сохранено!\nРамка: ${window.AppState.selectedFrame}\nДата: ${getFormattedDate()}`);
+  alert(`🎉 저장 완료!\n프레임: ${window.AppState.selectedFrame}\n날짜: ${getFormattedDate()}`);
 }
