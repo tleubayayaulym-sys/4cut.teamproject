@@ -7,19 +7,7 @@
 // ---------- ML5 FaceMesh state ----------
 // facemesh, facePredictions, faceReady, particles — sketch.js에서 선언됨 (중복 방지)
 
-// Particle 인덱스 상수 (가독성)
-const P_X     = 0;
-const P_Y     = 1;
-const P_SIZE  = 2;
-const P_SPX   = 3;
-const P_SPY   = 4;
-const P_COL   = 5;
-const P_ALPHA = 6;
-const MAX_PARTICLES = 60;
 
-// 비디오 → 캔버스 스케일
-const SCALE_X = CAM_W / 640;
-const SCALE_Y = CAM_H / 480;
 
 // ============================================================
 // CALLBACK — ml5가 예측 결과를 전달하는 함수
