@@ -1,4 +1,3 @@
-
 let cam;
 let state = "start";
 
