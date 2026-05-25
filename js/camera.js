@@ -154,8 +154,9 @@ function drawPhotoPreview() {
         previewWidth = 95;
     }
 
+    // square
     let previewHeight =
-        previewWidth * 1.35;
+        previewWidth;
 
     let gap = 10;
 
@@ -213,4 +214,3 @@ function drawPhotoPreview() {
         }
     }
 }
-
