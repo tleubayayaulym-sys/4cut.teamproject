@@ -123,3 +123,20 @@ function drawCamera() {
     text(countdown, width / 2, height / 2);
   }
 }
+function mousePressed() {
+  console.log("clicked", mouseX, mouseY, "state:", state);
+
+  if (state == "start") {
+    state = "settings";
+  } 
+  
+  else if (state == "settings") {
+    state = "camera";
+  } 
+  
+  else if (state == "camera") {
+    if (!counting) {
+      startCountdown();
+    }
+  }
+  
