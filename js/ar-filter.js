@@ -21,7 +21,6 @@ const CAM_H = 360;
 // INIT — call once in setup(), pass the p5 cam element
 // ============================================================
 function initFaceMesh(camElement) {
-  // camElement = the raw HTMLVideoElement from p5's createCapture
   const videoEl = camElement.elt;
 
   faceMesh = new FaceMesh({
@@ -30,13 +29,12 @@ function initFaceMesh(camElement) {
   });
 
   faceMesh.setOptions({
-    maxNumFaces:          1,
-    refineLandmarks:      true,   // enables iris landmarks (478 total)
+    maxNumFaces:            1,
+    refineLandmarks:        true,
     minDetectionConfidence: 0.5,
     minTrackingConfidence:  0.5
   });
 
-  // Store latest landmarks whenever FaceMesh sends results
   faceMesh.onResults((results) => {
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       faceLandmarks = results.multiFaceLandmarks[0];
@@ -45,14 +43,20 @@ function initFaceMesh(camElement) {
     }
   });
 
-  // Use MediaPipe Camera utils to feed frames to FaceMesh
-  const mpCamera = new Camera(videoEl, {
-    onFrame: async () => {
-      await faceMesh.send({ image: videoEl });
-    },
-    width:  640,
-    height: 480
-  });
+  faceReady = true;
+
+  // Dùng setInterval thay vì MediaPipe Camera (tránh conflict với p5.js)
+  let isProcessing = false;
+  setInterval(async () => {
+    if (!isProcessing && videoEl.readyState >= 2) {
+      isProcessing = true;
+      try {
+        await faceMesh.send({ image: videoEl });
+      } catch (e) {}
+      isProcessing = false;
+    }
+  }, 67); // ~15fps
+}
   mpCamera.start();
   faceReady = true;
 }
