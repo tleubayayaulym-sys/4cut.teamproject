@@ -9,12 +9,7 @@ let isCapturing = false;
 // 카메라 설정
 function setupCamera() {
 
-    video = createCapture(
-        VIDEO,
-        () => {
-            console.log("camera ready");
-        }
-    );
+    video = createCapture(VIDEO);
 
     video.size(
         windowWidth,
@@ -27,7 +22,9 @@ function setupCamera() {
 // 카메라 화면
 function drawCamera() {
 
-    // camera fullscreen
+    imageMode(CORNER);
+
+    // fullscreen camera
     image(
         video,
         0,
@@ -58,7 +55,7 @@ function drawCamera() {
         );
     }
 
-    // preview photos
+    // preview
     drawPhotoPreview();
 }
 
@@ -95,7 +92,6 @@ function takePhoto(index) {
 
         countdown--;
 
-        // capture
         if (countdown <= 0) {
 
             clearInterval(timer);
@@ -108,7 +104,6 @@ function takePhoto(index) {
 
             capturedPhotos.push(img);
 
-            // next photo
             setTimeout(() => {
 
                 takePhoto(index + 1);
@@ -123,6 +118,8 @@ function takePhoto(index) {
 function flashEffect() {
 
     push();
+
+    rectMode(CORNER);
 
     fill(255);
 
@@ -141,6 +138,8 @@ function flashEffect() {
 // preview
 function drawPhotoPreview() {
 
+    rectMode(CORNER);
+
     let previewWidth;
 
     // mobile
@@ -155,7 +154,6 @@ function drawPhotoPreview() {
         previewWidth = 95;
     }
 
-    // portrait ratio
     let previewHeight =
         previewWidth * 1.35;
 
@@ -169,15 +167,15 @@ function drawPhotoPreview() {
         width / 2 -
         totalWidth / 2;
 
-    // higher than button
+    // above button
     let y =
         height -
         previewHeight -
         100;
 
-    // slots
     for (let i = 0; i < 4; i++) {
 
+        // frame
         fill(255);
 
         stroke("#ff4d6d");
@@ -215,3 +213,4 @@ function drawPhotoPreview() {
         }
     }
 }
+
