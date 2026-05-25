@@ -1,4 +1,4 @@
-et currentScreen = "start";
+let currentScreen = "start";
 
 // setup
 function setup() {
