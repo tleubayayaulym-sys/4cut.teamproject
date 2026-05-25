@@ -1,43 +1,44 @@
-// ============================================================
 // ar-filter.js — 담당: 응웬 바오 담 (Tamy)
-// ML5.js FaceMesh 기반 실시간 AR 필터 + 파티클 시스템
-// ============================================================
+// MediaPipe FaceMesh 기반 AR 필터 + 파티클 시스템
 
-// ---------- ML5 FaceMesh state ----------
-let facemesh;
-let facePredictions = [];
-let faceReady       = false;
-
-// ---------- Particles (2D 배열 사용) ----------
+let faceMesh = null;
+let faceLandmarks = null;
+let faceReady = false;
 let particles = [];
 
-// ============================================================
-// INIT
-// ============================================================
 function initFaceMesh(camElement) {
-  facemesh = ml5.faceMesh(camElement, { maxFaces: 1 }, () => {
-    faceReady = true;
-    console.log("ML5 FaceMesh 로딩 완료!");
+  const videoEl = camElement.elt;
+  faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
   });
-
-  facemesh.on("predict", (results) => {
-    facePredictions = results;
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
   });
+  faceMesh.onResults((results) => {
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      faceLandmarks = results.multiFaceLandmarks[0];
+    } else {
+      faceLandmarks = null;
+    }
+  });
+  faceReady = true;
+  let isProcessing = false;
+  setInterval(async () => {
+    if (!isProcessing && videoEl.readyState >= 2) {
+      isProcessing = true;
+      try { await faceMesh.send({ image: videoEl }); } catch (e) {}
+      isProcessing = false;
+    }
+  }, 67);
 }
 
-// ============================================================
-// 좌표 변환 헬퍼
-// ============================================================
 function lm(index, camX, camY) {
-  if (!facePredictions || facePredictions.length === 0) return { x: camX, y: camY };
-  let mesh = facePredictions[0].scaledMesh;
-  if (!mesh || index >= mesh.length) return { x: camX, y: camY };
-  let vx = mesh[index][0];
-  let vy = mesh[index][1];
-  return {
-    x: camX + (CAM_W / 2 - vx * (CAM_W / 640)),
-    y: camY - CAM_H / 2 + vy * (CAM_H / 480)
-  };
+  if (!faceLandmarks || index >= faceLandmarks.length) return { x: camX, y: camY };
+  let l = faceLandmarks[index];
+  return { x: camX + (l.x - 0.5) * CAM_W, y: camY + (l.y - 0.5) * CAM_H };
 }
 
 function faceWidth(camX, camY) {
@@ -46,15 +47,8 @@ function faceWidth(camX, camY) {
   return dist(left.x, left.y, right.x, right.y);
 }
 
-function hasFace() {
-  return facePredictions && facePredictions.length > 0;
-}
-
-// ============================================================
-// MAIN DRAW
-// ============================================================
 function drawARFilter(camX, camY, filterType) {
-  if (hasFace()) {
+  if (faceLandmarks) {
     if      (filterType === 0) drawCatFilter_tracked(camX, camY);
     else if (filterType === 1) drawRabbitFilter_tracked(camX, camY);
     else if (filterType === 2) drawGlassesFilter_tracked(camX, camY);
@@ -64,41 +58,37 @@ function drawARFilter(camX, camY, filterType) {
   }
 }
 
-// ============================================================
-// TRACKED FILTERS
-// ============================================================
 function drawCatFilter_tracked(camX, camY) {
   push();
-  let nose       = lm(1,   camX, camY);
-  let topHead    = lm(10,  camX, camY);
-  let leftCheek  = lm(234, camX, camY);
+  let nose = lm(1, camX, camY);
+  let topHead = lm(10, camX, camY);
+  let leftCheek = lm(234, camX, camY);
   let rightCheek = lm(454, camX, camY);
-  let scale      = faceWidth(camX, camY) / 180;
+  let scale = faceWidth(camX, camY) / 180;
   let cx = nose.x, cy = topHead.y;
   fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2 * scale);
   triangle(cx-110*scale, cy, cx-75*scale, cy-90*scale, cx-35*scale, cy);
-  triangle(cx+35*scale,  cy, cx+75*scale, cy-90*scale, cx+110*scale, cy);
+  triangle(cx+35*scale, cy, cx+75*scale, cy-90*scale, cx+110*scale, cy);
   fill("#ff9ab0"); noStroke();
   triangle(cx-100*scale, cy-5*scale, cx-75*scale, cy-78*scale, cx-48*scale, cy-5*scale);
-  triangle(cx+48*scale,  cy-5*scale, cx+75*scale, cy-78*scale, cx+100*scale, cy-5*scale);
+  triangle(cx+48*scale, cy-5*scale, cx+75*scale, cy-78*scale, cx+100*scale, cy-5*scale);
   stroke("#999"); strokeWeight(1.5 * scale);
-  line(leftCheek.x,  leftCheek.y-10*scale,  leftCheek.x-70*scale,  leftCheek.y-15*scale);
-  line(leftCheek.x,  leftCheek.y,            leftCheek.x-70*scale,  leftCheek.y);
-  line(leftCheek.x,  leftCheek.y+10*scale,   leftCheek.x-70*scale,  leftCheek.y+12*scale);
-  line(rightCheek.x, rightCheek.y-10*scale,  rightCheek.x+70*scale, rightCheek.y-15*scale);
-  line(rightCheek.x, rightCheek.y,            rightCheek.x+70*scale, rightCheek.y);
-  line(rightCheek.x, rightCheek.y+10*scale,   rightCheek.x+70*scale, rightCheek.y+12*scale);
-  fill("#ff8fab"); noStroke();
-  ellipse(nose.x, nose.y, 14*scale, 10*scale);
+  line(leftCheek.x, leftCheek.y-10*scale, leftCheek.x-70*scale, leftCheek.y-15*scale);
+  line(leftCheek.x, leftCheek.y, leftCheek.x-70*scale, leftCheek.y);
+  line(leftCheek.x, leftCheek.y+10*scale, leftCheek.x-70*scale, leftCheek.y+12*scale);
+  line(rightCheek.x, rightCheek.y-10*scale, rightCheek.x+70*scale, rightCheek.y-15*scale);
+  line(rightCheek.x, rightCheek.y, rightCheek.x+70*scale, rightCheek.y);
+  line(rightCheek.x, rightCheek.y+10*scale, rightCheek.x+70*scale, rightCheek.y+12*scale);
+  fill("#ff8fab"); noStroke(); ellipse(nose.x, nose.y, 14*scale, 10*scale);
   addParticle(cx, cy, "#ff4d6d");
   pop();
 }
 
 function drawRabbitFilter_tracked(camX, camY) {
   push();
-  let nose    = lm(1,  camX, camY);
+  let nose = lm(1, camX, camY);
   let topHead = lm(10, camX, camY);
-  let scale   = faceWidth(camX, camY) / 180;
+  let scale = faceWidth(camX, camY) / 180;
   let cx = nose.x, cy = topHead.y;
   fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2 * scale);
   ellipse(cx-65*scale, cy-80*scale, 50*scale, 150*scale);
@@ -106,30 +96,29 @@ function drawRabbitFilter_tracked(camX, camY) {
   fill("#ffb6c1"); noStroke();
   ellipse(cx-65*scale, cy-80*scale, 26*scale, 100*scale);
   ellipse(cx+65*scale, cy-80*scale, 26*scale, 100*scale);
-  fill("#ffaabb");
-  ellipse(nose.x, nose.y, 16*scale, 12*scale);
+  fill("#ffaabb"); ellipse(nose.x, nose.y, 16*scale, 12*scale);
   addParticle(cx, cy, "#ffd6e8");
   pop();
 }
 
 function drawGlassesFilter_tracked(camX, camY) {
   push();
-  let leftOuter  = lm(33,  camX, camY);
-  let leftInner  = lm(133, camX, camY);
+  let leftOuter = lm(33, camX, camY);
+  let leftInner = lm(133, camX, camY);
   let rightInner = lm(362, camX, camY);
   let rightOuter = lm(263, camX, camY);
-  let scale      = faceWidth(camX, camY) / 180;
-  let lensW  = dist(leftOuter.x, leftOuter.y, leftInner.x, leftInner.y) * 1.3;
-  let lensH  = lensW * 0.65;
-  let leftCx  = (leftOuter.x  + leftInner.x)  / 2;
-  let leftCy  = (leftOuter.y  + leftInner.y)  / 2;
+  let scale = faceWidth(camX, camY) / 180;
+  let lensW = dist(leftOuter.x, leftOuter.y, leftInner.x, leftInner.y) * 1.3;
+  let lensH = lensW * 0.65;
+  let leftCx = (leftOuter.x + leftInner.x) / 2;
+  let leftCy = (leftOuter.y + leftInner.y) / 2;
   let rightCx = (rightOuter.x + rightInner.x) / 2;
   let rightCy = (rightOuter.y + rightInner.y) / 2;
   noFill(); stroke("#222"); strokeWeight(5 * scale); rectMode(CENTER);
-  rect(leftCx,  leftCy,  lensW, lensH, 12*scale);
+  rect(leftCx, leftCy, lensW, lensH, 12*scale);
   rect(rightCx, rightCy, lensW, lensH, 12*scale);
   line(leftInner.x, leftInner.y, rightInner.x, rightInner.y);
-  line(leftOuter.x,  leftOuter.y,  leftOuter.x-30*scale,  leftOuter.y-5*scale);
+  line(leftOuter.x, leftOuter.y, leftOuter.x-30*scale, leftOuter.y-5*scale);
   line(rightOuter.x, rightOuter.y, rightOuter.x+30*scale, rightOuter.y-5*scale);
   addParticle((leftCx+rightCx)/2, leftCy, "#4cc9f0");
   pop();
@@ -137,29 +126,26 @@ function drawGlassesFilter_tracked(camX, camY) {
 
 function drawCrownFilter_tracked(camX, camY) {
   push();
-  let nose    = lm(1,  camX, camY);
+  let nose = lm(1, camX, camY);
   let topHead = lm(10, camX, camY);
-  let scale   = faceWidth(camX, camY) / 180;
+  let scale = faceWidth(camX, camY) / 180;
   let cx = nose.x, cy = topHead.y;
   fill("#ffd700"); stroke("#cc9900"); strokeWeight(2*scale);
   beginShape();
-  vertex(cx-110*scale, cy);       vertex(cx-80*scale, cy-85*scale);
-  vertex(cx-40*scale,  cy-28*scale); vertex(cx,        cy-110*scale);
-  vertex(cx+40*scale,  cy-28*scale); vertex(cx+80*scale, cy-85*scale);
-  vertex(cx+110*scale, cy);       vertex(cx+110*scale, cy+35*scale);
+  vertex(cx-110*scale, cy); vertex(cx-80*scale, cy-85*scale);
+  vertex(cx-40*scale, cy-28*scale); vertex(cx, cy-110*scale);
+  vertex(cx+40*scale, cy-28*scale); vertex(cx+80*scale, cy-85*scale);
+  vertex(cx+110*scale, cy); vertex(cx+110*scale, cy+35*scale);
   vertex(cx-110*scale, cy+35*scale);
   endShape(CLOSE);
   noStroke();
-  fill("#ff4d6d"); circle(cx-68*scale, cy-8*scale,  20*scale);
-  fill("#a78bfa"); circle(cx,          cy-50*scale, 20*scale);
-  fill("#ff4d6d"); circle(cx+68*scale, cy-8*scale,  20*scale);
+  fill("#ff4d6d"); circle(cx-68*scale, cy-8*scale, 20*scale);
+  fill("#a78bfa"); circle(cx, cy-50*scale, 20*scale);
+  fill("#ff4d6d"); circle(cx+68*scale, cy-8*scale, 20*scale);
   addParticle(cx, cy-50*scale, "#ffd700");
   pop();
 }
 
-// ============================================================
-// FIXED FALLBACK
-// ============================================================
 function drawARFilter_fixed(x, y, filterType) {
   if      (filterType === 0) drawCatFilter_fixed(x, y);
   else if (filterType === 1) drawRabbitFilter_fixed(x, y);
@@ -176,8 +162,8 @@ function drawCatFilter_fixed(x, y) {
   triangle(x-104,y-122,x-80,y-190,x-52,y-122);
   triangle(x+52,y-122,x+80,y-190,x+104,y-122);
   stroke("#888"); strokeWeight(1.5);
-  line(x-90,y+18,x-185,y+5);  line(x-90,y+33,x-185,y+33);  line(x-90,y+48,x-185,y+58);
-  line(x+90,y+18,x+185,y+5);  line(x+90,y+33,x+185,y+33);  line(x+90,y+48,x+185,y+58);
+  line(x-90,y+18,x-185,y+5); line(x-90,y+33,x-185,y+33); line(x-90,y+48,x-185,y+58);
+  line(x+90,y+18,x+185,y+5); line(x+90,y+33,x+185,y+33); line(x+90,y+48,x+185,y+58);
   fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
   addParticle(x, y, "#ff4d6d");
   pop();
@@ -209,7 +195,7 @@ function drawCrownFilter_fixed(x, y) {
   fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
   beginShape();
   vertex(x-115,y-105); vertex(x-85,y-195); vertex(x-42,y-128);
-  vertex(x,y-215);     vertex(x+42,y-128); vertex(x+85,y-195);
+  vertex(x,y-215); vertex(x+42,y-128); vertex(x+85,y-195);
   vertex(x+115,y-105); vertex(x+115,y-68); vertex(x-115,y-68);
   endShape(CLOSE);
   noStroke();
@@ -220,52 +206,25 @@ function drawCrownFilter_fixed(x, y) {
   pop();
 }
 
-// ============================================================
-// PARTICLE SYSTEM
-// ============================================================
 function addParticle(x, y, col) {
   if (particles.length >= 60) return;
-  particles.push([
-    x + random(-220, 220),
-    y + random(-220, 220),
-    random(5, 14),
-    random(-0.8, 0.8),
-    random(-2.5, -0.5),
-    col,
-    220
-  ]);
+  particles.push([x+random(-220,220), y+random(-220,220), random(5,14), random(-0.8,0.8), random(-2.5,-0.5), col, 220]);
 }
 
 function updateParticles() {
   noStroke();
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
-    push();
-    fill(p[5]);
-    circle(p[0], p[1], p[2]);
-    pop();
-    p[0] += p[3];
-    p[1] += p[4];
-    p[6] -= 4;
+    push(); fill(p[5]); circle(p[0], p[1], p[2]); pop();
+    p[0] += p[3]; p[1] += p[4]; p[6] -= 4;
     if (p[6] <= 0) particles.splice(i, 1);
   }
 }
 
-// ============================================================
-// STATUS
-// ============================================================
 function drawFaceStatus(canvasW, canvasH) {
-  push();
-  noStroke(); textAlign(LEFT, CENTER); textSize(13);
-  if (!faceReady) {
-    fill(255, 200, 0, 200);
-    text("⏳ ML5 FaceMesh 로딩 중...", 140, canvasH - 65);
-  } else if (!hasFace()) {
-    fill(255, 100, 100, 200);
-    text("😶 얼굴을 카메라에 맞춰주세요", 140, canvasH - 65);
-  } else {
-    fill(100, 220, 100, 200);
-    text("✅ 얼굴 인식 중", 140, canvasH - 65);
-  }
+  push(); noStroke(); textAlign(LEFT, CENTER); textSize(13);
+  if (!faceReady) { fill(255,200,0,200); text("⏳ Face Mesh 로딩 중...", 140, canvasH-65); }
+  else if (!faceLandmarks) { fill(255,100,100,200); text("😶 얼굴을 카메라에 맞춰주세요", 140, canvasH-65); }
+  else { fill(100,220,100,200); text("✅ 얼굴 인식 중", 140, canvasH-65); }
   pop();
 }
