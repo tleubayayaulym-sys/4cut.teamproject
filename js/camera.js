@@ -9,13 +9,9 @@ let isCapturing = false;
 // setup camera
 function setupCamera() {
 
-    video = createCapture({
+    video = createCapture(VIDEO);
 
-        video: true,
-        audio: false
-    });
-
-    video.size(windowWidth, windowHeight);
+    video.size(640, 480);
 
     video.hide();
 }
@@ -23,13 +19,13 @@ function setupCamera() {
 // draw camera screen
 function drawCamera() {
 
-    // camera
+    // camera fullscreen
     image(
         video,
         0,
         0,
-        windowWidth,
-        windowHeight
+        width,
+        height
     );
 
     // silver overlay
