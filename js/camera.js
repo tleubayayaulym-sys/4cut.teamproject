@@ -9,7 +9,12 @@ let isCapturing = false;
 // 카메라 설정
 function setupCamera() {
 
-    video = createCapture(VIDEO);
+    video = createCapture(
+        VIDEO,
+        () => {
+            console.log("camera ready");
+        }
+    );
 
     video.size(
         windowWidth,
@@ -22,7 +27,7 @@ function setupCamera() {
 // 카메라 화면
 function drawCamera() {
 
-    // fullscreen camera
+    // camera fullscreen
     image(
         video,
         0,
@@ -114,9 +119,99 @@ function takePhoto(index) {
     }, 1000);
 }
 
-// flash effect
+// flash
 function flashEffect() {
+
+    push();
 
     fill(255);
 
-   
+    noStroke();
+
+    rect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    pop();
+}
+
+// preview
+function drawPhotoPreview() {
+
+    let previewWidth;
+
+    // mobile
+    if (width < 700) {
+
+        previewWidth = width * 0.16;
+    }
+
+    // desktop
+    else {
+
+        previewWidth = 95;
+    }
+
+    // portrait ratio
+    let previewHeight =
+        previewWidth * 1.35;
+
+    let gap = 10;
+
+    let totalWidth =
+        previewWidth * 4 +
+        gap * 3;
+
+    let startX =
+        width / 2 -
+        totalWidth / 2;
+
+    // higher than button
+    let y =
+        height -
+        previewHeight -
+        100;
+
+    // slots
+    for (let i = 0; i < 4; i++) {
+
+        fill(255);
+
+        stroke("#ff4d6d");
+
+        strokeWeight(3);
+
+        rect(
+            startX +
+            i * (previewWidth + gap),
+
+            y,
+
+            previewWidth,
+
+            previewHeight,
+
+            15
+        );
+
+        // image
+        if (capturedPhotos[i]) {
+
+            image(
+                capturedPhotos[i],
+
+                startX +
+                i * (previewWidth + gap),
+
+                y,
+
+                previewWidth,
+
+                previewHeight
+            );
+        }
+    }
+}
