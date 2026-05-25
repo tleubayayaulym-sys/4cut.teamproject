@@ -10,8 +10,6 @@ function setup() {
 
     setupCamera();
 
-    rectMode(CORNER);
-
     textAlign(CENTER, CENTER);
 }
 
@@ -46,8 +44,12 @@ function drawStartScreen() {
 
     background("#f6f1ff");
 
+    rectMode(CORNER);
+
     // title
     fill("#ff4d6d");
+
+    noStroke();
 
     textSize(
         min(width * 0.1, 70)
@@ -75,8 +77,6 @@ function drawStartScreen() {
     // start button
     fill("#ff4d6d");
 
-    noStroke();
-
     rect(
         width / 2 - width * 0.21,
         height * 0.62 - 40,
@@ -101,28 +101,30 @@ function drawStartScreen() {
 // 촬영 버튼
 function drawCameraButton() {
 
+    rectMode(CORNER);
+
     fill("#ff4d6d");
 
     noStroke();
 
     rect(
         width / 2 - width * 0.2,
-        height - 80,
+        height - 75,
         width * 0.4,
-        60,
-        25
+        55,
+        20
     );
 
     fill(255);
 
     textSize(
-        min(width * 0.045, 32)
+        min(width * 0.045, 30)
     );
 
     text(
         "촬영하기",
         width / 2,
-        height - 50
+        height - 48
     );
 }
 
@@ -131,18 +133,20 @@ function drawResultScreen() {
 
     background("#f6f1ff");
 
+    rectMode(CORNER);
+
     let stripWidth;
 
     // mobile
     if (width < 700) {
 
-        stripWidth = width * 0.55;
+        stripWidth = width * 0.5;
     }
 
     // desktop
     else {
 
-        stripWidth = 320;
+        stripWidth = 300;
     }
 
     let stripX =
@@ -152,7 +156,6 @@ function drawResultScreen() {
     let photoWidth =
         stripWidth - 20;
 
-    // 세로 비율
     let photoHeight =
         photoWidth * 1.25;
 
@@ -160,6 +163,8 @@ function drawResultScreen() {
 
     // strip background
     fill(255);
+
+    noStroke();
 
     rect(
         stripX,
@@ -187,7 +192,7 @@ function drawResultScreen() {
         );
     }
 
-    // 저장 버튼
+    // save button
     fill("#ff4d6d");
 
     rect(
@@ -259,7 +264,7 @@ function handleButtons() {
         width / 2 + width * 0.2 &&
 
         mouseY >
-        height - 80 &&
+        height - 75 &&
 
         mouseY <
         height - 20
@@ -299,4 +304,12 @@ function windowResized() {
         windowWidth,
         windowHeight
     );
+
+    if (video) {
+
+        video.size(
+            windowWidth,
+            windowHeight
+        );
+    }
 }
