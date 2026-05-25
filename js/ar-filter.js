@@ -7,10 +7,6 @@
 // ---------- ML5 FaceMesh state ----------
 // facemesh, facePredictions, faceReady, particles — sketch.js에서 선언됨 (중복 방지)
 
-// ---------- 카메라 표시 영역 상수 ----------
-const CAM_W = 480;
-const CAM_H = 360;
-
 // Particle 인덱스 상수 (가독성)
 const P_X     = 0;
 const P_Y     = 1;
