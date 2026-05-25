@@ -31,17 +31,21 @@ const SCALE_X = CAM_W / 640;
 const SCALE_Y = CAM_H / 480;
 
 // ============================================================
-// INIT — setup()에서 한 번 호출 (ML5.js HandPose와 같은 방식)
+// CALLBACK — ml5가 예측 결과를 전달하는 함수
+// ============================================================
+function gotFaces(results) {
+  facePredictions = results;
+}
+
+// ============================================================
+// INIT — setup()에서 한 번 호출
 // ============================================================
 function initFaceMesh(camElement) {
-  // ML5.js FaceMesh 초기화 — 수업에서 배운 ml5.handPose와 동일한 패턴
-facemesh = ml5.faceMesh(camElement, { maxFaces: 1 }, () => {
+  facemesh = ml5.faceMesh({ maxFaces: 1 }, () => {
     faceReady = true;
     console.log("ML5 FaceMesh 모델 로딩 완료!");
+    facemesh.detectStart(camElement, gotFaces);
   });
-
-  // 예측 결과를 배열에 저장 (매 프레임마다 업데이트)
-  facemesh = ml5.facemesh(gotFaces);
 }
 
 // ============================================================
@@ -51,16 +55,16 @@ facemesh = ml5.faceMesh(camElement, { maxFaces: 1 }, () => {
 // ============================================================
 function lm(index, camX, camY) {
   if (!facePredictions || facePredictions.length === 0) {
-    return { x: camX, y: camY }; // 얼굴 미감지: 중앙 반환
+    return { x: camX, y: camY };
   }
   let mesh = facePredictions[0].scaledMesh;
   if (!mesh || index >= mesh.length) return { x: camX, y: camY };
 
-  let vx = mesh[index][0]; // 비디오 내 x (0~640)
-  let vy = mesh[index][1]; // 비디오 내 y (0~480)
+  let vx = mesh[index][0];
+  let vy = mesh[index][1];
 
   return {
-    x: camX + (CAM_W / 2 - vx * SCALE_X), // 미러 반전
+    x: camX + (CAM_W / 2 - vx * SCALE_X),
     y: camY - CAM_H / 2 + vy * SCALE_Y
   };
 }
@@ -82,13 +86,11 @@ function hasFace() {
 // ============================================================
 function drawARFilter(camX, camY, filterType) {
   if (hasFace()) {
-    // 얼굴 감지됨 → landmark 기반 필터
     if      (filterType === 0) drawCatFilter_tracked(camX, camY);
     else if (filterType === 1) drawRabbitFilter_tracked(camX, camY);
     else if (filterType === 2) drawGlassesFilter_tracked(camX, camY);
     else if (filterType === 3) drawCrownFilter_tracked(camX, camY);
   } else {
-    // 얼굴 미감지 → 고정 위치 fallback
     drawARFilter_fixed(camX, camY - 30, filterType);
   }
 }
@@ -108,15 +110,12 @@ function drawCatFilter_tracked(camX, camY) {
   let cx = nose.x;
   let cy = topHead.y;
 
-  // 귀
   fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2 * scale);
   triangle(cx-110*scale, cy, cx-75*scale, cy-90*scale, cx-35*scale, cy);
   triangle(cx+35*scale,  cy, cx+75*scale, cy-90*scale, cx+110*scale, cy);
-  // 귀 안쪽
   fill("#ff9ab0"); noStroke();
   triangle(cx-100*scale, cy-5*scale, cx-75*scale, cy-78*scale, cx-48*scale, cy-5*scale);
   triangle(cx+48*scale,  cy-5*scale, cx+75*scale, cy-78*scale, cx+100*scale, cy-5*scale);
-  // 수염
   stroke("#999"); strokeWeight(1.5 * scale);
   line(leftCheek.x,  leftCheek.y-10*scale,  leftCheek.x-70*scale,  leftCheek.y-15*scale);
   line(leftCheek.x,  leftCheek.y,            leftCheek.x-70*scale,  leftCheek.y);
@@ -124,7 +123,6 @@ function drawCatFilter_tracked(camX, camY) {
   line(rightCheek.x, rightCheek.y-10*scale,  rightCheek.x+70*scale, rightCheek.y-15*scale);
   line(rightCheek.x, rightCheek.y,            rightCheek.x+70*scale, rightCheek.y);
   line(rightCheek.x, rightCheek.y+10*scale,   rightCheek.x+70*scale, rightCheek.y+12*scale);
-  // 코
   fill("#ff8fab"); noStroke();
   ellipse(nose.x, nose.y, 14*scale, 10*scale);
   addParticle(cx, cy, "#ff4d6d");
