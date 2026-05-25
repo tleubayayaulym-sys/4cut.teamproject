@@ -28,18 +28,18 @@ function drawCamera() {
         height
     );
 
-    // countdown
+    // COUNTDOWN
     if (countdown > 0) {
 
         fill(255);
 
         stroke(0);
 
-        strokeWeight(5);
+        strokeWeight(6);
 
         textAlign(CENTER, CENTER);
 
-        textSize(width * 0.15);
+        textSize(width * 0.2);
 
         text(
             countdown,
@@ -69,6 +69,7 @@ function startPhotoSequence() {
 // take 4 photos
 function takePhoto(index) {
 
+    // finish
     if (index >= 4) {
 
         isCapturing = false;
@@ -84,9 +85,12 @@ function takePhoto(index) {
 
         countdown--;
 
+        // take photo
         if (countdown <= 0) {
 
             clearInterval(timer);
+
+            countdown = 0;
 
             flashEffect();
 
@@ -94,6 +98,7 @@ function takePhoto(index) {
 
             capturedPhotos.push(img);
 
+            // next photo
             setTimeout(() => {
 
                 takePhoto(index + 1);
@@ -104,7 +109,7 @@ function takePhoto(index) {
     }, 1000);
 }
 
-// flash
+// flash effect
 function flashEffect() {
 
     fill(255);
