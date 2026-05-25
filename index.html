@@ -1,16 +1,25 @@
 <!doctype html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-
-    <title>4CUT BOOTH</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4CUT BOOTH 📸</title>
     <link rel="stylesheet" href="style.css" />
 
+    <!-- p5.js -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
 
-    <script src="sketch.js"></script>
-  </head>
+    <!-- MediaPipe Face Mesh (Tamy 담당 ar-filter.js 에서 사용) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"
+            crossorigin="anonymous"></script>
 
+    <!-- Team JS files (로드 순서 중요!) -->
+    <script src="js/ar-filter.js"></script>   <!-- Tamy: AR filter + particles -->
+    <script src="js/camera.js"></script>       <!-- 틀레우바이: countdown + capture -->
+    <script src="js/result.js"></script>       <!-- 마이: photo strip + save -->
+    <script src="js/main.js"></script>         <!-- 틀레우바이: state control + UI -->
+  </head>
   <body></body>
 </html>
