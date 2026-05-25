@@ -140,24 +140,25 @@ function drawResultScreen() {
     // mobile
     if (width < 700) {
 
-        stripWidth = width * 0.5;
+        stripWidth = width * 0.75;
     }
 
     // desktop
     else {
 
-        stripWidth = 300;
+        stripWidth = 420;
     }
 
     let stripX =
         width / 2 -
         stripWidth / 2;
 
+    // square photos
     let photoWidth =
-        stripWidth - 20;
+        (stripWidth - 30) / 2;
 
     let photoHeight =
-        photoWidth * 1.25;
+        photoWidth;
 
     let gap = 10;
 
@@ -168,26 +169,31 @@ function drawResultScreen() {
 
     rect(
         stripX,
-        20,
+        40,
         stripWidth,
-        photoHeight * 4 +
-        gap * 3 +
-        20,
+        photoHeight * 2 +
+        gap +
+        30,
         20
     );
 
-    // photos
+    // 2x2 photos
     for (let i = 0; i < capturedPhotos.length; i++) {
+
+        let x =
+            stripX + 10 +
+            (i % 2) * (photoWidth + gap);
+
+        let y =
+            50 +
+            floor(i / 2) *
+            (photoHeight + gap);
 
         image(
             capturedPhotos[i],
-
-            stripX + 10,
-
-            30 + i * (photoHeight + gap),
-
+            x,
+            y,
             photoWidth,
-
             photoHeight
         );
     }
