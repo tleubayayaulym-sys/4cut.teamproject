@@ -5,12 +5,7 @@
 // ============================================================
 
 // ---------- ML5 FaceMesh state ----------
-// facemesh — sketch.js에서 선언됨 (중복 방지)
-let facePredictions = [];   // ml5가 예측한 얼굴 데이터 배열
-let faceReady      = false; // 모델 로딩 완료 여부
-
-// ---------- Particles (2D 배열 사용 — thầy yêu cầu) ----------
-let particles = [];
+// facemesh, facePredictions, faceReady, particles — sketch.js에서 선언됨 (중복 방지)
 
 // ---------- 카메라 표시 영역 상수 ----------
 const CAM_W = 480;
