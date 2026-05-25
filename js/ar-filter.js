@@ -41,9 +41,7 @@ facemesh = ml5.faceMesh(camElement, { maxFaces: 1 }, () => {
   });
 
   // 예측 결과를 배열에 저장 (매 프레임마다 업데이트)
-  facemesh.on("predict", (results) => {
-    facePredictions = results;
-  });
+  facemesh = ml5.facemesh(gotFaces);
 }
 
 // ============================================================
