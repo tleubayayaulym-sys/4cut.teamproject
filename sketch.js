@@ -1,3 +1,4 @@
+let particles = [];
 let countdown = 3;
 let counting = false;
 let cam;
@@ -94,6 +95,9 @@ function drawCamera() {
   imageMode(CENTER);
 
   image(cam, width / 2, height / 2, 640, 480);
+  
+  drawARFilter(width / 2, height / 2 - 40, selectedFilter);
+  updateParticles();
 
   fill("#ff4d6d");
 
@@ -139,4 +143,123 @@ function mousePressed() {
       startCountdown();
     }
   }
+}
+
+function drawARFilter(x, y, filterType) {
+  if (filterType == 0) {
+    drawCatFilter(x, y);
+  } else if (filterType == 1) {
+    drawRabbitFilter(x, y);
+  } else if (filterType == 2) {
+    drawGlassesFilter(x, y);
+  } else if (filterType == 3) {
+    drawCrownFilter(x, y);
+  }
+}
+
+function drawCatFilter(x, y) {
+  fill("#ffb6c1");
+  stroke("#333");
+  strokeWeight(3);
+
+  triangle(x - 120, y - 130, x - 70, y - 230, x - 20, y - 130);
+  triangle(x + 20, y - 130, x + 70, y - 230, x + 120, y - 130);
+
+  stroke("#333");
+  strokeWeight(2);
+  line(x - 80, y + 10, x - 180, y - 10);
+  line(x - 80, y + 30, x - 180, y + 30);
+  line(x - 80, y + 50, x - 180, y + 70);
+
+  line(x + 80, y + 10, x + 180, y - 10);
+  line(x + 80, y + 30, x + 180, y + 30);
+  line(x + 80, y + 50, x + 180, y + 70);
+
+  addParticle(x, y, "#ff4d6d");
+}
+
+function drawRabbitFilter(x, y) {
+  fill("#ffffff");
+  stroke("#333");
+  strokeWeight(3);
+
+  ellipse(x - 70, y - 190, 60, 180);
+  ellipse(x + 70, y - 190, 60, 180);
+
+  fill("#ffc0cb");
+  ellipse(x - 70, y - 190, 30, 120);
+  ellipse(x + 70, y - 190, 30, 120);
+
+  addParticle(x, y, "#ffd166");
+}
+
+function drawGlassesFilter(x, y) {
+  noFill();
+  stroke("#111");
+  strokeWeight(6);
+
+  rectMode(CENTER);
+  rect(x - 55, y - 20, 90, 55, 15);
+  rect(x + 55, y - 20, 90, 55, 15);
+  line(x - 10, y - 20, x + 10, y - 20);
+
+  addParticle(x, y, "#4cc9f0");
+}
+
+function drawCrownFilter(x, y) {
+  fill("#ffd700");
+  stroke("#333");
+  strokeWeight(3);
+
+  beginShape();
+  vertex(x - 100, y - 110);
+  vertex(x - 70, y - 190);
+  vertex(x - 30, y - 120);
+  vertex(x, y - 210);
+  vertex(x + 30, y - 120);
+  vertex(x + 70, y - 190);
+  vertex(x + 100, y - 110);
+  vertex(x + 100, y - 70);
+  vertex(x - 100, y - 70);
+  endShape(CLOSE);
+
+  addParticle(x, y, "#ffd700");
+}
+
+function addParticle(x, y, colorValue) {
+  if (particles.length < 40) {
+    particles.push({
+      x: x + random(-180, 180),
+      y: y + random(-180, 180),
+      size: random(8, 18),
+      speed: random(1, 3),
+      color: colorValue,
+      alpha: 255
+    });
+  }
+}
+
+function updateParticles() {
+  noStroke();
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+
+    fill(p.color);
+    circle(p.x, p.y, p.size);
+
+    p.y -= p.speed;
+    p.alpha -= 5;
+
+    if (p.alpha <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function keyPressed() {
+  if (key == "1") selectedFilter = 0;
+  if (key == "2") selectedFilter = 1;
+  if (key == "3") selectedFilter = 2;
+  if (key == "4") selectedFilter = 3;
 }
