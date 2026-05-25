@@ -1,4 +1,3 @@
-
 let video;
 
 let capturedPhotos = [];
@@ -171,4 +170,3 @@ function drawPhotoPreview() {
         }
     }
 }
-
