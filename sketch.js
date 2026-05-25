@@ -1,3 +1,5 @@
+let countdown = 3;
+let counting = false;
 let cam;
 let state = "start";
 
@@ -90,58 +92,34 @@ function drawSettings() {
 
 function drawCamera() {
   imageMode(CENTER);
+
   image(cam, width / 2, height / 2, 640, 480);
 
   fill("#ff4d6d");
+
   textAlign(CENTER);
+
   textSize(40);
+
   text("CAMERA SCREEN", width / 2, 80);
-}
 
-function mousePressed() {
-  if (state == "start") {
-    if (
-      mouseX > width / 2 - 125 &&
-      mouseX < width / 2 + 125 &&
-      mouseY > height / 2 - 40 &&
-      mouseY < height / 2 + 40
-    ) {
-      state = "settings";
-    }
-  } else if (state == "settings") {
-    for (let i = 0; i < 4; i++) {
-      let x = width / 2 - 240 + i * 160;
+  // capture button
+  fill("#ff4d6d");
 
-      if (
-        mouseX > x - 60 &&
-        mouseX < x + 60 &&
-        mouseY > 230 - 35 &&
-        mouseY < 230 + 35
-      ) {
-        selectedFrame = i;
-      }
+  rect(width / 2, height - 100, 220, 70, 20);
 
-      if (
-        mouseX > x - 60 &&
-        mouseX < x + 60 &&
-        mouseY > 400 - 35 &&
-        mouseY < 400 + 35
-      ) {
-        selectedFilter = i;
-      }
-    }
+  fill(255);
 
-    if (
-      mouseX > width / 2 - 140 &&
-      mouseX < width / 2 + 140 &&
-      mouseY > height - 160 &&
-      mouseY < height - 80
-    ) {
-      state = "camera";
-    }
+  textSize(30);
+
+  text("CAPTURE", width / 2, height - 90);
+
+  // countdown
+  if (counting) {
+    fill(255, 0, 0);
+
+    textSize(120);
+
+    text(countdown, width / 2, height / 2);
   }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }
