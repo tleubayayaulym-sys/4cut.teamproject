@@ -111,13 +111,13 @@ function drawResultScreen() {
     // mobile
     if (width < 700) {
 
-        stripWidth = width * 0.55;
+        stripWidth = width * 0.65;
     }
 
     // desktop
     else {
 
-        stripWidth = 260;
+        stripWidth = 320;
     }
 
     let stripX =
@@ -134,32 +134,36 @@ function drawResultScreen() {
     let stripHeight =
         photoHeight * 4 +
         gap * 3 +
-        120;
+        100;
 
-    // strip
+    // strip background
     fill(255);
+
+    stroke(220);
+
+    strokeWeight(2);
 
     rect(
         stripX,
         30,
         stripWidth,
         stripHeight,
-        30
+        25
     );
 
-    // result text
-    fill(170);
+    // title
+    fill(120);
 
-    textAlign(CENTER);
+    noStroke();
 
-    textSize(
-        min(width * 0.05, 28)
-    );
+    textAlign(CENTER, CENTER);
+
+    textSize(width * 0.05);
 
     text(
         "촬영 결과",
         width / 2,
-        70
+        60
     );
 
     // photos
@@ -168,11 +172,38 @@ function drawResultScreen() {
         image(
             capturedPhotos[i],
             stripX + 10,
-            100 + i * (photoHeight + gap),
+            90 + i * (photoHeight + gap),
             photoWidth,
             photoHeight
         );
     }
+
+    // save button
+    fill(245);
+
+    stroke(180);
+
+    strokeWeight(3);
+
+    rect(
+        width / 2 - width * 0.2,
+        height - 90,
+        width * 0.4,
+        55,
+        18
+    );
+
+    fill(120);
+
+    noStroke();
+
+    textSize(width * 0.045);
+
+    text(
+        "저장하기",
+        width / 2,
+        height - 63
+    );
 }
 
 // click
@@ -214,6 +245,18 @@ function handleButtons() {
     ) {
 
         startPhotoSequence();
+    }
+
+    // SAVE
+    else if (
+        currentScreen === "result" &&
+        mouseX > width / 2 - width * 0.2 &&
+        mouseX < width / 2 + width * 0.2 &&
+        mouseY > height - 90 &&
+        mouseY < height - 35
+    ) {
+
+        saveCanvas("photo_booth", "png");
     }
 }
 
