@@ -1,319 +1,423 @@
 // ============================================================
-// ar-filter.js — 담당: 응웬 바오 담 (Tamy)
-// ML5.js FaceMesh 기반 실시간 AR 필터 + 파티클 시스템
-// 수업에서 배운 기술 사용 (ML5.js — HandPose/FaceMesh)
+// sketch.js — Main p5.js entry point
+// 틀레우바이 아야у름 담당 (UI flow, camera, state control)
+// ar-filter.js (Tamy) 함수를 호출하여 AR 필터 적용
 // ============================================================
 
-// ---------- ML5 FaceMesh state ----------
-let facemesh;
-let facePredictions = [];   // ml5가 예측한 얼굴 데이터 배열
-let faceReady      = false; // 모델 로딩 완료 여부
+let cam;
+let state         = "start";    // "start" | "settings" | "camera" | "result"
+let selectedFrame = 0;
+let selectedFilter= 0;
 
-// ---------- Particles (2D 배열 사용 — thầy yêu cầu) ----------
-let particles = [];
+// Photo capture
+let photos        = [];
+let flashAlpha    = 0;
+let counting      = false;
+let countdownStart= 0;
+let photoJustTaken= false;
 
-// ---------- 카메라 표시 영역 상수 ----------
-const CAM_W = 480;
-const CAM_H = 360;
-
-// Particle 인덱스 상수 (가독성)
-const P_X     = 0;
-const P_Y     = 1;
-const P_SIZE  = 2;
-const P_SPX   = 3;
-const P_SPY   = 4;
-const P_COL   = 5;
-const P_ALPHA = 6;
-const MAX_PARTICLES = 60;
-
-// 비디오 → 캔버스 스케일
-const SCALE_X = CAM_W / 640;
-const SCALE_Y = CAM_H / 480;
+// Frame / Filter data arrays (배열 사용 — 인덱스로 접근)
+let frameNames    = ["Pink", "Mint", "Yellow", "Lavender"];
+let frameColors   = ["#ffb6c1", "#b2f0e8", "#fff59d", "#e1bee7"];
+let frameDark     = ["#f48fb1", "#80cbc4", "#f9a825", "#ce93d8"];
+let filterNames   = ["🐱 Cat", "🐰 Rabbit", "👓 Glasses", "👑 Crown"];
 
 // ============================================================
-// CALLBACK — ml5가 예측 결과를 전달하는 함수
-// ============================================================
-function gotFaces(results) {
-  facePredictions = results;
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  cam = createCapture(VIDEO);
+  cam.size(640, 480);
+  cam.hide();
+
+  // Initialize MediaPipe FaceMesh (ar-filter.js)
+  initFaceMesh(cam);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 // ============================================================
-// INIT — setup()에서 한 번 호출
-// ============================================================
-function initFaceMesh(camElement) {
-  facemesh = ml5.faceMesh({ maxFaces: 1 }, () => {
-    faceReady = true;
-    console.log("ML5 FaceMesh 모델 로딩 완료!");
-    facemesh.detectStart(camElement, gotFaces);
-  });
+function draw() {
+  background("#f6f1ff");
+
+  if      (state === "start")    drawStart();
+  else if (state === "settings") drawSettings();
+  else if (state === "camera")   drawCamera();
+  else if (state === "result")   drawResult();
 }
 
 // ============================================================
-// 좌표 변환 헬퍼
-// ML5 v1: facePredictions[0].keypoints[index].x / .y (비디오 픽셀 단위)
-// → p5.js 캔버스 좌표로 변환 (미러 처리 포함)
+// SCREEN 1: START
 // ============================================================
-function lm(index, camX, camY) {
-  if (!facePredictions || facePredictions.length === 0) {
-    return { x: camX, y: camY };
-  }
-  let keypoints = facePredictions[0].keypoints;
-  if (!keypoints || index >= keypoints.length) return { x: camX, y: camY };
-
-  let vx = keypoints[index].x; // 비디오 내 x (0~640)
-  let vy = keypoints[index].y; // 비디오 내 y (0~480)
-
-  return {
-    x: camX + (CAM_W / 2 - vx * SCALE_X), // 미러 반전
-    y: camY - CAM_H / 2 + vy * SCALE_Y
-  };
-}
-
-// 얼굴 너비 계산 (왼쪽 볼 234 ~ 오른쪽 볼 454)
-function faceWidth(camX, camY) {
-  let left  = lm(234, camX, camY);
-  let right = lm(454, camX, camY);
-  return dist(left.x, left.y, right.x, right.y);
-}
-
-// 얼굴 감지 여부
-function hasFace() {
-  return facePredictions && facePredictions.length > 0;
-}
-
-// ============================================================
-// MAIN DRAW — sketch.js drawCamera()에서 매 프레임 호출
-// ============================================================
-function drawARFilter(camX, camY, filterType) {
-  if (hasFace()) {
-    if      (filterType === 0) drawCatFilter_tracked(camX, camY);
-    else if (filterType === 1) drawRabbitFilter_tracked(camX, camY);
-    else if (filterType === 2) drawGlassesFilter_tracked(camX, camY);
-    else if (filterType === 3) drawCrownFilter_tracked(camX, camY);
-  } else {
-    drawARFilter_fixed(camX, camY - 30, filterType);
-  }
-}
-
-// ============================================================
-// TRACKED FILTERS (ML5 FaceMesh landmark 기반)
-// ============================================================
-
-// 🐱 Cat
-function drawCatFilter_tracked(camX, camY) {
+function drawStart() {
   push();
-  let nose       = lm(1,   camX, camY);
-  let topHead    = lm(10,  camX, camY);
-  let leftCheek  = lm(234, camX, camY);
-  let rightCheek = lm(454, camX, camY);
-  let scale      = faceWidth(camX, camY) / 180;
-  let cx = nose.x;
-  let cy = topHead.y;
-
-  fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2 * scale);
-  triangle(cx-110*scale, cy, cx-75*scale, cy-90*scale, cx-35*scale, cy);
-  triangle(cx+35*scale,  cy, cx+75*scale, cy-90*scale, cx+110*scale, cy);
-  fill("#ff9ab0"); noStroke();
-  triangle(cx-100*scale, cy-5*scale, cx-75*scale, cy-78*scale, cx-48*scale, cy-5*scale);
-  triangle(cx+48*scale,  cy-5*scale, cx+75*scale, cy-78*scale, cx+100*scale, cy-5*scale);
-  stroke("#999"); strokeWeight(1.5 * scale);
-  line(leftCheek.x,  leftCheek.y-10*scale,  leftCheek.x-70*scale,  leftCheek.y-15*scale);
-  line(leftCheek.x,  leftCheek.y,            leftCheek.x-70*scale,  leftCheek.y);
-  line(leftCheek.x,  leftCheek.y+10*scale,   leftCheek.x-70*scale,  leftCheek.y+12*scale);
-  line(rightCheek.x, rightCheek.y-10*scale,  rightCheek.x+70*scale, rightCheek.y-15*scale);
-  line(rightCheek.x, rightCheek.y,            rightCheek.x+70*scale, rightCheek.y);
-  line(rightCheek.x, rightCheek.y+10*scale,   rightCheek.x+70*scale, rightCheek.y+12*scale);
-  fill("#ff8fab"); noStroke();
-  ellipse(nose.x, nose.y, 14*scale, 10*scale);
-  addParticle(cx, cy, "#ff4d6d");
-  pop();
-}
-
-// 🐰 Rabbit
-function drawRabbitFilter_tracked(camX, camY) {
-  push();
-  let nose    = lm(1,  camX, camY);
-  let topHead = lm(10, camX, camY);
-  let scale   = faceWidth(camX, camY) / 180;
-  let cx = nose.x;
-  let cy = topHead.y;
-
-  fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2 * scale);
-  ellipse(cx-65*scale, cy-80*scale, 50*scale, 150*scale);
-  ellipse(cx+65*scale, cy-80*scale, 50*scale, 150*scale);
-  fill("#ffb6c1"); noStroke();
-  ellipse(cx-65*scale, cy-80*scale, 26*scale, 100*scale);
-  ellipse(cx+65*scale, cy-80*scale, 26*scale, 100*scale);
-  fill("#ffaabb");
-  ellipse(nose.x, nose.y, 16*scale, 12*scale);
-  addParticle(cx, cy, "#ffd6e8");
-  pop();
-}
-
-// 👓 Glasses
-function drawGlassesFilter_tracked(camX, camY) {
-  push();
-  let leftOuter  = lm(33,  camX, camY);
-  let leftInner  = lm(133, camX, camY);
-  let rightInner = lm(362, camX, camY);
-  let rightOuter = lm(263, camX, camY);
-  let scale      = faceWidth(camX, camY) / 180;
-
-  let lensW  = dist(leftOuter.x, leftOuter.y, leftInner.x, leftInner.y) * 1.3;
-  let lensH  = lensW * 0.65;
-  let leftCx  = (leftOuter.x  + leftInner.x)  / 2;
-  let leftCy  = (leftOuter.y  + leftInner.y)  / 2;
-  let rightCx = (rightOuter.x + rightInner.x) / 2;
-  let rightCy = (rightOuter.y + rightInner.y) / 2;
-
-  noFill(); stroke("#222"); strokeWeight(5 * scale); rectMode(CENTER);
-  rect(leftCx,  leftCy,  lensW, lensH, 12*scale);
-  rect(rightCx, rightCy, lensW, lensH, 12*scale);
-  line(leftInner.x, leftInner.y, rightInner.x, rightInner.y);
-  line(leftOuter.x,  leftOuter.y,  leftOuter.x-30*scale,  leftOuter.y-5*scale);
-  line(rightOuter.x, rightOuter.y, rightOuter.x+30*scale, rightOuter.y-5*scale);
-  addParticle((leftCx+rightCx)/2, leftCy, "#4cc9f0");
-  pop();
-}
-
-// 👑 Crown
-function drawCrownFilter_tracked(camX, camY) {
-  push();
-  let nose    = lm(1,  camX, camY);
-  let topHead = lm(10, camX, camY);
-  let scale   = faceWidth(camX, camY) / 180;
-  let cx = nose.x;
-  let cy = topHead.y;
-
-  fill("#ffd700"); stroke("#cc9900"); strokeWeight(2*scale);
-  beginShape();
-  vertex(cx-110*scale, cy);
-  vertex(cx-80*scale,  cy-85*scale);
-  vertex(cx-40*scale,  cy-28*scale);
-  vertex(cx,           cy-110*scale);
-  vertex(cx+40*scale,  cy-28*scale);
-  vertex(cx+80*scale,  cy-85*scale);
-  vertex(cx+110*scale, cy);
-  vertex(cx+110*scale, cy+35*scale);
-  vertex(cx-110*scale, cy+35*scale);
-  endShape(CLOSE);
+  textAlign(CENTER, CENTER);
   noStroke();
-  fill("#ff4d6d"); circle(cx-68*scale, cy-8*scale,  20*scale);
-  fill("#a78bfa"); circle(cx,          cy-50*scale, 20*scale);
-  fill("#ff4d6d"); circle(cx+68*scale, cy-8*scale,  20*scale);
-  addParticle(cx, cy-50*scale, "#ffd700");
-  pop();
-}
 
-// ============================================================
-// FIXED FALLBACK (얼굴 미감지 시)
-// ============================================================
-function drawARFilter_fixed(x, y, filterType) {
-  if      (filterType === 0) drawCatFilter_fixed(x, y);
-  else if (filterType === 1) drawRabbitFilter_fixed(x, y);
-  else if (filterType === 2) drawGlassesFilter_fixed(x, y);
-  else if (filterType === 3) drawCrownFilter_fixed(x, y);
-}
-
-function drawCatFilter_fixed(x, y) {
-  push();
-  fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2);
-  triangle(x-115,y-115,x-80,y-205,x-40,y-115);
-  triangle(x+40,y-115,x+80,y-205,x+115,y-115);
-  fill("#ff9ab0"); noStroke();
-  triangle(x-104,y-122,x-80,y-190,x-52,y-122);
-  triangle(x+52,y-122,x+80,y-190,x+104,y-122);
-  stroke("#888"); strokeWeight(1.5);
-  line(x-90,y+18,x-185,y+5);  line(x-90,y+33,x-185,y+33);  line(x-90,y+48,x-185,y+58);
-  line(x+90,y+18,x+185,y+5);  line(x+90,y+33,x+185,y+33);  line(x+90,y+48,x+185,y+58);
-  fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
-  addParticle(x, y, "#ff4d6d");
-  pop();
-}
-
-function drawRabbitFilter_fixed(x, y) {
-  push();
-  fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2);
-  ellipse(x-72,y-195,58,175); ellipse(x+72,y-195,58,175);
-  fill("#ffb6c1"); noStroke();
-  ellipse(x-72,y-195,30,115); ellipse(x+72,y-195,30,115);
-  fill("#ffaabb"); ellipse(x,y+24,18,13);
-  addParticle(x, y, "#ffd6e8");
-  pop();
-}
-
-function drawGlassesFilter_fixed(x, y) {
-  push();
-  noFill(); stroke("#222"); strokeWeight(5); rectMode(CORNER);
-  rect(x-103,y-47,88,60,14); rect(x+15,y-47,88,60,14);
-  line(x-15,y-22,x+15,y-22);
-  line(x-103,y-22,x-135,y-16); line(x+103,y-22,x+135,y-16);
-  addParticle(x, y, "#4cc9f0");
-  pop();
-}
-
-function drawCrownFilter_fixed(x, y) {
-  push();
-  fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
-  beginShape();
-  vertex(x-115,y-105); vertex(x-85,y-195); vertex(x-42,y-128);
-  vertex(x,y-215);     vertex(x+42,y-128); vertex(x+85,y-195);
-  vertex(x+115,y-105); vertex(x+115,y-68); vertex(x-115,y-68);
-  endShape(CLOSE);
-  noStroke();
-  fill("#ff4d6d"); circle(x-68,y-112,20);
-  fill("#a78bfa"); circle(x,y-148,20);
-  fill("#ff4d6d"); circle(x+68,y-112,20);
-  addParticle(x, y, "#ffd700");
-  pop();
-}
-
-// ============================================================
-// PARTICLE SYSTEM
-// ============================================================
-function addParticle(x, y, col) {
-  if (particles.length >= MAX_PARTICLES) return;
-  particles.push([
-    x + random(-220, 220),
-    y + random(-220, 220),
-    random(5, 14),
-    random(-0.8, 0.8),
-    random(-2.5, -0.5),
-    col,
-    220
-  ]);
-}
-
-function updateParticles() {
-  noStroke();
-  for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
+  // Decorative circles (배열 .length 사용)
+  for (let i = 0; i < frameColors.length; i++) {
     push();
-    fill(p[P_COL]);
-    circle(p[P_X], p[P_Y], p[P_SIZE]);
+    fill(frameColors[i] + "88");
+    noStroke();
+    let cx = (i % 3) * (width / 2.5) + width / 8;
+    let cy = i < 2 ? height * 0.12 : height * 0.88;
+    ellipse(cx, cy, 160, 160);
     pop();
-    p[P_X]     += p[P_SPX];
-    p[P_Y]     += p[P_SPY];
-    p[P_ALPHA] -= 4;
-    if (p[P_ALPHA] <= 0) particles.splice(i, 1);
+  }
+
+  fill("#ff4d6d");
+  textSize(68);
+  text("📸 4CUT BOOTH", width / 2, height / 2 - 110);
+
+  fill("#999");
+  textSize(20);
+  text("나만의 인생네컷을 만들어보세요 ✨", width / 2, height / 2 - 55);
+
+  fill("#ff4d6d");
+  noStroke();
+  rect(width/2 - 130, height/2 - 8, 260, 65, 33);
+  fill(255);
+  textSize(30);
+  text("START  ▶", width / 2, height / 2 + 25);
+
+  pop();
+}
+
+// ============================================================
+// SCREEN 2: SETTINGS
+// ============================================================
+function drawSettings() {
+  push();
+  textAlign(CENTER, CENTER);
+  noStroke();
+
+  fill("#333");
+  textSize(38);
+  text("⚙️  SETTINGS", width / 2, 72);
+
+  // Frame selection
+  fill("#666");
+  textSize(20);
+  text("프레임 선택 (Frame)", width / 2, 138);
+
+  for (let i = 0; i < frameNames.length; i++) {
+    push();
+    let bx = width/2 - 240 + i * 160;
+    let by = 175;
+    if (selectedFrame === i) {
+      fill(frameDark[i]); stroke(frameDark[i]);
+    } else {
+      fill("#fff"); stroke("#ddd");
+    }
+    strokeWeight(2);
+    rect(bx - 60, by, 120, 62, 12);
+    fill(frameColors[i]); noStroke();
+    circle(bx - 22, by + 31, 26);
+    fill(selectedFrame === i ? "#fff" : "#333");
+    textSize(15);
+    text(frameNames[i], bx + 20, by + 32);
+    pop();
+  }
+
+  // Filter selection
+  fill("#666"); noStroke();
+  textSize(20);
+  text("AR 필터 선택 (Filter)", width / 2, 288);
+
+  for (let i = 0; i < filterNames.length; i++) {
+    push();
+    let bx = width/2 - 240 + i * 160;
+    let by = 318;
+    if (selectedFilter === i) {
+      fill("#ff4d6d"); stroke("#ff4d6d");
+    } else {
+      fill("#fff"); stroke("#ddd");
+    }
+    strokeWeight(2);
+    rect(bx - 60, by, 120, 62, 12);
+    fill(selectedFilter === i ? "#fff" : "#333"); noStroke();
+    textSize(22);
+    text(filterNames[i], bx, by + 31);
+    pop();
+  }
+
+  // Photo count
+  push();
+  fill("#aaa"); noStroke();
+  textSize(15);
+  text("이미 촬영된 사진: " + photos.length + " / 4", width / 2, 425);
+  pop();
+
+  // Start button
+  push();
+  fill("#ff4d6d"); noStroke();
+  rect(width/2 - 140, height - 132, 280, 62, 31);
+  fill(255); textSize(26);
+  text("촬영 시작  📷", width / 2, height - 101);
+  pop();
+
+  // Back button
+  push();
+  fill("#eee"); noStroke();
+  rectMode(CORNER);
+  rect(25, 20, 90, 38, 19);
+  fill("#777"); textSize(15);
+  text("← BACK", 70, 39);
+  pop();
+
+  pop();
+}
+
+// ============================================================
+// SCREEN 3: CAMERA
+// ============================================================
+function drawCamera() {
+  push();
+
+  let camW = 480;
+  let camH = 360;
+  let camX = width  / 2;
+  let camY = height / 2 - 20;
+
+  // Camera border
+  push();
+  stroke(frameDark[selectedFrame]);
+  strokeWeight(6); noFill();
+  rectMode(CENTER);
+  rect(camX, camY, camW + 10, camH + 10, 10);
+  pop();
+
+  // Camera feed
+  push();
+  imageMode(CENTER);
+  image(cam, camX, camY, camW, camH);
+  pop();
+
+  // AR filter (ar-filter.js 의 함수 호출)
+  drawARFilter(camX, camY, selectedFilter);
+
+  // Particles (ar-filter.js 의 함수 호출)
+  updateParticles();
+
+  // Face status indicator (ar-filter.js)
+  drawFaceStatus(width, height);
+
+  // Top title
+  push();
+  noStroke(); fill("#ff4d6d");
+  textAlign(CENTER, CENTER); textSize(26);
+  text("📷  4CUT BOOTH", width / 2, 38);
+  pop();
+
+  // Progress dots (배열 .length 사용)
+  push();
+  noStroke();
+  for (let i = 0; i < 4; i++) {
+    fill(i < photos.length ? frameDark[selectedFrame] : "#ddd");
+    circle(width/2 - 45 + i * 30, 70, 16);
+  }
+  fill("#888"); textAlign(CENTER, CENTER); textSize(13);
+  text(photos.length + " / 4 장", width / 2, 88);
+  pop();
+
+  // Capture button
+  push();
+  noStroke();
+  fill(counting ? "#ccc" : "#ff4d6d");
+  circle(width / 2, height - 65, 76);
+  fill(255); textAlign(CENTER, CENTER); textSize(13);
+  text("CAPTURE", width / 2, height - 65);
+  pop();
+
+  // Back button
+  push();
+  fill("#eee"); noStroke(); rectMode(CORNER);
+  rect(25, 20, 90, 38, 19);
+  fill("#777"); textAlign(CENTER, CENTER); textSize(15);
+  text("← BACK", 70, 39);
+  pop();
+
+  // Keyboard hint
+  push();
+  fill("#bbb"); noStroke(); textAlign(CENTER, CENTER); textSize(12);
+  text("키보드: 1=Cat  2=Rabbit  3=Glasses  4=Crown", width / 2, height - 22);
+  pop();
+
+  // Countdown overlay
+  if (counting) {
+    let elapsed = (millis() - countdownStart) / 1000;
+    let current = 3 - floor(elapsed);
+    if (current <= 0 && !photoJustTaken) {
+      photoJustTaken = true;
+      counting = false;
+      capturePhoto(camX, camY, camW, camH);
+    } else if (current > 0) {
+      push();
+      noStroke(); fill(255, 50, 100, 190);
+      circle(width / 2, camY, 160);
+      fill(255); textAlign(CENTER, CENTER); textSize(95);
+      text(str(current), width / 2, camY + 10);
+      pop();
+    }
+  }
+
+  // Flash effect
+  if (flashAlpha > 0) {
+    push();
+    noStroke(); fill(255, 255, 255, flashAlpha);
+    rectMode(CORNER); rect(0, 0, width, height);
+    flashAlpha -= 18;
+    if (flashAlpha < 0) flashAlpha = 0;
+    pop();
+  }
+
+  pop();
+}
+
+// ============================================================
+// SCREEN 4: RESULT
+// ============================================================
+function drawResult() {
+  push();
+  textAlign(CENTER, CENTER); noStroke();
+
+  fill("#333"); textSize(34);
+  text("✨  나의 인생네컷", width / 2, 50);
+
+  let stripW = 200;
+  let photoH = 120;
+  let gap    = 8;
+  let stripH = photoH * 4 + gap * 5;
+  let stripX = width / 2 - stripW / 2;
+  let stripY = 80;
+
+  // Frame
+  fill(frameColors[selectedFrame]);
+  stroke(frameDark[selectedFrame]); strokeWeight(3);
+  rectMode(CORNER);
+  rect(stripX - 14, stripY - 14, stripW + 28, stripH + 28, 12);
+
+  // Photos (배열 .length 사용)
+  for (let i = 0; i < photos.length; i++) {
+    push();
+    imageMode(CORNER);
+    image(photos[i], stripX, stripY + gap + i * (photoH + gap), stripW, photoH);
+    pop();
+  }
+  for (let i = photos.length; i < 4; i++) {
+    push();
+    fill("#e0e0e0"); noStroke(); rectMode(CORNER);
+    rect(stripX, stripY + gap + i * (photoH + gap), stripW, photoH, 4);
+    fill("#aaa"); textAlign(CENTER, CENTER); textSize(13);
+    text("사진 없음", stripX + stripW/2, stripY + gap + i*(photoH+gap) + photoH/2);
+    pop();
+  }
+
+  // Date
+  push();
+  noStroke(); fill("#888"); textSize(12);
+  let d = new Date();
+  text(d.getFullYear() + "." + nf(d.getMonth()+1,2) + "." + nf(d.getDate(),2),
+       width/2, stripY + stripH + 6);
+  pop();
+
+  // Save button
+  push();
+  fill("#ff4d6d"); noStroke();
+  rect(width/2 - 120, height - 145, 240, 55, 28);
+  fill(255); textSize(22);
+  text("💾  저장하기", width / 2, height - 117);
+  pop();
+
+  // Retake button
+  push();
+  fill("#eee"); noStroke();
+  rect(width/2 - 120, height - 80, 240, 48, 24);
+  fill("#555"); textSize(20);
+  text("🔄  다시 찍기", width / 2, height - 56);
+  pop();
+
+  pop();
+}
+
+// ============================================================
+// CAPTURE
+// ============================================================
+function startCountdown() {
+  if (!counting && photos.length < 4) {
+    counting        = true;
+    photoJustTaken  = false;
+    countdownStart  = millis();
+  }
+}
+
+function capturePhoto(camX, camY, camW, camH) {
+  flashAlpha = 255;
+  let shot = get(camX - camW/2, camY - camH/2, camW, camH);
+  photos.push(shot);
+  if (photos.length >= 4) {
+    setTimeout(() => { state = "result"; }, 700);
   }
 }
 
 // ============================================================
-// STATUS INDICATOR
+// MOUSE
 // ============================================================
-function drawFaceStatus(canvasW, canvasH) {
-  push();
-  noStroke(); textAlign(LEFT, CENTER); textSize(13);
-  if (!faceReady) {
-    fill(255, 200, 0, 200);
-    text("⏳ ML5 FaceMesh 로딩 중...", 140, canvasH - 65);
-  } else if (!hasFace()) {
-    fill(255, 100, 100, 200);
-    text("😶 얼굴을 카메라에 맞춰주세요", 140, canvasH - 65);
-  } else {
-    fill(100, 220, 100, 200);
-    text("✅ 얼굴 인식 중", 140, canvasH - 65);
+function mousePressed() {
+  if (state === "start") {
+    let bx = width/2 - 130, by = height/2 - 8;
+    if (mouseX > bx && mouseX < bx+260 && mouseY > by && mouseY < by+65)
+      state = "settings";
   }
-  pop();
+
+  else if (state === "settings") {
+    if (mouseX > 25 && mouseX < 115 && mouseY > 20 && mouseY < 58) {
+      state = "start"; return;
+    }
+    for (let i = 0; i < frameNames.length; i++) {
+      let bx = width/2 - 240 + i*160 - 60;
+      if (mouseX > bx && mouseX < bx+120 && mouseY > 175 && mouseY < 237)
+        selectedFrame = i;
+    }
+    for (let i = 0; i < filterNames.length; i++) {
+      let bx = width/2 - 240 + i*160 - 60;
+      if (mouseX > bx && mouseX < bx+120 && mouseY > 318 && mouseY < 380)
+        selectedFilter = i;
+    }
+    if (mouseX > width/2-140 && mouseX < width/2+140 &&
+        mouseY > height-132  && mouseY < height-70)
+      state = "camera";
+  }
+
+  else if (state === "camera") {
+    if (mouseX > 25 && mouseX < 115 && mouseY > 20 && mouseY < 58) {
+      state = "settings"; return;
+    }
+    if (dist(mouseX, mouseY, width/2, height-65) < 38 && !counting)
+      startCountdown();
+  }
+
+  else if (state === "result") {
+    if (mouseX > width/2-120 && mouseX < width/2+120 &&
+        mouseY > height-145  && mouseY < height-90)
+      saveCanvas("my_4cut", "png");
+
+    if (mouseX > width/2-120 && mouseX < width/2+120 &&
+        mouseY > height-80   && mouseY < height-32) {
+      photos    = [];
+      particles = [];
+      state     = "camera";
+    }
+  }
+}
+
+// ============================================================
+// KEYBOARD
+// ============================================================
+function keyPressed() {
+  if (key === "1") selectedFilter = 0;
+  if (key === "2") selectedFilter = 1;
+  if (key === "3") selectedFilter = 2;
+  if (key === "4") selectedFilter = 3;
 }
