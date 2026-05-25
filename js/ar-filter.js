@@ -5,7 +5,7 @@
 // ============================================================
 
 // ---------- ML5 FaceMesh state ----------
-let facemesh;
+// facemesh — sketch.js에서 선언됨 (중복 방지)
 let facePredictions = [];   // ml5가 예측한 얼굴 데이터 배열
 let faceReady      = false; // 모델 로딩 완료 여부
 
@@ -50,21 +50,21 @@ function initFaceMesh(camElement) {
 
 // ============================================================
 // 좌표 변환 헬퍼
-// ML5 FaceMesh scaledMesh[index] = [x, y, z] (비디오 픽셀 단위)
+// ML5 v1: facePredictions[0].keypoints[index].x / .y (비디오 픽셀 단위)
 // → p5.js 캔버스 좌표로 변환 (미러 처리 포함)
 // ============================================================
 function lm(index, camX, camY) {
   if (!facePredictions || facePredictions.length === 0) {
     return { x: camX, y: camY };
   }
-  let mesh = facePredictions[0].scaledMesh;
-  if (!mesh || index >= mesh.length) return { x: camX, y: camY };
+  let keypoints = facePredictions[0].keypoints;
+  if (!keypoints || index >= keypoints.length) return { x: camX, y: camY };
 
-  let vx = mesh[index][0];
-  let vy = mesh[index][1];
+  let vx = keypoints[index].x; // 비디오 내 x (0~640)
+  let vy = keypoints[index].y; // 비디오 내 y (0~480)
 
   return {
-    x: camX + (CAM_W / 2 - vx * SCALE_X),
+    x: camX + (CAM_W / 2 - vx * SCALE_X), // 미러 반전
     y: camY - CAM_H / 2 + vy * SCALE_Y
   };
 }
