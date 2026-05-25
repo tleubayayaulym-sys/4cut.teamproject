@@ -6,17 +6,20 @@ let countdown = 0;
 
 let isCapturing = false;
 
-// setup camera
+// 카메라 설정
 function setupCamera() {
 
     video = createCapture(VIDEO);
 
-    video.size(width, height);
+    video.size(
+        windowWidth,
+        windowHeight
+    );
 
     video.hide();
 }
 
-// draw camera screen
+// 카메라 화면
 function drawCamera() {
 
     // fullscreen camera
@@ -28,18 +31,30 @@ function drawCamera() {
         height
     );
 
-    // COUNTDOWN
+    // dark overlay
+    fill(0, 0, 0, 35);
+
+    rect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    // countdown
     if (countdown > 0) {
 
         fill(255);
 
-        stroke(0);
+        stroke("#ff4d6d");
 
-        strokeWeight(6);
+        strokeWeight(7);
 
         textAlign(CENTER, CENTER);
 
-        textSize(width * 0.2);
+        textSize(
+            min(width * 0.2, 150)
+        );
 
         text(
             countdown,
@@ -52,7 +67,7 @@ function drawCamera() {
     drawPhotoPreview();
 }
 
-// start sequence
+// 촬영 시작
 function startPhotoSequence() {
 
     if (isCapturing) {
@@ -66,7 +81,7 @@ function startPhotoSequence() {
     takePhoto(0);
 }
 
-// take 4 photos
+// 4장 촬영
 function takePhoto(index) {
 
     // finish
@@ -85,7 +100,7 @@ function takePhoto(index) {
 
         countdown--;
 
-        // take photo
+        // capture
         if (countdown <= 0) {
 
             clearInterval(timer);
@@ -103,7 +118,7 @@ function takePhoto(index) {
 
                 takePhoto(index + 1);
 
-            }, 1000);
+            }, 900);
         }
 
     }, 1000);
@@ -114,10 +129,15 @@ function flashEffect() {
 
     fill(255);
 
-    rect(0, 0, width, height);
+    rect(
+        0,
+        0,
+        width,
+        height
+    );
 }
 
-// preview photos
+// preview
 function drawPhotoPreview() {
 
     let previewSize;
@@ -131,45 +151,59 @@ function drawPhotoPreview() {
     // desktop
     else {
 
-        previewSize = 110;
+        previewSize = 120;
     }
 
     let gap = 10;
 
     let totalWidth =
-        previewSize * 4 + gap * 3;
+        previewSize * 4 +
+        gap * 3;
 
     let startX =
-        width / 2 - totalWidth / 2;
+        width / 2 -
+        totalWidth / 2;
 
     let y =
-        height - previewSize - 20;
+        height -
+        previewSize -
+        20;
 
-    // slots
+    // preview slots
     for (let i = 0; i < 4; i++) {
 
-        fill(255, 180);
+        fill(255);
 
-        stroke(255);
+        stroke("#ff4d6d");
 
-        strokeWeight(2);
+        strokeWeight(3);
 
         rect(
-            startX + i * (previewSize + gap),
+            startX +
+            i * (previewSize + gap),
+
             y,
+
             previewSize,
+
             previewSize * 0.75,
-            12
+
+            15
         );
 
-        // image
+        // photo
         if (capturedPhotos[i]) {
 
             image(
                 capturedPhotos[i],
-                startX + i * (previewSize + gap),
+
+                startX +
+                i * (previewSize + gap),
+
                 y,
+
                 previewSize,
+
                 previewSize * 0.75
             );
         }
