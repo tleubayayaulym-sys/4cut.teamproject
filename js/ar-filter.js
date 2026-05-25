@@ -35,7 +35,7 @@ const SCALE_Y = CAM_H / 480;
 // ============================================================
 function initFaceMesh(camElement) {
   // ML5.js FaceMesh 초기화 — 수업에서 배운 ml5.handPose와 동일한 패턴
-  facemesh = ml5.facemesh(camElement, () => {
+facemesh = ml5.faceMesh(camElement, { maxFaces: 1 }, () => {
     faceReady = true;
     console.log("ML5 FaceMesh 모델 로딩 완료!");
   });
