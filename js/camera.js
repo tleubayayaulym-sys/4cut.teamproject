@@ -1,216 +1,135 @@
-let video;
+// js/camera.js
+// Tleubai: логика камеры, countdown, вспышка и захват 4 кадров
 
-let capturedPhotos = [];
+let stream = null;
+let shotIndex = 0;
 
-let countdown = 0;
-
-let isCapturing = false;
-
-// setup camera
-function setupCamera() {
-
-    video = createCapture({
-
-        video: true,
-        audio: false
-    });
-
-    video.size(windowWidth, windowHeight);
-
-    video.hide();
+// получаем кадры как DataURL (через canvas)
+export function getCameraStream() {
+  return stream;
 }
 
-// draw camera screen
-function drawCamera() {
-
-    // camera
-    image(
-        video,
-        0,
-        0,
-        windowWidth,
-        windowHeight
-    );
-
-    // silver overlay
-    fill(255, 255, 255, 35);
-
-    rect(0, 0, width, height);
-
-    // title
-    fill(255);
-
-    stroke(180);
-
-    strokeWeight(3);
-
-    textAlign(CENTER, CENTER);
-
-    textSize(min(width * 0.06, 32));
-
-    text(
-        "Silver Photo Booth ✨",
-        width / 2,
-        40
-    );
-
-    // countdown
-    if (countdown > 0) {
-
-        fill(255);
-
-        stroke(180);
-
-        strokeWeight(6);
-
-        textSize(width * 0.15);
-
-        text(
-            countdown,
-            width / 2,
-            height / 2
-        );
-    }
-
-    // preview photos
-    drawPhotoPreview();
-
-    // stars
-    drawStars();
+function showFlash(flashEl, duration = 160) {
+  if (!flashEl) return;
+  flashEl.style.opacity = "1";
+  flashEl.style.transition = `opacity ${duration}ms ease`;
+  setTimeout(() => {
+    flashEl.style.opacity = "0";
+  }, duration);
 }
 
-// start sequence
-function startPhotoSequence() {
+/**
+ * initCamera — старт камеры
+ * videoEl: <video>
+ */
+export async function initCamera({
+  videoEl,
+  flashEl,
+  onReady,
+} = {}) {
+  const constraints = {
+    video: {
+      facingMode: "user",
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+    },
+    audio: false,
+  };
 
-    if (isCapturing) {
-        return;
-    }
-
-    capturedPhotos = [];
-
-    isCapturing = true;
-
-    takePhoto(0);
+  try {
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    onReady?.();
+  } catch (e) {
+    console.error(e);
+    alert("Не удалось открыть камеру. Проверь разрешения.");
+  }
 }
 
-// take 4 photos
-function takePhoto(index) {
+/**
+ * captureFrame — захват одного кадра из video в canvas и возврат DataURL
+ */
+export function captureFrame({ videoEl, captureCanvas }) {
+  const w = captureCanvas.width;
+  const h = captureCanvas.height;
 
-    if (index >= 4) {
+  const ctx = captureCanvas.getContext("2d");
+  ctx.save();
 
-        isCapturing = false;
+  // Чтобы не было растяжения: масштабируем видео под canvas
+  // (простая версия для демо)
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(videoEl, 0, 0, w, h);
 
-        currentScreen = "result";
-
-        return;
-    }
-
-    countdown = 3;
-
-    let timer = setInterval(() => {
-
-        countdown--;
-
-        if (countdown <= 0) {
-
-            clearInterval(timer);
-
-            flashEffect();
-
-            let img = video.get();
-
-            capturedPhotos.push(img);
-
-            setTimeout(() => {
-
-                takePhoto(index + 1);
-
-            }, 1000);
-        }
-
-    }, 1000);
+  ctx.restore();
+  return captureCanvas.toDataURL("image/png");
 }
 
-// flash
-function flashEffect() {
+/**
+ * startBooth4Shots — делает 4 фото подряд:
+ * countdown 3..2..1, потом захват, потом снова
+ * flash — визуальный эффект
+ *
+ * onCaptured: callback(index, dataURL)
+ * onDone: callback(photosArray)
+ */
+export function startBooth4Shots({
+  videoEl,
+  uiCountdownEl,
+  flashEl,
+  captureCanvas,
+  onCaptured,
+  onDone,
+  countdownFrom = 3,
+} = {}) {
+  shotIndex = 0;
+  const photos = [];
 
-    fill(255);
+  const tick = (n) => {
+    if (!uiCountdownEl) return;
+    uiCountdownEl.textContent = String(n);
+  };
 
-    rect(0, 0, width, height);
-}
+  const hideCountdown = () => {
+    if (!uiCountdownEl) uiCountdownEl.textContent = "";
+  };
 
-// stars
-function drawStars() {
+  const takeOne = () => {
+    // вспышка перед снимком
+    showFlash(flashEl, 140);
 
-    noStroke();
+    const dataURL = captureFrame({ videoEl, captureCanvas });
+    photos.push(dataURL);
 
-    for (let i = 0; i < 20; i++) {
+    onCaptured?.(shotIndex, dataURL);
+    shotIndex += 1;
 
-        fill(255, random(80, 180));
-
-        ellipse(
-            random(width),
-            random(height),
-            random(2, 5)
-        );
+    if (shotIndex >= 4) {
+      hideCountdown();
+      onDone?.(photos);
+      return;
     }
-}
 
-// preview photos
-function drawPhotoPreview() {
+    // следующий выстрел: снова countdown
+    runCountdown();
+  };
 
-    let previewSize;
+  const runCountdown = () => {
+    let n = countdownFrom;
+    tick(n);
 
-    // mobile
-    if (width < 700) {
+    const id = setInterval(() => {
+      n -= 1;
+      tick(n);
 
-        previewSize = width * 0.18;
-    }
+      if (n <= 0) {
+        clearInterval(id);
+        hideCountdown();
+        takeOne();
+      }
+    }, 900);
+  };
 
-    // desktop
-    else {
-
-        previewSize = 110;
-    }
-
-    let gap = 10;
-
-    let totalWidth =
-        previewSize * 4 + gap * 3;
-
-    let startX =
-        width / 2 - totalWidth / 2;
-
-    let y =
-        height - previewSize - 20;
-
-    // slots
-    for (let i = 0; i < 4; i++) {
-
-        fill(255, 180);
-
-        stroke(200);
-
-        strokeWeight(2);
-
-        rect(
-            startX + i * (previewSize + gap),
-            y,
-            previewSize,
-            previewSize * 0.75,
-            12
-        );
-
-        // image
-        if (capturedPhotos[i]) {
-
-            image(
-                capturedPhotos[i],
-                startX + i * (previewSize + gap),
-                y,
-                previewSize,
-                previewSize * 0.75
-            );
-        }
-    }
+  runCountdown();
 }
