@@ -1,3 +1,4 @@
+
 let video;
 
 let capturedPhotos = [];
@@ -11,7 +12,7 @@ function setupCamera() {
 
     video = createCapture(VIDEO);
 
-    video.size(640, 480);
+    video.size(width, height);
 
     video.hide();
 }
@@ -19,7 +20,7 @@ function setupCamera() {
 // draw camera screen
 function drawCamera() {
 
-    // camera fullscreen
+    // fullscreen camera
     image(
         video,
         0,
@@ -28,36 +29,16 @@ function drawCamera() {
         height
     );
 
-    // silver overlay
-    fill(255, 255, 255, 35);
-
-    rect(0, 0, width, height);
-
-    // title
-    fill(255);
-
-    stroke(180);
-
-    strokeWeight(3);
-
-    textAlign(CENTER, CENTER);
-
-    textSize(min(width * 0.06, 32));
-
-    text(
-        "Silver Photo Booth ✨",
-        width / 2,
-        40
-    );
-
     // countdown
     if (countdown > 0) {
 
         fill(255);
 
-        stroke(180);
+        stroke(0);
 
-        strokeWeight(6);
+        strokeWeight(5);
+
+        textAlign(CENTER, CENTER);
 
         textSize(width * 0.15);
 
@@ -70,9 +51,6 @@ function drawCamera() {
 
     // preview photos
     drawPhotoPreview();
-
-    // stars
-    drawStars();
 }
 
 // start sequence
@@ -135,23 +113,6 @@ function flashEffect() {
     rect(0, 0, width, height);
 }
 
-// stars
-function drawStars() {
-
-    noStroke();
-
-    for (let i = 0; i < 20; i++) {
-
-        fill(255, random(80, 180));
-
-        ellipse(
-            random(width),
-            random(height),
-            random(2, 5)
-        );
-    }
-}
-
 // preview photos
 function drawPhotoPreview() {
 
@@ -185,7 +146,7 @@ function drawPhotoPreview() {
 
         fill(255, 180);
 
-        stroke(200);
+        stroke(255);
 
         strokeWeight(2);
 
@@ -210,3 +171,4 @@ function drawPhotoPreview() {
         }
     }
 }
+
