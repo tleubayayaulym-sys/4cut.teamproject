@@ -34,41 +34,12 @@ function draw() {
     }
 }
 
-// start screen
+// START SCREEN
 function drawStartScreen() {
 
     background(210, 210, 210);
 
-    // glow
-    fill(255, 120);
-
-    ellipse(width / 2, height / 2, width * 0.7);
-
-    // title
-    fill(255);
-
-    stroke(170);
-
-    strokeWeight(4);
-
     textAlign(CENTER, CENTER);
-
-    textSize(width * 0.08);
-
-    text(
-        "Silver Photo Booth ✨",
-        width / 2,
-        height * 0.22
-    );
-
-    // bow
-    textSize(width * 0.12);
-
-    text(
-        "🎀",
-        width / 2,
-        height * 0.35
-    );
 
     // start button
     fill(245);
@@ -92,13 +63,13 @@ function drawStartScreen() {
     textSize(width * 0.05);
 
     text(
-        "START",
+        "시작",
         width / 2,
         height * 0.68 + 35
     );
 }
 
-// capture button
+// CAMERA BUTTON
 function drawCameraButton() {
 
     fill(245);
@@ -124,13 +95,13 @@ function drawCameraButton() {
     textSize(width * 0.05);
 
     text(
-        "CAPTURE",
+        "촬영하기",
         width / 2,
         height - 110
     );
 }
 
-// result screen
+// RESULT SCREEN
 function drawResultScreen() {
 
     background(235);
@@ -176,7 +147,7 @@ function drawResultScreen() {
         30
     );
 
-    // title
+    // result text
     fill(170);
 
     textAlign(CENTER);
@@ -186,7 +157,7 @@ function drawResultScreen() {
     );
 
     text(
-        "Your Photos ✨",
+        "촬영 결과",
         width / 2,
         70
     );
