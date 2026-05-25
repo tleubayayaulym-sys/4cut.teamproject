@@ -22,6 +22,9 @@ let frameColors   = ["#ffb6c1", "#b2f0e8", "#fff59d", "#e1bee7"];
 let frameDark     = ["#f48fb1", "#80cbc4", "#f9a825", "#ce93d8"];
 let filterNames   = ["🐱 Cat", "🐰 Rabbit", "👓 Glasses", "👑 Crown"];
 
+const CAM_W = 480;
+const CAM_H = 360;
+
 // ============================================================
 function setup() {
   createCanvas(windowWidth, windowHeight);
