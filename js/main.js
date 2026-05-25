@@ -3,11 +3,14 @@ let currentScreen = "start";
 // setup
 function setup() {
 
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(
+        windowWidth,
+        windowHeight
+    );
 
     setupCamera();
 
-    rectMode(CENTER);
+    rectMode(CORNER);
 
     textAlign(CENTER, CENTER);
 }
@@ -46,7 +49,9 @@ function drawStartScreen() {
     // title
     fill("#ff4d6d");
 
-    textSize(min(width * 0.1, 70));
+    textSize(
+        min(width * 0.1, 70)
+    );
 
     text(
         "4CUT BOOTH",
@@ -55,9 +60,11 @@ function drawStartScreen() {
     );
 
     // subtitle
-    fill("#555");
+    fill("#666");
 
-    textSize(min(width * 0.03, 24));
+    textSize(
+        min(width * 0.03, 24)
+    );
 
     text(
         "포토부스 촬영",
@@ -68,9 +75,11 @@ function drawStartScreen() {
     // start button
     fill("#ff4d6d");
 
+    noStroke();
+
     rect(
-        width / 2,
-        height * 0.62,
+        width / 2 - width * 0.21,
+        height * 0.62 - 40,
         width * 0.42,
         80,
         25
@@ -78,12 +87,14 @@ function drawStartScreen() {
 
     fill(255);
 
-    textSize(min(width * 0.05, 36));
+    textSize(
+        min(width * 0.05, 36)
+    );
 
     text(
         "시작하기",
         width / 2,
-        height * 0.62 + 3
+        height * 0.62
     );
 }
 
@@ -92,22 +103,26 @@ function drawCameraButton() {
 
     fill("#ff4d6d");
 
+    noStroke();
+
     rect(
-        width / 2,
-        height - 90,
+        width / 2 - width * 0.2,
+        height - 80,
         width * 0.4,
-        65,
+        60,
         25
     );
 
     fill(255);
 
-    textSize(min(width * 0.05, 34));
+    textSize(
+        min(width * 0.045, 32)
+    );
 
     text(
         "촬영하기",
         width / 2,
-        height - 88
+        height - 50
     );
 }
 
@@ -121,35 +136,39 @@ function drawResultScreen() {
     // mobile
     if (width < 700) {
 
-        stripWidth = width * 0.72;
+        stripWidth = width * 0.55;
     }
 
     // desktop
     else {
 
-        stripWidth = 340;
+        stripWidth = 320;
     }
 
     let stripX =
-        width / 2 - stripWidth / 2;
+        width / 2 -
+        stripWidth / 2;
 
     let photoWidth =
         stripWidth - 20;
 
+    // 세로 비율
     let photoHeight =
-        photoWidth * 0.75;
+        photoWidth * 1.25;
 
-    let gap = 12;
+    let gap = 10;
 
-    // strip
+    // strip background
     fill(255);
 
     rect(
-        width / 2,
-        height / 2,
+        stripX,
+        20,
         stripWidth,
-        photoHeight * 4 + gap * 3 + 50,
-        25
+        photoHeight * 4 +
+        gap * 3 +
+        20,
+        20
     );
 
     // photos
@@ -157,32 +176,38 @@ function drawResultScreen() {
 
         image(
             capturedPhotos[i],
+
             stripX + 10,
-            40 + i * (photoHeight + gap),
+
+            30 + i * (photoHeight + gap),
+
             photoWidth,
+
             photoHeight
         );
     }
 
-    // save button
+    // 저장 버튼
     fill("#ff4d6d");
 
     rect(
-        width / 2,
-        height - 70,
-        width * 0.38,
-        60,
+        width / 2 - width * 0.2,
+        height - 75,
+        width * 0.4,
+        55,
         20
     );
 
     fill(255);
 
-    textSize(min(width * 0.045, 30));
+    textSize(
+        min(width * 0.04, 28)
+    );
 
     text(
         "저장하기",
         width / 2,
-        height - 68
+        height - 48
     );
 }
 
@@ -203,40 +228,67 @@ function touchStarted() {
 // button logic
 function handleButtons() {
 
-    // 시작 버튼
+    // 시작하기
     if (
         currentScreen === "start" &&
-        mouseX > width / 2 - width * 0.21 &&
-        mouseX < width / 2 + width * 0.21 &&
-        mouseY > height * 0.62 - 40 &&
-        mouseY < height * 0.62 + 40
+
+        mouseX >
+        width / 2 - width * 0.21 &&
+
+        mouseX <
+        width / 2 + width * 0.21 &&
+
+        mouseY >
+        height * 0.62 - 40 &&
+
+        mouseY <
+        height * 0.62 + 40
     ) {
 
         currentScreen = "camera";
     }
 
-    // 촬영 버튼
+    // 촬영하기
     else if (
         currentScreen === "camera" &&
-        mouseX > width / 2 - width * 0.2 &&
-        mouseX < width / 2 + width * 0.2 &&
-        mouseY > height - 122 &&
-        mouseY < height - 58
+
+        mouseX >
+        width / 2 - width * 0.2 &&
+
+        mouseX <
+        width / 2 + width * 0.2 &&
+
+        mouseY >
+        height - 80 &&
+
+        mouseY <
+        height - 20
     ) {
 
         startPhotoSequence();
     }
 
-    // 저장 버튼
+    // 저장하기
     else if (
         currentScreen === "result" &&
-        mouseX > width / 2 - width * 0.19 &&
-        mouseX < width / 2 + width * 0.19 &&
-        mouseY > height - 100 &&
-        mouseY < height - 40
+
+        mouseX >
+        width / 2 - width * 0.2 &&
+
+        mouseX <
+        width / 2 + width * 0.2 &&
+
+        mouseY >
+        height - 75 &&
+
+        mouseY <
+        height - 20
     ) {
 
-        saveCanvas("4cut-photo", "png");
+        saveCanvas(
+            "4cut-photo",
+            "png"
+        );
     }
 }
 
