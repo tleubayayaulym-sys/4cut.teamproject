@@ -1,9 +1,3 @@
-// ============================================================
-// sketch.js — Main p5.js entry point
-// 틀레우바이 아야у름 담당 (UI flow, camera, state control)
-// ar-filter.js (Tamy) 함수를 호출하여 AR 필터 적용
-// ============================================================
-
 let cam;
 let state         = "start";    // "start" | "settings" | "camera" | "result"
 let selectedFrame = 0;
