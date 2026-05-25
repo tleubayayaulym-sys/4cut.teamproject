@@ -31,16 +31,6 @@ function drawCamera() {
         height
     );
 
-    // dark overlay
-    fill(0, 0, 0, 35);
-
-    rect(
-        0,
-        0,
-        width,
-        height
-    );
-
     // countdown
     if (countdown > 0) {
 
@@ -129,83 +119,4 @@ function flashEffect() {
 
     fill(255);
 
-    rect(
-        0,
-        0,
-        width,
-        height
-    );
-}
-
-// preview
-function drawPhotoPreview() {
-
-    let previewSize;
-
-    // mobile
-    if (width < 700) {
-
-        previewSize = width * 0.18;
-    }
-
-    // desktop
-    else {
-
-        previewSize = 120;
-    }
-
-    let gap = 10;
-
-    let totalWidth =
-        previewSize * 4 +
-        gap * 3;
-
-    let startX =
-        width / 2 -
-        totalWidth / 2;
-
-    let y =
-        height -
-        previewSize -
-        20;
-
-    // preview slots
-    for (let i = 0; i < 4; i++) {
-
-        fill(255);
-
-        stroke("#ff4d6d");
-
-        strokeWeight(3);
-
-        rect(
-            startX +
-            i * (previewSize + gap),
-
-            y,
-
-            previewSize,
-
-            previewSize * 0.75,
-
-            15
-        );
-
-        // photo
-        if (capturedPhotos[i]) {
-
-            image(
-                capturedPhotos[i],
-
-                startX +
-                i * (previewSize + gap),
-
-                y,
-
-                previewSize,
-
-                previewSize * 0.75
-            );
-        }
-    }
-}
+   
