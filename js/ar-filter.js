@@ -42,7 +42,7 @@ function initFaceMesh(camElement) {
 function lm(index, camX, camY) {
   if (!faceLandmarks || index >= faceLandmarks.length) return { x: camX, y: camY };
   let l = faceLandmarks[index];
-  return { x: camX + (0.5 - l.x) * CAM_W, y: camY + (l.y - 0.5) * CAM_H };
+  return { x: camX + (l.x - 0.5) * CAM_W, y: camY + (l.y - 0.5) * CAM_H };
 }
 
 function faceWidth(camX, camY) {
