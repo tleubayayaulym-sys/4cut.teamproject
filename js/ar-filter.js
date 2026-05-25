@@ -45,7 +45,6 @@ function initFaceMesh(camElement) {
 
   faceReady = true;
 
-  // Dùng setInterval thay vì MediaPipe Camera (tránh conflict với p5.js)
   let isProcessing = false;
   setInterval(async () => {
     if (!isProcessing && videoEl.readyState >= 2) {
@@ -55,10 +54,7 @@ function initFaceMesh(camElement) {
       } catch (e) {}
       isProcessing = false;
     }
-  }, 67); // ~15fps
-}
-  mpCamera.start();
-  faceReady = true;
+  }, 67);
 }
 
 // ============================================================
