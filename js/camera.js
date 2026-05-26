@@ -32,6 +32,9 @@ function drawCamera() {
         width,
         height
     );
+    // — 응웬 바오 담 (Tamy) 추가
+drawARFilter(width / 2, height / 2, selectedFilter);
+drawFaceStatus(width, height);
 
     // countdown
     if (countdown > 0) {
