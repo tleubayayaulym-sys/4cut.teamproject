@@ -311,9 +311,9 @@ function windowResized() {
         windowHeight
     );
 
-    if (video) {
+    if (VIDEO) {
 
-        video.size(
+        VIDEO.size(
             windowWidth,
             windowHeight
         );
