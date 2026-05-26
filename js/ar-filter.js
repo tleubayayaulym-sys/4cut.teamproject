@@ -102,3 +102,4 @@ function veFilterVuong(cx, cy) {
   fill("#ff4d6d"); circle(cx+68, y-8,  20);
   pop();
 }
+function updateParticles() {}
