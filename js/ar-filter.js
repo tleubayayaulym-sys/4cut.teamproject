@@ -26,7 +26,7 @@ function veFilterMeo(cx, cy) {
   fill("#ff9ab0"); noStroke();
   triangle(cx-100, y-5, cx-75, y-78, cx-48, y-5);
   triangle(cx+48,  y-5, cx+75, y-78, cx+100, y-5);
-
+function updateParticles() {}
   // усы
   stroke("#aaa"); strokeWeight(1.5);
   line(cx-20, cy+10, cx-120, cy);
