@@ -350,5 +350,8 @@ function hienTrangThaiMat(chieuRongCanvas, chieuCaoCanvas) {
     text("✅ Đang nhận diện khuôn mặt", 20, chieuCaoCanvas - 55);
   }
 
+function initFaceMesh(camera)      { khoiDongNhanDienMat(camera); }
+function drawARFilter(x, y, f)     { veARFilter(x, y, f); }
+function drawFaceStatus(w, h)      { hienTrangThaiMat(w, h); }
   pop();
 }
