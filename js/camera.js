@@ -1,3 +1,7 @@
+const CAM_W = 640;
+const CAM_H = 480;
+
+let selectedFilter = 0;
 let video;
 
 let capturedPhotos = [];
@@ -16,7 +20,9 @@ function setupCamera() {
         windowHeight
     );
 
-    video.hide();
+   video.hide();
+
+initFaceMesh(video);
 }
 
 // 카메라 화면
@@ -26,11 +32,24 @@ function drawCamera() {
 
     // fullscreen camera
     image(
-        video,
-        0,
-        0,
-        width,
-        height
+    video,
+    0,
+    0,
+    width,
+    height
+);
+   drawARFilter(
+    width / 2,
+    height / 2,
+    selectedFilter
+);
+
+updateParticles();
+
+drawFaceStatus(
+    width,
+    height
+);
     );
     // — 응웬 바오 담 (Tamy) 추가
 drawARFilter(width / 2, height / 2, selectedFilter);
