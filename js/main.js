@@ -311,11 +311,10 @@ function windowResized() {
         windowHeight
     );
 
-    if (VIDEO) {
+    if (video) {
 
-        VIDEO.size(
-            windowWidth,
-            windowHeight
-        );
+       if (video && video.size) {
+  video.size(windowWidth, windowHeight);
+}
     }
 }
