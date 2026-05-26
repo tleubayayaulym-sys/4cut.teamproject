@@ -1,215 +1,321 @@
 // ============================================================
-// ar-filter.js — 담당: 응웬 바오 담 (Tamy)
-// MediaPipe FaceMesh 기반 실시간 AR 필터 + 파티클 시스템
-// fullscreen 카메라 대응 (width/height 동적 사용)
+// ar-filter.js
+// Người phụ trách: 응웬 바오 담 (Tamy)
+// Chức năng: nhận diện khuôn mặt + vẽ AR filter lên p5.js canvas
+// Sử dụng: MediaPipe FaceMesh (nhận diện mặt) + p5.js (vẽ hình)
 // ============================================================
 
-let faceMesh = null;
-let faceLandmarks = null;
-let faceReady = false;
-let particles = [];
-let selectedFilter = 0; // 0=Cat 1=Rabbit 2=Glasses 3=Crown
+// ---------- Biến trạng thái nhận diện mặt ----------
+let moHinhMat = null;        // đối tượng FaceMesh của MediaPipe
+let danhSachDiemMat = null;  // danh sách 478 điểm trên khuôn mặt
+let daLoadXong = false;      // true khi mô hình đã tải xong
+
+// ---------- Danh sách tên filter (배열 사용) ----------
+let danhSachFilter = ["Cat 🐱", "Rabbit 🐰", "Glasses 👓", "Crown 👑"];
 
 // ============================================================
-// INIT — main.js의 setup()에서 호출
+// Hàm khởi động FaceMesh — gọi 1 lần trong setup()
 // ============================================================
-function initFaceMesh(camElement) {
-  const videoEl = camElement.elt;
-  faceMesh = new FaceMesh({
-    locateFile: (file) =>
-      `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+function khoiDongNhanDienMat(camera) {
+  // lấy phần tử video thật từ p5.js createCapture
+  let videoElement = camera.elt;
+
+  // tạo đối tượng FaceMesh từ thư viện MediaPipe
+  moHinhMat = new FaceMesh({
+    locateFile: (tenFile) =>
+      "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + tenFile
   });
-  faceMesh.setOptions({
+
+  // cài đặt: chỉ nhận diện 1 khuôn mặt, độ chính xác 50%
+  moHinhMat.setOptions({
     maxNumFaces: 1,
     refineLandmarks: true,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5
   });
-  faceMesh.onResults((results) => {
-    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      faceLandmarks = results.multiFaceLandmarks[0];
+
+  // mỗi khi FaceMesh phát hiện khuôn mặt → lưu danh sách điểm
+  moHinhMat.onResults((ketQua) => {
+    if (ketQua.multiFaceLandmarks && ketQua.multiFaceLandmarks.length > 0) {
+      danhSachDiemMat = ketQua.multiFaceLandmarks[0];
     } else {
-      faceLandmarks = null;
+      danhSachDiemMat = null; // không thấy mặt
     }
   });
-  faceReady = true;
-  let isProcessing = false;
+
+  daLoadXong = true;
+
+  // dùng setInterval để liên tục gửi frame video cho FaceMesh phân tích
+  // (thay cho MediaPipe Camera utils để không bị xung đột với p5.js)
+  let dangXuLy = false;
   setInterval(async () => {
-    if (!isProcessing && videoEl.readyState >= 2) {
-      isProcessing = true;
-      try { await faceMesh.send({ image: videoEl }); } catch (e) {}
-      isProcessing = false;
+    if (!dangXuLy && videoElement.readyState >= 2) {
+      dangXuLy = true;
+      try {
+        await moHinhMat.send({ image: videoElement });
+      } catch (e) {}
+      dangXuLy = false;
     }
-  }, 67);
+  }, 67); // ~15fps
 }
 
 // ============================================================
-// 좌표 변환 — fullscreen 카메라 기준
-// camX=width/2, camY=height/2 로 호출
+// Hàm lấy tọa độ 1 điểm trên mặt
+// FaceMesh trả về tọa độ từ 0→1 (normalized)
+// → cần chuyển sang tọa độ pixel của canvas p5.js
 // ============================================================
-function lm(index, camX, camY) {
-  if (!faceLandmarks || index >= faceLandmarks.length) return { x: camX, y: camY };
-  let l = faceLandmarks[index];
+function layToaDo(chiSo, tamX, tamY) {
+  // nếu chưa nhận diện được mặt → trả về tâm màn hình
+  if (!danhSachDiemMat || chiSo >= danhSachDiemMat.length) {
+    return { x: tamX, y: tamY };
+  }
+
+  let diem = danhSachDiemMat[chiSo];
+
+  // diem.x và diem.y là tỉ lệ từ 0→1 so với khung hình video
+  // nhân với width/height để ra tọa độ thực trên canvas
+  // (diem.x - 0.5) vì gốc tọa độ của FaceMesh là góc trên trái
+  // còn p5.js tính từ tâm canvas khi dùng camX = width/2
   return {
-    x: camX + (l.x - 0.5) * width,
-    y: camY + (l.y - 0.5) * height
+    x: tamX + (diem.x - 0.5) * width,
+    y: tamY + (diem.y - 0.5) * height
   };
 }
 
-function getFaceWidth(camX, camY) {
-  let left  = lm(234, camX, camY);
-  let right = lm(454, camX, camY);
-  return dist(left.x, left.y, right.x, right.y);
+// Tính độ rộng khuôn mặt (dùng để scale filter theo mặt to/nhỏ)
+function tinhRongMat(tamX, tamY) {
+  let diemTrai  = layToaDo(234, tamX, tamY); // má trái
+  let diemPhai  = layToaDo(454, tamX, tamY); // má phải
+  return dist(diemTrai.x, diemTrai.y, diemPhai.x, diemPhai.y);
 }
 
 // ============================================================
-// MAIN DRAW — camera.js의 drawCamera()에서 호출
+// Hàm vẽ AR filter chính — gọi trong drawCamera() của camera.js
+// tamX, tamY = tâm màn hình (width/2, height/2)
+// loaiFilter = 0/1/2/3
 // ============================================================
-function drawARFilter(camX, camY, filterType) {
-  if (faceLandmarks) {
-    if      (filterType === 0) drawCatFilter_tracked(camX, camY);
-    else if (filterType === 1) drawRabbitFilter_tracked(camX, camY);
-    else if (filterType === 2) drawGlassesFilter_tracked(camX, camY);
-    else if (filterType === 3) drawCrownFilter_tracked(camX, camY);
+function veARFilter(tamX, tamY, loaiFilter) {
+  if (danhSachDiemMat) {
+    // có khuôn mặt → vẽ bám theo mặt
+    if      (loaiFilter === 0) veFilterMeo(tamX, tamY);
+    else if (loaiFilter === 1) veFilterTho(tamX, tamY);
+    else if (loaiFilter === 2) veFilterKinh(tamX, tamY);
+    else if (loaiFilter === 3) veFilterVuong(tamX, tamY);
   } else {
-    drawARFilter_fixed(camX, camY - height * 0.08, filterType);
+    // chưa nhận diện được mặt → vẽ cố định ở giữa màn hình
+    veFilterCodinh(tamX, tamY - height * 0.08, loaiFilter);
   }
 }
 
 // ============================================================
-// TRACKED FILTERS
+// 🐱 Filter mèo — tai + râu + mũi
 // ============================================================
-function drawCatFilter_tracked(camX, camY) {
+function veFilterMeo(tamX, tamY) {
   push();
-  let nose       = lm(1,   camX, camY);
-  let topHead    = lm(10,  camX, camY);
-  let leftCheek  = lm(234, camX, camY);
-  let rightCheek = lm(454, camX, camY);
-  let scale      = getFaceWidth(camX, camY) / 180;
-  let cx = nose.x, cy = topHead.y;
-  fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2 * scale);
-  triangle(cx-110*scale, cy, cx-75*scale, cy-90*scale, cx-35*scale, cy);
-  triangle(cx+35*scale,  cy, cx+75*scale, cy-90*scale, cx+110*scale, cy);
-  fill("#ff9ab0"); noStroke();
-  triangle(cx-100*scale, cy-5*scale, cx-75*scale, cy-78*scale, cx-48*scale, cy-5*scale);
-  triangle(cx+48*scale,  cy-5*scale, cx+75*scale, cy-78*scale, cx+100*scale, cy-5*scale);
-  stroke("#999"); strokeWeight(1.5 * scale);
-  line(leftCheek.x, leftCheek.y-10*scale, leftCheek.x-70*scale, leftCheek.y-15*scale);
-  line(leftCheek.x, leftCheek.y,          leftCheek.x-70*scale, leftCheek.y);
-  line(leftCheek.x, leftCheek.y+10*scale, leftCheek.x-70*scale, leftCheek.y+12*scale);
-  line(rightCheek.x, rightCheek.y-10*scale, rightCheek.x+70*scale, rightCheek.y-15*scale);
-  line(rightCheek.x, rightCheek.y,           rightCheek.x+70*scale, rightCheek.y);
-  line(rightCheek.x, rightCheek.y+10*scale,  rightCheek.x+70*scale, rightCheek.y+12*scale);
-  fill("#ff8fab"); noStroke();
-  ellipse(nose.x, nose.y, 14*scale, 10*scale);
-  pop();
-}
 
-function drawRabbitFilter_tracked(camX, camY) {
-  push();
-  let nose    = lm(1,  camX, camY);
-  let topHead = lm(10, camX, camY);
-  let scale   = getFaceWidth(camX, camY) / 180;
-  let cx = nose.x, cy = topHead.y;
-  fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2 * scale);
-  ellipse(cx-65*scale, cy-80*scale, 50*scale, 150*scale);
-  ellipse(cx+65*scale, cy-80*scale, 50*scale, 150*scale);
-  fill("#ffb6c1"); noStroke();
-  ellipse(cx-65*scale, cy-80*scale, 26*scale, 100*scale);
-  ellipse(cx+65*scale, cy-80*scale, 26*scale, 100*scale);
-  fill("#ffaabb");
-  ellipse(nose.x, nose.y, 16*scale, 12*scale);
-  pop();
-}
+  // lấy các điểm cần thiết trên khuôn mặt
+  let muiNguoi   = layToaDo(1,   tamX, tamY); // đầu mũi
+  let dinhDau    = layToaDo(10,  tamX, tamY); // đỉnh đầu
+  let maTrai     = layToaDo(234, tamX, tamY); // má trái
+  let maPhai     = layToaDo(454, tamX, tamY); // má phải
+  let tyLe       = tinhRongMat(tamX, tamY) / 180; // tỉ lệ scale
 
-function drawGlassesFilter_tracked(camX, camY) {
-  push();
-  let leftOuter  = lm(33,  camX, camY);
-  let leftInner  = lm(133, camX, camY);
-  let rightInner = lm(362, camX, camY);
-  let rightOuter = lm(263, camX, camY);
-  let scale      = getFaceWidth(camX, camY) / 180;
-  let lensW  = dist(leftOuter.x, leftOuter.y, leftInner.x, leftInner.y) * 1.3;
-  let lensH  = lensW * 0.65;
-  let leftCx  = (leftOuter.x  + leftInner.x)  / 2;
-  let leftCy  = (leftOuter.y  + leftInner.y)  / 2;
-  let rightCx = (rightOuter.x + rightInner.x) / 2;
-  let rightCy = (rightOuter.y + rightInner.y) / 2;
-  noFill(); stroke("#222"); strokeWeight(5 * scale); rectMode(CENTER);
-  rect(leftCx,  leftCy,  lensW, lensH, 12*scale);
-  rect(rightCx, rightCy, lensW, lensH, 12*scale);
-  line(leftInner.x, leftInner.y, rightInner.x, rightInner.y);
-  line(leftOuter.x,  leftOuter.y,  leftOuter.x-30*scale,  leftOuter.y-5*scale);
-  line(rightOuter.x, rightOuter.y, rightOuter.x+30*scale, rightOuter.y-5*scale);
-  pop();
-}
+  let cx = muiNguoi.x;
+  let cy = dinhDau.y;
 
-function drawCrownFilter_tracked(camX, camY) {
-  push();
-  let nose    = lm(1,  camX, camY);
-  let topHead = lm(10, camX, camY);
-  let scale   = getFaceWidth(camX, camY) / 180;
-  let cx = nose.x, cy = topHead.y;
-  fill("#ffd700"); stroke("#cc9900"); strokeWeight(2*scale);
-  beginShape();
-  vertex(cx-110*scale, cy);        vertex(cx-80*scale,  cy-85*scale);
-  vertex(cx-40*scale,  cy-28*scale); vertex(cx,           cy-110*scale);
-  vertex(cx+40*scale,  cy-28*scale); vertex(cx+80*scale,  cy-85*scale);
-  vertex(cx+110*scale, cy);        vertex(cx+110*scale, cy+35*scale);
-  vertex(cx-110*scale, cy+35*scale);
-  endShape(CLOSE);
+  // --- vẽ tai mèo (dùng triangle — đã học) ---
+  fill("#ffb6c1");
+  stroke("#cc7788");
+  strokeWeight(2 * tyLe);
+  triangle(cx - 110*tyLe, cy, cx - 75*tyLe, cy - 90*tyLe, cx - 35*tyLe, cy);
+  triangle(cx + 35*tyLe,  cy, cx + 75*tyLe, cy - 90*tyLe, cx + 110*tyLe, cy);
+
+  // --- màu hồng bên trong tai ---
+  fill("#ff9ab0");
   noStroke();
-  fill("#ff4d6d"); circle(cx-68*scale, cy-8*scale,  20*scale);
-  fill("#a78bfa"); circle(cx,          cy-50*scale, 20*scale);
-  fill("#ff4d6d"); circle(cx+68*scale, cy-8*scale,  20*scale);
+  triangle(cx - 100*tyLe, cy - 5*tyLe, cx - 75*tyLe, cy - 78*tyLe, cx - 48*tyLe, cy - 5*tyLe);
+  triangle(cx + 48*tyLe,  cy - 5*tyLe, cx + 75*tyLe, cy - 78*tyLe, cx + 100*tyLe, cy - 5*tyLe);
+
+  // --- râu mèo (dùng line — đã học) ---
+  stroke("#aaa");
+  strokeWeight(1.5 * tyLe);
+  line(maTrai.x, maTrai.y - 10*tyLe, maTrai.x - 70*tyLe, maTrai.y - 15*tyLe);
+  line(maTrai.x, maTrai.y,            maTrai.x - 70*tyLe, maTrai.y);
+  line(maTrai.x, maTrai.y + 10*tyLe,  maTrai.x - 70*tyLe, maTrai.y + 12*tyLe);
+  line(maPhai.x, maPhai.y - 10*tyLe,  maPhai.x + 70*tyLe, maPhai.y - 15*tyLe);
+  line(maPhai.x, maPhai.y,             maPhai.x + 70*tyLe, maPhai.y);
+  line(maPhai.x, maPhai.y + 10*tyLe,  maPhai.x + 70*tyLe, maPhai.y + 12*tyLe);
+
+  // --- mũi mèo (dùng ellipse — đã học) ---
+  fill("#ff8fab");
+  noStroke();
+  ellipse(muiNguoi.x, muiNguoi.y, 14 * tyLe, 10 * tyLe);
+
   pop();
 }
 
 // ============================================================
-// FIXED FALLBACK (얼굴 미감지 시)
+// 🐰 Filter thỏ — tai dài + mũi hồng
 // ============================================================
-function drawARFilter_fixed(x, y, filterType) {
-  if      (filterType === 0) drawCatFilter_fixed(x, y);
-  else if (filterType === 1) drawRabbitFilter_fixed(x, y);
-  else if (filterType === 2) drawGlassesFilter_fixed(x, y);
-  else if (filterType === 3) drawCrownFilter_fixed(x, y);
+function veFilterTho(tamX, tamY) {
+  push();
+
+  let muiNguoi = layToaDo(1,  tamX, tamY);
+  let dinhDau  = layToaDo(10, tamX, tamY);
+  let tyLe     = tinhRongMat(tamX, tamY) / 180;
+  let cx = muiNguoi.x;
+  let cy = dinhDau.y;
+
+  // --- tai thỏ (dùng ellipse — đã học) ---
+  fill("#f5e6f5");
+  stroke("#d0b0d0");
+  strokeWeight(2 * tyLe);
+  ellipse(cx - 65*tyLe, cy - 80*tyLe, 50*tyLe, 150*tyLe);
+  ellipse(cx + 65*tyLe, cy - 80*tyLe, 50*tyLe, 150*tyLe);
+
+  // --- bên trong tai ---
+  fill("#ffb6c1");
+  noStroke();
+  ellipse(cx - 65*tyLe, cy - 80*tyLe, 26*tyLe, 100*tyLe);
+  ellipse(cx + 65*tyLe, cy - 80*tyLe, 26*tyLe, 100*tyLe);
+
+  // --- mũi thỏ ---
+  fill("#ffaabb");
+  ellipse(muiNguoi.x, muiNguoi.y, 16*tyLe, 12*tyLe);
+
+  pop();
 }
 
-function drawCatFilter_fixed(x, y) {
+// ============================================================
+// 👓 Filter kính — 2 mắt kính + gọng
+// ============================================================
+function veFilterKinh(tamX, tamY) {
+  push();
+
+  // lấy 4 góc của 2 mắt
+  let matTraiNgoai  = layToaDo(33,  tamX, tamY);
+  let matTraiTrong  = layToaDo(133, tamX, tamY);
+  let matPhaiTrong  = layToaDo(362, tamX, tamY);
+  let matPhaiNgoai  = layToaDo(263, tamX, tamY);
+  let tyLe          = tinhRongMat(tamX, tamY) / 180;
+
+  // tính kích thước tròng kính theo khoảng cách giữa 2 điểm mắt
+  let chieuRong  = dist(matTraiNgoai.x, matTraiNgoai.y,
+                        matTraiTrong.x, matTraiTrong.y) * 1.3;
+  let chieuCao   = chieuRong * 0.65;
+
+  // tâm của mắt trái và mắt phải
+  let tamMatTrai  = { x: (matTraiNgoai.x + matTraiTrong.x) / 2,
+                      y: (matTraiNgoai.y + matTraiTrong.y) / 2 };
+  let tamMatPhai  = { x: (matPhaiNgoai.x + matPhaiTrong.x) / 2,
+                      y: (matPhaiNgoai.y + matPhaiTrong.y) / 2 };
+
+  // --- vẽ 2 tròng kính (dùng rect — đã học) ---
+  noFill();
+  stroke("#222");
+  strokeWeight(5 * tyLe);
+  rectMode(CENTER);
+  rect(tamMatTrai.x, tamMatTrai.y, chieuRong, chieuCao, 12 * tyLe);
+  rect(tamMatPhai.x, tamMatPhai.y, chieuRong, chieuCao, 12 * tyLe);
+
+  // --- cầu nối giữa 2 kính ---
+  line(matTraiTrong.x, matTraiTrong.y, matPhaiTrong.x, matPhaiTrong.y);
+
+  // --- gọng 2 bên ---
+  line(matTraiNgoai.x, matTraiNgoai.y,
+       matTraiNgoai.x - 30*tyLe, matTraiNgoai.y - 5*tyLe);
+  line(matPhaiNgoai.x, matPhaiNgoai.y,
+       matPhaiNgoai.x + 30*tyLe, matPhaiNgoai.y - 5*tyLe);
+
+  pop();
+}
+
+// ============================================================
+// 👑 Filter vương miện — đa giác vàng + đá quý
+// ============================================================
+function veFilterVuong(tamX, tamY) {
+  push();
+
+  let muiNguoi = layToaDo(1,  tamX, tamY);
+  let dinhDau  = layToaDo(10, tamX, tamY);
+  let tyLe     = tinhRongMat(tamX, tamY) / 180;
+  let cx = muiNguoi.x;
+  let cy = dinhDau.y;
+
+  // --- thân vương miện (dùng beginShape/vertex — đã học) ---
+  fill("#ffd700");
+  stroke("#cc9900");
+  strokeWeight(2 * tyLe);
+  beginShape();
+  vertex(cx - 110*tyLe, cy);
+  vertex(cx - 80*tyLe,  cy - 85*tyLe);
+  vertex(cx - 40*tyLe,  cy - 28*tyLe);
+  vertex(cx,            cy - 110*tyLe);
+  vertex(cx + 40*tyLe,  cy - 28*tyLe);
+  vertex(cx + 80*tyLe,  cy - 85*tyLe);
+  vertex(cx + 110*tyLe, cy);
+  vertex(cx + 110*tyLe, cy + 35*tyLe);
+  vertex(cx - 110*tyLe, cy + 35*tyLe);
+  endShape(CLOSE);
+
+  // --- đá quý trên vương miện (dùng circle — đã học) ---
+  noStroke();
+  fill("#ff4d6d");
+  circle(cx - 68*tyLe, cy - 8*tyLe,  20 * tyLe);
+  fill("#a78bfa");
+  circle(cx,           cy - 50*tyLe, 20 * tyLe);
+  fill("#ff4d6d");
+  circle(cx + 68*tyLe, cy - 8*tyLe,  20 * tyLe);
+
+  pop();
+}
+
+// ============================================================
+// Filter cố định (khi chưa nhận diện được mặt)
+// vị trí cố định ở giữa màn hình
+// ============================================================
+function veFilterCodinh(x, y, loaiFilter) {
+  if      (loaiFilter === 0) veMeoCoDinh(x, y);
+  else if (loaiFilter === 1) veThoCoDinh(x, y);
+  else if (loaiFilter === 2) veKinhCoDinh(x, y);
+  else if (loaiFilter === 3) veVuongCoDinh(x, y);
+}
+
+function veMeoCoDinh(x, y) {
   push();
   fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2);
-  triangle(x-115,y-115,x-80,y-205,x-40,y-115);
-  triangle(x+40,y-115,x+80,y-205,x+115,y-115);
+  triangle(x-115,y-115, x-80,y-205, x-40,y-115);
+  triangle(x+40,y-115,  x+80,y-205, x+115,y-115);
   fill("#ff9ab0"); noStroke();
-  triangle(x-104,y-122,x-80,y-190,x-52,y-122);
-  triangle(x+52,y-122,x+80,y-190,x+104,y-122);
-  stroke("#888"); strokeWeight(1.5);
-  line(x-90,y+18,x-185,y+5);  line(x-90,y+33,x-185,y+33);  line(x-90,y+48,x-185,y+58);
-  line(x+90,y+18,x+185,y+5);  line(x+90,y+33,x+185,y+33);  line(x+90,y+48,x+185,y+58);
-  fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
+  triangle(x-104,y-122, x-80,y-190, x-52,y-122);
+  triangle(x+52,y-122,  x+80,y-190, x+104,y-122);
+  stroke("#aaa"); strokeWeight(1.5);
+  line(x-90,y+18, x-185,y+5);  line(x-90,y+33, x-185,y+33);
+  line(x+90,y+18, x+185,y+5);  line(x+90,y+33, x+185,y+33);
+  fill("#ff8fab"); noStroke(); ellipse(x, y+22, 16, 12);
   pop();
 }
 
-function drawRabbitFilter_fixed(x, y) {
+function veThoCoDinh(x, y) {
   push();
   fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2);
-  ellipse(x-72,y-195,58,175); ellipse(x+72,y-195,58,175);
+  ellipse(x-72, y-195, 58, 175); ellipse(x+72, y-195, 58, 175);
   fill("#ffb6c1"); noStroke();
-  ellipse(x-72,y-195,30,115); ellipse(x+72,y-195,30,115);
-  fill("#ffaabb"); ellipse(x,y+24,18,13);
+  ellipse(x-72, y-195, 30, 115); ellipse(x+72, y-195, 30, 115);
+  fill("#ffaabb"); ellipse(x, y+24, 18, 13);
   pop();
 }
 
-function drawGlassesFilter_fixed(x, y) {
+function veKinhCoDinh(x, y) {
   push();
   noFill(); stroke("#222"); strokeWeight(5); rectMode(CORNER);
-  rect(x-103,y-47,88,60,14); rect(x+15,y-47,88,60,14);
-  line(x-15,y-22,x+15,y-22);
-  line(x-103,y-22,x-135,y-16); line(x+103,y-22,x+135,y-16);
+  rect(x-103, y-47, 88, 60, 14); rect(x+15, y-47, 88, 60, 14);
+  line(x-15, y-22, x+15, y-22);
+  line(x-103, y-22, x-135, y-16); line(x+103, y-22, x+135, y-16);
   pop();
 }
 
-function drawCrownFilter_fixed(x, y) {
+function veVuongCoDinh(x, y) {
   push();
   fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
   beginShape();
@@ -218,27 +324,31 @@ function drawCrownFilter_fixed(x, y) {
   vertex(x+115,y-105); vertex(x+115,y-68); vertex(x-115,y-68);
   endShape(CLOSE);
   noStroke();
-  fill("#ff4d6d"); circle(x-68,y-112,20);
-  fill("#a78bfa"); circle(x,y-148,20);
-  fill("#ff4d6d"); circle(x+68,y-112,20);
+  fill("#ff4d6d"); circle(x-68, y-112, 20);
+  fill("#a78bfa"); circle(x,    y-148, 20);
+  fill("#ff4d6d"); circle(x+68, y-112, 20);
   pop();
 }
 
 // ============================================================
-// STATUS INDICATOR
+// Hiện trạng thái nhận diện mặt (góc dưới trái màn hình)
 // ============================================================
-function drawFaceStatus(canvasW, canvasH) {
+function hienTrangThaiMat(chieuRongCanvas, chieuCaoCanvas) {
   push();
-  noStroke(); textAlign(LEFT, CENTER); textSize(14);
-  if (!faceReady) {
+  noStroke();
+  textAlign(LEFT, CENTER);
+  textSize(14);
+
+  if (!daLoadXong) {
     fill(255, 200, 0, 200);
-    text("⏳ Face Mesh 로딩 중...", 20, canvasH - 55);
-  } else if (!faceLandmarks) {
+    text("⏳ Đang tải mô hình nhận diện mặt...", 20, chieuCaoCanvas - 55);
+  } else if (!danhSachDiemMat) {
     fill(255, 100, 100, 200);
-    text("😶 얼굴을 카메라에 맞춰주세요", 20, canvasH - 55);
+    text("😶 Hướng mặt vào camera", 20, chieuCaoCanvas - 55);
   } else {
     fill(100, 220, 100, 200);
-    text("✅ 얼굴 인식 중", 20, canvasH - 55);
+    text("✅ Đang nhận diện khuôn mặt", 20, chieuCaoCanvas - 55);
   }
+
   pop();
 }
