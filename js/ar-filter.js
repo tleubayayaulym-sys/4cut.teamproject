@@ -104,3 +104,6 @@ function drawPhotoPreview() {
         }
     }
 }
+function initFaceMesh(camera) { khoiDongNhanDienMat(camera); }
+function drawARFilter(x, y, f) { veARFilter(x, y, f); }
+function drawFaceStatus(w, h) { hienTrangThaiMat(w, h); }
