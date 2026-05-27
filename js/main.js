@@ -73,7 +73,7 @@ function drawStartScreen() {
   fill("#ff4d6d"); textSize(13);
   text("제작자", width/2, height*0.35);
   fill("#333"); textSize(min(width*0.025, 15));
-  text("틀레우바이  ·  응웬 바오 담  ·  마이티투짱", width/2, height*0.35 + 24);
+  text("아야울름  ·  응웬 바오 담  ·  마이티투짱", width/2, height*0.35 + 24);
   pop();
 
   // 사용법 (thầy yêu cầu có hướng dẫn)
