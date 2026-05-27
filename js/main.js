@@ -244,7 +244,7 @@ function drawEndingScreen() {
   text("📸 4CUT BOOTH", width/2, height*0.12);
 
   fill("#888"); textSize(14);
-  text("Art & Technology Team Project  |  2025", width/2, height*0.2);
+  text("Art & Technology Team Project  |  2026", width/2, height*0.2);
 
   // Đường kẻ
   push();
