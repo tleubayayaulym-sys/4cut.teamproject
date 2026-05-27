@@ -18,11 +18,7 @@ let handLandmarks = null;
 let gesTouchedPrev = false; // trạng thái frame trước
 let gesIconTimer   = 0;     // đếm frame hiện icon 📸
 
-// --- selectedFilter: loại filter đang chọn (dùng chung toàn project) ---
-// dùng var để tránh lỗi redeclare nếu file khác cũng khai báo
-if (typeof selectedFilter === "undefined") {
-  var selectedFilter = 0; // 0=Cat 1=Rabbit 2=Glasses 3=Crown
-}
+// selectedFilter được khai báo ở main.js — ar-filter.js chỉ dùng, không khai báo lại
 
 // ============================================================
 // initFaceMesh() — khởi động FaceMesh + Hands
