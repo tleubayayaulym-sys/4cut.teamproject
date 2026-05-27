@@ -1,22 +1,26 @@
 <!doctype html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4CUT BOOTH</title>
     <link rel="stylesheet" href="style.css" />
+
     <!-- p5.js -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+
     <!-- MediaPipe FaceMesh -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-    <!-- MediaPipe Hands (cử chỉ tay chụp ảnh) -->
+
+    <!-- MediaPipe Hands (нужен для жестов) -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <!-- JS files (thứ tự quan trọng) -->
-    <script src="js/camera.js"></script>
-    <script src="js/ar-filter.js"></script>
-    <script src="js/result.js"></script>
-    <script src="js/main.js"></script>
+
+    <!-- App scripts -->
+    <script src="js/ar-filter.js" defer></script>
+    <script src="js/camera.js" defer></script>
+    <script src="js/result.js" defer></script>
+    <script src="js/main.js" defer></script>
   </head>
   <body></body>
 </html>
