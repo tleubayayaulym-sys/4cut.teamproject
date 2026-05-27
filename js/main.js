@@ -385,6 +385,34 @@ function handleButtons() {
   }
 }
 
+// KEYBOARD CONTROLS
+function keyPressed() {
+  // Клавиша ПРОБЕЛ
+  if (key === ' ') {
+    if (currentScreen === "start") {
+      currentScreen = "settings";
+    } else if (currentScreen === "camera") {
+      startPhotoSequence(); // Запуск съёмки 4 фото
+    }
+  }
+  
+  // Клавиша R или r (Пересъёмка / Сброс)
+  if (key === 'r' || key === 'R') {
+    // ТЕПЕРЬ РАБОТАЕТ НА ОБОИХ ЭКРАНАХ!
+    if (currentScreen === "result" || currentScreen === "saved") { 
+      capturedPhotos = []; 
+      currentScreen = "camera"; 
+    }
+  }
+  
+  // Клавиша S or s (Сохранить коллаж)
+  if (key === 's' || key === 'S') {
+    // ТЕПЕРЬ РАБОТАЕТ НА ОБОИХ ЭКРАНАХ!
+    if (currentScreen === "result" || currentScreen === "saved") { 
+      saveResultCanvas(); 
+    }
+  }
+}
 
 
 function windowResized() {
