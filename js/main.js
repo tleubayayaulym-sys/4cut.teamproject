@@ -385,19 +385,7 @@ function handleButtons() {
   }
 }
 
-// KEYBOARD
-function keyPressed() {
-  if (key === ' ') {
-    if      (currentScreen === "start")    currentScreen = "settings";
-    else if (currentScreen === "camera")   startPhotoSequence();
-  }
-  if (key === 'r' || key === 'R') {
-    if (currentScreen === "result") { capturedPhotos = []; currentScreen = "camera"; }
-  }
-  if (key === 's' || key === 'S') {
-    if (currentScreen === "result") saveResultCanvas();
-  }
-}
+
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
