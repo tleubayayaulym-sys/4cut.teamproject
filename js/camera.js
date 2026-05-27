@@ -9,6 +9,12 @@ let capturedPhotos = [];
 let countdown      = 0;
 let isCapturing    = false;
 
+// Lưu vị trí camera box để chụp đúng vùng có filter
+let _boxX = 0;
+let _boxY = 0;
+let _boxW = 400;
+let _boxH = 300;
+
 // ============================================================
 // setupCamera() — setup()에서 1번 호출
 // ============================================================
@@ -34,6 +40,9 @@ function drawCamera() {
   let camH = camW * 0.72;
   let camX = width / 2 - camW / 2;
   let camY = height * 0.1;
+
+  // Lưu lại để takePhoto() dùng
+  _boxX = camX; _boxY = camY; _boxW = camW; _boxH = camH;
 
   // viền frame
   push();
@@ -221,7 +230,8 @@ function takePhoto(index) {
       clearInterval(timer);
       countdown = 0;
       flashEffect();
-      let img = video.get();
+      // get() chụp vùng canvas có filter — không dùng video.get()
+      let img = get(_boxX, _boxY, _boxW, _boxH);
       capturedPhotos.push(img);
       setTimeout(() => { takePhoto(index + 1); }, 900);
     }
