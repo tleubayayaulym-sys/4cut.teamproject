@@ -2,32 +2,28 @@
 // ar-filter.js — 담당: 응웬 바오 담 (Tamy)
 // Chức năng 1: AR filter bám khuôn mặt (MediaPipe FaceMesh)
 // Chức năng 2: Cử chỉ tay chụp ảnh (MediaPipe Hands)
-//   → Ngón cái + ngón trỏ chạm nhau rồi tách ra = chụp ảnh
 // ============================================================
 
-// --- Biến FaceMesh (nhận diện khuôn mặt) ---
 let faceMesh      = null;
 let faceLandmarks = null;
 let faceReady     = false;
 
-// --- Biến Hands (nhận diện tay) ---
 let handDetector  = null;
 let handLandmarks = null;
 
-// --- Biến cử chỉ tay ---
-let gesTouchedPrev = false; // trạng thái frame trước
-let gesIconTimer   = 0;     // đếm frame hiện icon 📸
+let gesTouchedPrev = false;
+let gesIconTimer   = 0;
 
-// selectedFilter được khai báo ở main.js — ar-filter.js chỉ dùng, không khai báo lại
+// Lưu kích thước camera box — cập nhật mỗi lần drawARFilter được gọi
+let _camW = 400;
+let _camH = 300;
 
 // ============================================================
-// initFaceMesh() — khởi động FaceMesh + Hands
-// Gọi 1 lần trong setupCamera() của camera.js
+// initFaceMesh() — gọi 1 lần trong setupCamera()
 // ============================================================
 function initFaceMesh(camera) {
   let videoEl = camera.elt;
 
-  // --- FaceMesh: nhận diện 478 điểm trên khuôn mặt ---
   faceMesh = new FaceMesh({
     locateFile: (file) =>
       "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + file
@@ -43,7 +39,6 @@ function initFaceMesh(camera) {
       ? r.multiFaceLandmarks[0] : null;
   });
 
-  // --- Hands: nhận diện điểm ngón tay ---
   handDetector = new Hands({
     locateFile: (file) =>
       "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
@@ -61,7 +56,6 @@ function initFaceMesh(camera) {
 
   faceReady = true;
 
-  // setInterval: gửi frame cho cả 2 model (~15fps)
   let dangXuLy = false;
   setInterval(async () => {
     if (!dangXuLy && videoEl.readyState >= 2) {
@@ -77,6 +71,7 @@ function initFaceMesh(camera) {
 
 // ============================================================
 // lm() — chuyển tọa độ FaceMesh (0→1) sang pixel canvas
+// Dùng _camW/_camH (kích thước khung camera thực tế)
 // ============================================================
 function lm(index, camX, camY) {
   if (!faceLandmarks || index >= faceLandmarks.length) {
@@ -84,8 +79,8 @@ function lm(index, camX, camY) {
   }
   let d = faceLandmarks[index];
   return {
-    x: camX + (d.x - 0.5) * width,
-    y: camY + (d.y - 0.5) * height
+    x: camX + (d.x - 0.5) * _camW,
+    y: camY + (d.y - 0.5) * _camH
   };
 }
 
@@ -96,7 +91,41 @@ function getFaceWidth(camX, camY) {
 }
 
 // ============================================================
-// ktraCuChi() — kiểm tra ngón cái(4) + ngón trỏ(8) chạm nhau
+// drawARFilter() — gọi từ drawCamera() trong camera.js
+// camX, camY = tâm khung camera
+// camW, camH = kích thước khung camera
+// ============================================================
+function drawARFilter(camX, camY, loaiFilter, camW, camH) {
+  // Cập nhật kích thước camera box
+  if (camW) _camW = camW;
+  if (camH) _camH = camH;
+
+  // Vẽ filter mặt
+  if (faceLandmarks) {
+    if      (loaiFilter === 0) veFilterMeo(camX, camY);
+    else if (loaiFilter === 1) veFilterTho(camX, camY);
+    else if (loaiFilter === 2) veFilterKinh(camX, camY);
+    else if (loaiFilter === 3) veFilterVuong(camX, camY);
+  } else {
+    veFilterCoDinh(camX, camY - _camH * 0.08, loaiFilter);
+  }
+
+  // Xử lý cử chỉ tay
+  let dangCham = ktraCuChi();
+  if (gesTouchedPrev && !dangCham) {
+    gesIconTimer = 60;
+    if (typeof startPhotoSequence === "function" &&
+        typeof isCapturing !== "undefined" && !isCapturing) {
+      startPhotoSequence();
+    }
+  }
+  gesTouchedPrev = dangCham;
+
+  veHuongDanTay(dangCham, camX, camY);
+}
+
+// ============================================================
+// Cử chỉ tay
 // ============================================================
 function ktraCuChi() {
   if (!handLandmarks) return false;
@@ -105,52 +134,24 @@ function ktraCuChi() {
   return dist(ngonCai.x, ngonCai.y, ngonTro.x, ngonTro.y) < 0.06;
 }
 
-// ============================================================
-// drawARFilter() — hàm chính, gọi từ drawCamera() trong camera.js
-// ============================================================
-function drawARFilter(camX, camY, loaiFilter) {
-  // 1. Vẽ AR filter bám mặt
-  if (faceLandmarks) {
-    if      (loaiFilter === 0) veFilterMeo(camX, camY);
-    else if (loaiFilter === 1) veFilterTho(camX, camY);
-    else if (loaiFilter === 2) veFilterKinh(camX, camY);
-    else if (loaiFilter === 3) veFilterVuong(camX, camY);
-  } else {
-    veFilterCoDinh(camX, camY - height * 0.08, loaiFilter);
-  }
-
-  // 2. Xử lý cử chỉ tay → chụp ảnh
-  let dangCham = ktraCuChi();
-  if (gesTouchedPrev && !dangCham) {
-    gesIconTimer = 60;
-    if (typeof startPhotoSequence === "function") startPhotoSequence();
-  }
-  gesTouchedPrev = dangCham;
-
-  // 3. Vẽ hướng dẫn tay
-  veHuongDanTay(dangCham);
-}
-
-// ============================================================
-// veHuongDanTay() — vẽ điểm tay + icon + hướng dẫn
-// ============================================================
-function veHuongDanTay(dangCham) {
+function veHuongDanTay(dangCham, camX, camY) {
   push();
   noStroke();
 
-  // icon 📸 khi vừa chụp
+  // Icon 📸 khi vừa chụp
   if (gesIconTimer > 0) {
     textAlign(CENTER, CENTER);
-    textSize(min(width * 0.12, 80));
+    textSize(min(_camW * 0.18, 80));
     fill(255, 255, 255, map(gesIconTimer, 0, 60, 0, 255));
-    text("📸", width / 2, height / 2);
+    text("📸", camX, camY);
     gesIconTimer--;
   }
 
-  // vẽ 2 điểm ngón tay
+  // Điểm 2 ngón tay
   if (handLandmarks) {
     let ngonCai = handLandmarks[4];
     let ngonTro = handLandmarks[8];
+    // tọa độ tay dùng toàn màn hình (mirror)
     let caiX = (1 - ngonCai.x) * width;
     let caiY = ngonCai.y * height;
     let troX = (1 - ngonTro.x) * width;
@@ -166,17 +167,11 @@ function veHuongDanTay(dangCham) {
     circle(troX, troY, 20);
   }
 
-  // hướng dẫn góc dưới phải
-  fill(255, 255, 255, 180);
-  textAlign(RIGHT, CENTER);
-  textSize(min(width * 0.025, 16));
-  text("👌 엄지+검지 터치 = 촬영", width - 15, height - 35);
-
   pop();
 }
 
 // ============================================================
-// 🐱 Filter mèo
+// 4 Filter theo mặt
 // ============================================================
 function veFilterMeo(camX, camY) {
   push();
@@ -207,9 +202,6 @@ function veFilterMeo(camX, camY) {
   pop();
 }
 
-// ============================================================
-// 🐰 Filter thỏ
-// ============================================================
 function veFilterTho(camX, camY) {
   push();
   let mui  = lm(1,  camX, camY);
@@ -227,9 +219,6 @@ function veFilterTho(camX, camY) {
   pop();
 }
 
-// ============================================================
-// 👓 Filter kính
-// ============================================================
 function veFilterKinh(camX, camY) {
   push();
   let mTO = lm(33,  camX, camY);
@@ -252,9 +241,6 @@ function veFilterKinh(camX, camY) {
   pop();
 }
 
-// ============================================================
-// 👑 Filter vương miện
-// ============================================================
 function veFilterVuong(camX, camY) {
   push();
   let mui  = lm(1,  camX, camY);
@@ -278,11 +264,11 @@ function veFilterVuong(camX, camY) {
 }
 
 // ============================================================
-// Filter cố định (khi chưa nhận diện được mặt)
+// Filter cố định (khi chưa nhận diện mặt)
 // ============================================================
 function veFilterCoDinh(x, y, loai) {
-  if      (loai === 0) {
-    push();
+  push();
+  if (loai === 0) {
     fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2);
     triangle(x-115,y-115,x-80,y-205,x-40,y-115);
     triangle(x+40,y-115,x+80,y-205,x+115,y-115);
@@ -293,24 +279,18 @@ function veFilterCoDinh(x, y, loai) {
     line(x-90,y+18,x-185,y+5); line(x-90,y+33,x-185,y+33);
     line(x+90,y+18,x+185,y+5); line(x+90,y+33,x+185,y+33);
     fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
-    pop();
   } else if (loai === 1) {
-    push();
     fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2);
     ellipse(x-72,y-195,58,175); ellipse(x+72,y-195,58,175);
     fill("#ffb6c1"); noStroke();
     ellipse(x-72,y-195,30,115); ellipse(x+72,y-195,30,115);
     fill("#ffaabb"); ellipse(x,y+24,18,13);
-    pop();
   } else if (loai === 2) {
-    push();
     noFill(); stroke("#222"); strokeWeight(5); rectMode(CORNER);
     rect(x-103,y-47,88,60,14); rect(x+15,y-47,88,60,14);
     line(x-15,y-22,x+15,y-22);
     line(x-103,y-22,x-135,y-16); line(x+103,y-22,x+135,y-16);
-    pop();
   } else if (loai === 3) {
-    push();
     fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
     beginShape();
     vertex(x-115,y-105); vertex(x-85,y-195); vertex(x-42,y-128);
@@ -321,15 +301,14 @@ function veFilterCoDinh(x, y, loai) {
     fill("#ff4d6d"); circle(x-68,y-112,20);
     fill("#a78bfa"); circle(x,y-148,20);
     fill("#ff4d6d"); circle(x+68,y-112,20);
-    pop();
   }
+  pop();
 }
 
-// hàm rỗng — giữ để camera.js không bị lỗi
 function updateParticles() {}
 
 // ============================================================
-// drawFaceStatus() — hiện trạng thái nhận diện mặt
+// drawFaceStatus()
 // ============================================================
 function drawFaceStatus(w, h) {
   push();
