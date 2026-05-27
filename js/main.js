@@ -1,5 +1,7 @@
 let currentScreen = "start";
 
+let selectedFilter = 0;
+
 // setup
 function setup() {
 
@@ -28,6 +30,8 @@ function draw() {
     else if (currentScreen === "camera") {
 
         drawCamera();
+
+        drawFilterButtons();
 
         drawCameraButton();
     }
@@ -96,6 +100,87 @@ function drawStartScreen() {
         width / 2,
         height * 0.62
     );
+}
+
+// 필터 버튼
+function drawFilterButtons() {
+
+    let names = [
+        "🐱",
+        "🐰",
+        "👓",
+        "👑"
+    ];
+
+    let buttonSize = 60;
+
+    let gap = 15;
+
+    let totalWidth =
+        buttonSize * 4 +
+        gap * 3;
+
+    let startX =
+        width / 2 -
+        totalWidth / 2;
+
+    let y = 20;
+
+    for (let i = 0; i < 4; i++) {
+
+        if (selectedFilter === i) {
+
+            fill("#ff4d6d");
+        }
+
+        else {
+
+            fill(255);
+        }
+
+        stroke("#ff4d6d");
+
+        strokeWeight(3);
+
+        rect(
+            startX +
+            i * (buttonSize + gap),
+
+            y,
+
+            buttonSize,
+
+            buttonSize,
+
+            18
+        );
+
+        textAlign(CENTER, CENTER);
+
+        textSize(30);
+
+        noStroke();
+
+        if (selectedFilter === i) {
+
+            fill(255);
+        }
+
+        else {
+
+            fill("#ff4d6d");
+        }
+
+        text(
+            names[i],
+
+            startX +
+            i * (buttonSize + gap) +
+            buttonSize / 2,
+
+            y + buttonSize / 2 + 2
+        );
+    }
 }
 
 // 촬영 버튼
@@ -301,6 +386,41 @@ function handleButtons() {
             "png"
         );
     }
+
+    // 필터 선택
+    if (currentScreen === "camera") {
+
+        let buttonSize = 60;
+
+        let gap = 15;
+
+        let totalWidth =
+            buttonSize * 4 +
+            gap * 3;
+
+        let startX =
+            width / 2 -
+            totalWidth / 2;
+
+        let y = 20;
+
+        for (let i = 0; i < 4; i++) {
+
+            let bx =
+                startX +
+                i * (buttonSize + gap);
+
+            if (
+                mouseX > bx &&
+                mouseX < bx + buttonSize &&
+                mouseY > y &&
+                mouseY < y + buttonSize
+            ) {
+
+                selectedFilter = i;
+            }
+        }
+    }
 }
 
 // resize
@@ -313,8 +433,12 @@ function windowResized() {
 
     if (video) {
 
-       if (video && video.size) {
-  video.size(windowWidth, windowHeight);
-}
+        if (video && video.size) {
+
+            video.size(
+                windowWidth,
+                windowHeight
+            );
+        }
     }
 }
