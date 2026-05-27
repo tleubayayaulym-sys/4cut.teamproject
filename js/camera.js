@@ -7,6 +7,7 @@ let video;
 let capturedPhotos = [];
 let countdown = 0;
 let isCapturing = false;
+let selectedFilter = 0; // 0=Cat 1=Rabbit 2=Glasses 3=Crown
 
 // 카메라 설정
 function setupCamera() {
