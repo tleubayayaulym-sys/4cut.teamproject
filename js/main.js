@@ -1,10 +1,9 @@
-// main.js
-
 let currentScreen = "start";
 
-// =========================
-// SETUP
-// =========================
+// 전역 변수
+let selectedFilter = 0;
+
+// setup
 function setup() {
 
     createCanvas(
@@ -15,13 +14,9 @@ function setup() {
     setupCamera();
 
     textAlign(CENTER, CENTER);
-
-    rectMode(CORNER);
 }
 
-// =========================
-// DRAW
-// =========================
+// draw
 function draw() {
 
     background("#f6f1ff");
@@ -37,7 +32,9 @@ function draw() {
 
         drawCamera();
 
-        drawCameraUI();
+        drawFilterButtons();
+
+        drawCameraButton();
     }
 
     // 결과 화면
@@ -47,169 +44,64 @@ function draw() {
     }
 }
 
-// =====================================================
-// START SCREEN
-// =====================================================
+// =========================
+// 시작 화면
+// =========================
 function drawStartScreen() {
 
-    background("#f7f1ff");
+    background("#f6f1ff");
+
+    fill("#ff4d6d");
 
     noStroke();
 
-    fill(255, 210, 230, 90);
-
-    ellipse(
-        width * 0.2,
-        height * 0.2,
-        300
-    );
-
-    ellipse(
-        width * 0.8,
-        height * 0.3,
-        240
-    );
-
-    ellipse(
-        width * 0.5,
-        height * 0.75,
-        380
-    );
-
-    // title
-    fill("#ff4d6d");
-
     textSize(
-        min(width * 0.09, 72)
+        min(width * 0.11, 72)
     );
 
     text(
         "4CUT BOOTH",
         width / 2,
-        height * 0.22
+        height * 0.23
     );
 
-    // subtitle
-    fill("#777");
+    fill("#666");
 
     textSize(
-        min(width * 0.03, 24)
+        min(width * 0.035, 24)
     );
 
     text(
         "포토부스 촬영",
         width / 2,
-        height * 0.31
+        height * 0.33
     );
 
-    // card
-    fill(255);
-
-    rect(
-        width / 2 - width * 0.35,
-        height * 0.42,
-        width * 0.7,
-        height * 0.28,
-        30
-    );
-
-    // icons
-    textSize(
-        min(width * 0.08, 60)
-    );
-
-    text(
-        "📸   ✨   🐱",
-        width / 2,
-        height * 0.52
-    );
-
-    fill("#999");
-
-    textSize(
-        min(width * 0.03, 20)
-    );
-
-    text(
-        "AR 필터 포토부스",
-        width / 2,
-        height * 0.60
-    );
-
-    // button width
-    let btnW;
-
-    if (width < 700) {
-
-        btnW = width * 0.7;
-    }
-
-    else {
-
-        btnW = 320;
-    }
-
-    // start button
+    // 시작 버튼
     fill("#ff4d6d");
 
     rect(
-        width / 2 - btnW / 2,
-        height * 0.8,
-        btnW,
-        65,
+        width / 2 - 140,
+        height * 0.62 - 40,
+        280,
+        80,
         25
     );
 
     fill(255);
 
-    textSize(
-        min(width * 0.05, 34)
-    );
+    textSize(34);
 
     text(
         "시작하기",
         width / 2,
-        height * 0.8 + 33
+        height * 0.62
     );
 }
 
-// =====================================================
-// CAMERA UI
-// =====================================================
-function drawCameraUI() {
-
-    // top overlay
-    fill(0, 0, 0, 70);
-
-    noStroke();
-
-    rect(
-        0,
-        0,
-        width,
-        100
-    );
-
-    // filter buttons
-    drawFilterButtons();
-
-    // bottom overlay
-    fill(0, 0, 0, 80);
-
-    rect(
-        0,
-        height - 180,
-        width,
-        180
-    );
-
-    // capture button
-    drawCaptureButton();
-}
-
-// =====================================================
-// FILTER BUTTONS
-// =====================================================
+// =========================
+// 필터 버튼
+// =========================
 function drawFilterButtons() {
 
     let names = [
@@ -219,35 +111,22 @@ function drawFilterButtons() {
         "👑"
     ];
 
-    let buttonSize;
+    let size = 60;
 
-    // mobile
-    if (width < 700) {
+    let gap = 14;
 
-        buttonSize = 52;
-    }
-
-    // desktop
-    else {
-
-        buttonSize = 60;
-    }
-
-    let gap = 15;
-
-    let totalWidth =
-        buttonSize * 4 +
+    let total =
+        size * 4 +
         gap * 3;
 
     let startX =
-        width / 2 -
-        totalWidth / 2;
+        width / 2 - total / 2;
 
     let y = 20;
 
     for (let i = 0; i < 4; i++) {
 
-        // selected
+        // 선택된 버튼
         if (selectedFilter === i) {
 
             fill("#ff4d6d");
@@ -255,29 +134,22 @@ function drawFilterButtons() {
 
         else {
 
-            fill(255, 220);
+            fill(255);
         }
 
-        stroke(255);
+        stroke("#ff4d6d");
 
         strokeWeight(3);
 
         rect(
-            startX +
-            i * (buttonSize + gap),
-
+            startX + i * (size + gap),
             y,
-
-            buttonSize,
-
-            buttonSize,
-
+            size,
+            size,
             18
         );
 
         noStroke();
-
-        textSize(buttonSize * 0.5);
 
         if (selectedFilter === i) {
 
@@ -289,217 +161,140 @@ function drawFilterButtons() {
             fill("#ff4d6d");
         }
 
+        textSize(30);
+
         text(
             names[i],
-
-            startX +
-            i * (buttonSize + gap) +
-            buttonSize / 2,
-
-            y + buttonSize / 2 + 2
+            startX + i * (size + gap) + size / 2,
+            y + size / 2 + 2
         );
     }
 }
 
-// =====================================================
-// CAPTURE BUTTON
-// =====================================================
-function drawCaptureButton() {
-
-    let btnW;
-
-    // mobile
-    if (width < 700) {
-
-        btnW = width * 0.65;
-    }
-
-    // desktop
-    else {
-
-        btnW = 320;
-    }
+// =========================
+// 촬영 버튼
+// =========================
+function drawCameraButton() {
 
     fill("#ff4d6d");
 
     noStroke();
 
     rect(
-        width / 2 - btnW / 2,
-        height - 80,
-        btnW,
+        width / 2 - 130,
+        height - 75,
+        260,
         55,
-        22
+        20
     );
 
     fill(255);
 
-    textSize(
-        min(width * 0.04, 28)
-    );
+    textSize(28);
 
     text(
         "촬영하기",
         width / 2,
-        height - 52
+        height - 47
     );
 }
 
-// =====================================================
-// RESULT SCREEN
-// =====================================================
+// =========================
+// 결과 화면
+// =========================
 function drawResultScreen() {
 
-    background("#f7f1ff");
+    background("#f6f1ff");
 
     let stripWidth;
 
-    // mobile
+    // 모바일
     if (width < 700) {
 
         stripWidth = width * 0.82;
     }
 
-    // desktop
+    // 데스크탑
     else {
 
-        stripWidth = 340;
+        stripWidth = 460;
     }
 
     let stripX =
-        width / 2 -
-        stripWidth / 2;
+        width / 2 - stripWidth / 2;
 
     let photoWidth =
-        stripWidth - 30;
+        (stripWidth - 30) / 2;
 
     let photoHeight =
-        photoWidth * 0.72;
+        photoWidth;
 
-    let gap = 12;
+    let gap = 10;
 
-    let stripHeight =
-        photoHeight * 4 +
-        gap * 3 +
-        90;
-
-    // shadow
-    fill(220, 220, 220, 80);
-
-    rect(
-        stripX + 8,
-        38,
-        stripWidth,
-        stripHeight,
-        30
-    );
-
-    // strip
+    // 배경
     fill(255);
+
+    noStroke();
 
     rect(
         stripX,
-        30,
+        40,
         stripWidth,
-        stripHeight,
-        30
+        photoHeight * 2 + 40,
+        20
     );
 
-    // title
-    fill("#ff4d6d");
-
-    textSize(
-        min(width * 0.045, 30)
-    );
-
-    text(
-        "촬영 결과",
-        width / 2,
-        70
-    );
-
-    // date
-    fill("#999");
-
-    textSize(
-        min(width * 0.025, 18)
-    );
-
-    let today =
-        year() + "." +
-        nf(month(), 2) + "." +
-        nf(day(), 2);
-
-    text(
-        today,
-        width / 2,
-        100
-    );
-
-    // photos
+    // 사진 출력
     for (let i = 0; i < capturedPhotos.length; i++) {
+
+        let x =
+            stripX + 10 +
+            (i % 2) * (photoWidth + gap);
+
+        let y =
+            50 +
+            floor(i / 2) *
+            (photoHeight + gap);
 
         image(
             capturedPhotos[i],
-
-            stripX + 15,
-
-            120 +
-            i * (photoHeight + gap),
-
+            x,
+            y,
             photoWidth,
-
             photoHeight
         );
     }
 
-    // save button
-    let btnW;
-
-    if (width < 700) {
-
-        btnW = width * 0.7;
-    }
-
-    else {
-
-        btnW = 300;
-    }
-
+    // 저장 버튼
     fill("#ff4d6d");
 
     rect(
-        width / 2 - btnW / 2,
-        height - 80,
-        btnW,
+        width / 2 - 130,
+        height - 75,
+        260,
         55,
-        22
+        20
     );
 
     fill(255);
 
-    textSize(
-        min(width * 0.04, 28)
-    );
+    textSize(28);
 
     text(
         "저장하기",
         width / 2,
-        height - 52
+        height - 47
     );
 }
 
-// =====================================================
-// CLICK
-// =====================================================
+// =========================
+// 클릭
+// =========================
 function mousePressed() {
 
     handleButtons();
 }
 
-// =====================================================
-// TOUCH
-// =====================================================
 function touchStarted() {
 
     handleButtons();
@@ -507,100 +302,93 @@ function touchStarted() {
     return false;
 }
 
-// =====================================================
-// BUTTONS
-// =====================================================
+// =========================
+// 버튼 처리
+// =========================
 function handleButtons() {
 
     // 시작하기
-    if (currentScreen === "start") {
+    if (
+        currentScreen === "start" &&
 
-        let btnW;
+        mouseX > width / 2 - 140 &&
+        mouseX < width / 2 + 140 &&
 
-        if (width < 700) {
+        mouseY > height * 0.62 - 40 &&
+        mouseY < height * 0.62 + 40
+    ) {
 
-            btnW = width * 0.7;
-        }
-
-        else {
-
-            btnW = 320;
-        }
-
-        if (
-            mouseX > width / 2 - btnW / 2 &&
-            mouseX < width / 2 + btnW / 2 &&
-            mouseY > height * 0.8 &&
-            mouseY < height * 0.8 + 65
-        ) {
-
-            currentScreen = "camera";
-        }
+        currentScreen = "camera";
     }
 
-    // 카메라 화면
-    else if (currentScreen === "camera") {
+    // 촬영하기
+    else if (
+        currentScreen === "camera" &&
 
-        // capture
-        let btnW;
+        mouseX > width / 2 - 130 &&
+        mouseX < width / 2 + 130 &&
 
-        if (width < 700) {
+        mouseY > height - 75 &&
+        mouseY < height - 20
+    ) {
 
-            btnW = width * 0.65;
-        }
-
-        else {
-
-            btnW = 320;
-        }
-
-        if (
-            mouseX > width / 2 - btnW / 2 &&
-            mouseX < width / 2 + btnW / 2 &&
-            mouseY > height - 80 &&
-            mouseY < height - 25
-        ) {
-
-            startPhotoSequence();
-        }
-
-        // filter buttons
-        handleFilterButtons();
+        startPhotoSequence();
     }
 
     // 저장하기
-    else if (currentScreen === "result") {
+    else if (
+        currentScreen === "result" &&
 
-        let btnW;
+        mouseX > width / 2 - 130 &&
+        mouseX < width / 2 + 130 &&
 
-        if (width < 700) {
+        mouseY > height - 75 &&
+        mouseY < height - 20
+    ) {
 
-            btnW = width * 0.7;
-        }
+        saveCanvas(
+            "4cut-photo",
+            "png"
+        );
+    }
 
-        else {
+    // 필터 선택
+    if (currentScreen === "camera") {
 
-            btnW = 300;
-        }
+        let size = 60;
 
-        if (
-            mouseX > width / 2 - btnW / 2 &&
-            mouseX < width / 2 + btnW / 2 &&
-            mouseY > height - 80 &&
-            mouseY < height - 25
-        ) {
+        let gap = 14;
 
-            saveCanvas(
-                "4cut-photo",
-                "png"
-            );
+        let total =
+            size * 4 +
+            gap * 3;
+
+        let startX =
+            width / 2 - total / 2;
+
+        let y = 20;
+
+        for (let i = 0; i < 4; i++) {
+
+            let bx =
+                startX + i * (size + gap);
+
+            if (
+                mouseX > bx &&
+                mouseX < bx + size &&
+                mouseY > y &&
+                mouseY < y + size
+            ) {
+
+                selectedFilter = i;
+            }
         }
     }
 }
 
-// =====================================================
-// RESIZE
-// =====================================================
+// =========================
+// 화면 리사이즈
+// =========================
 function windowResized() {
 
     resizeCanvas(
@@ -608,7 +396,7 @@ function windowResized() {
         windowHeight
     );
 
-    if (video && video.size) {
+    if (video) {
 
         video.size(
             windowWidth,
