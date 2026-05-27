@@ -182,6 +182,57 @@ function veFilterNo(camX, camY) {
   }
   pop();
 }
+//ve filter con ech
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  if (mouseIsPressed) {
+    drawEch(mouseX, mouseY);
+  }
+}
+
+function drawEch(x, y) {
+  push();
+
+  // 2 mắt
+  veMat(x - 40, y - 60);
+  veMat(x + 40, y - 60);
+
+  // đầu
+  fill("#4CAF50");
+  noStroke();
+  ellipse(x, y, 150, 120);
+
+  // miệng
+  noFill();
+  stroke("#2E7D32");
+  strokeWeight(3);
+  arc(x, y + 10, 80, 40, 0.2, PI - 0.2);
+
+  // mũi
+  fill("#2E7D32");
+  noStroke();
+  ellipse(x - 15, y - 10, 8, 6);
+  ellipse(x + 15, y - 10, 8, 6);
+
+  pop();
+}
+
+function veMat(x, y) {
+  fill("white");
+  stroke("#2E7D32");
+  strokeWeight(3);
+  circle(x, y, 50);
+
+  fill("black");
+  noStroke();
+  circle(x, y, 22);
+
+  fill(255);
+  circle(x - 5, y - 5, 8);
+}
 
 // 💕 Pastel Love
 let mauTimList = ["#ffb6c1", "#b2f0e8", "#fff59d", "#c8e6c9", "#e1bee7"];
