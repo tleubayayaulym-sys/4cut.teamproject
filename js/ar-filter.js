@@ -1,35 +1,37 @@
 // ============================================================
 // ar-filter.js — 담당: 응웬 바오 담 (Tamy)
-// Chức năng 1: Nhận diện khuôn mặt + vẽ AR filter (MediaPipe FaceMesh)
-// Chức năng 2: Nhận diện cử chỉ tay để chụp ảnh (MediaPipe Hands)
-//   → Ngón cái + ngón trỏ chạm nhau = chụp ảnh
+// Chức năng 1: AR filter bám khuôn mặt (MediaPipe FaceMesh)
+// Chức năng 2: Cử chỉ tay chụp ảnh (MediaPipe Hands)
+//   → Ngón cái + ngón trỏ chạm nhau rồi tách ra = chụp ảnh
 // ============================================================
 
-// --- Biến FaceMesh ---
+// --- Biến FaceMesh (nhận diện khuôn mặt) ---
 let faceMesh      = null;
 let faceLandmarks = null;
 let faceReady     = false;
 
-// --- Biến Hands ---
-let handDetector    = null;
-let handLandmarks   = null;
-let handsReady      = false;
+// --- Biến Hands (nhận diện tay) ---
+let handDetector  = null;
+let handLandmarks = null;
 
 // --- Biến cử chỉ tay ---
-let gesTouchedPrev  = false; // trạng thái cử chỉ frame trước
-let gesIconTimer    = 0;     // đếm thời gian hiện icon 📸
+let gesTouchedPrev = false; // trạng thái frame trước
+let gesIconTimer   = 0;     // đếm frame hiện icon 📸
 
-// --- Danh sách filter (배열 사용) ---
-let filterNames = ["Cat 🐱", "Rabbit 🐰", "Glasses 👓", "Crown 👑"];
+// --- selectedFilter: loại filter đang chọn (dùng chung toàn project) ---
+// dùng var để tránh lỗi redeclare nếu file khác cũng khai báo
+if (typeof selectedFilter === "undefined") {
+  var selectedFilter = 0; // 0=Cat 1=Rabbit 2=Glasses 3=Crown
+}
 
 // ============================================================
-// initFaceMesh() — khởi động FaceMesh + Hands cùng lúc
+// initFaceMesh() — khởi động FaceMesh + Hands
 // Gọi 1 lần trong setupCamera() của camera.js
 // ============================================================
 function initFaceMesh(camera) {
   let videoEl = camera.elt;
 
-  // --- FaceMesh ---
+  // --- FaceMesh: nhận diện 478 điểm trên khuôn mặt ---
   faceMesh = new FaceMesh({
     locateFile: (file) =>
       "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/" + file
@@ -41,15 +43,11 @@ function initFaceMesh(camera) {
     minTrackingConfidence:  0.5
   });
   faceMesh.onResults((r) => {
-    if (r.multiFaceLandmarks && r.multiFaceLandmarks.length > 0) {
-      faceLandmarks = r.multiFaceLandmarks[0];
-    } else {
-      faceLandmarks = null;
-    }
+    faceLandmarks = (r.multiFaceLandmarks && r.multiFaceLandmarks.length > 0)
+      ? r.multiFaceLandmarks[0] : null;
   });
-  faceReady = true;
 
-  // --- Hands ---
+  // --- Hands: nhận diện điểm ngón tay ---
   handDetector = new Hands({
     locateFile: (file) =>
       "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
@@ -61,15 +59,13 @@ function initFaceMesh(camera) {
     minTrackingConfidence:  0.5
   });
   handDetector.onResults((r) => {
-    if (r.multiHandLandmarks && r.multiHandLandmarks.length > 0) {
-      handLandmarks = r.multiHandLandmarks[0];
-    } else {
-      handLandmarks = null;
-    }
+    handLandmarks = (r.multiHandLandmarks && r.multiHandLandmarks.length > 0)
+      ? r.multiHandLandmarks[0] : null;
   });
-  handsReady = true;
 
-  // setInterval: gửi frame cho cả FaceMesh và Hands (~15fps)
+  faceReady = true;
+
+  // setInterval: gửi frame cho cả 2 model (~15fps)
   let dangXuLy = false;
   setInterval(async () => {
     if (!dangXuLy && videoEl.readyState >= 2) {
@@ -84,97 +80,7 @@ function initFaceMesh(camera) {
 }
 
 // ============================================================
-// ktraCuChi() — kiểm tra cử chỉ ngón cái + ngón trỏ chạm nhau
-// Trả về true khi 2 ngón chạm → gọi startPhotoSequence()
-// ============================================================
-function ktraCuChi() {
-  if (!handLandmarks) return false;
-
-  // điểm đầu ngón cái (landmark 4) và đầu ngón trỏ (landmark 8)
-  let ngonCai  = handLandmarks[4];
-  let ngonTro  = handLandmarks[8];
-
-  // tính khoảng cách giữa 2 ngón (tọa độ normalized 0→1)
-  let khoangCach = dist(
-    ngonCai.x, ngonCai.y,
-    ngonTro.x, ngonTro.y
-  );
-
-  // nếu khoảng cách < 0.06 → 2 ngón đang chạm nhau
-  return khoangCach < 0.06;
-}
-
-// ============================================================
-// xLyCuChi() — xử lý cử chỉ tay, gọi mỗi frame trong drawCamera()
-// Dùng gesTouchedPrev để chỉ kích hoạt 1 lần (trailing edge)
-// ============================================================
-function xLyCuChi() {
-  let dangCham = ktraCuChi();
-
-  // khi 2 ngón vừa TÁCH RA (trailing edge) → chụp ảnh
-  if (gesTouchedPrev && !dangCham) {
-    gesIconTimer = 60; // hiện icon 📸 trong 60 frame (~1 giây)
-    startPhotoSequence(); // gọi hàm chụp trong camera.js
-  }
-
-  gesTouchedPrev = dangCham;
-}
-
-// ============================================================
-// veHuongDanCuChi() — vẽ hướng dẫn + icon tay lên màn hình
-// ============================================================
-function veHuongDanCuChi() {
-  push();
-  noStroke();
-  textAlign(CENTER, CENTER);
-
-  // --- hiện icon 📸 khi vừa chụp ---
-  if (gesIconTimer > 0) {
-    textSize(min(width * 0.12, 80));
-    fill(255, 255, 255, map(gesIconTimer, 0, 60, 0, 255));
-    text("📸", width / 2, height / 2);
-    gesIconTimer--;
-  }
-
-  // --- vẽ điểm 2 ngón tay lên canvas ---
-  if (handLandmarks) {
-    let ngonCai = handLandmarks[4];
-    let ngonTro = handLandmarks[8];
-
-    // chuyển tọa độ normalized → canvas pixel (mirror)
-    let caiX = (1 - ngonCai.x) * width;
-    let caiY = ngonCai.y * height;
-    let troX = (1 - ngonTro.x) * width;
-    let troY = ngonTro.y * height;
-
-    // đường nối 2 ngón
-    let dangCham = ktraCuChi();
-    if (dangCham) {
-      stroke("#ff4d6d"); strokeWeight(4);
-      line(caiX, caiY, troX, troY);
-    }
-
-    // điểm ngón cái
-    fill(dangCham ? "#ff4d6d" : "#fff");
-    noStroke();
-    circle(caiX, caiY, 20);
-
-    // điểm ngón trỏ
-    fill(dangCham ? "#ff4d6d" : "#fff");
-    circle(troX, troY, 20);
-  }
-
-  // --- hướng dẫn ở góc dưới phải ---
-  fill(255, 255, 255, 180);
-  textSize(min(width * 0.025, 16));
-  textAlign(RIGHT, CENTER);
-  text("👌 엄지+검지 터치 = 촬영", width - 15, height - 35);
-
-  pop();
-}
-
-// ============================================================
-// lm() + faceWidth() — tọa độ FaceMesh → canvas p5.js
+// lm() — chuyển tọa độ FaceMesh (0→1) sang pixel canvas
 // ============================================================
 function lm(index, camX, camY) {
   if (!faceLandmarks || index >= faceLandmarks.length) {
@@ -187,42 +93,102 @@ function lm(index, camX, camY) {
   };
 }
 
-function faceWidth(camX, camY) {
+function getFaceWidth(camX, camY) {
   let trai = lm(234, camX, camY);
   let phai = lm(454, camX, camY);
   return dist(trai.x, trai.y, phai.x, phai.y);
 }
 
 // ============================================================
-// drawARFilter() — vẽ AR filter + cử chỉ tay
-// Gọi từ drawCamera() trong camera.js
+// ktraCuChi() — kiểm tra ngón cái(4) + ngón trỏ(8) chạm nhau
 // ============================================================
-function drawARFilter(camX, camY, filterType) {
-  // vẽ AR filter mặt
+function ktraCuChi() {
+  if (!handLandmarks) return false;
+  let ngonCai = handLandmarks[4];
+  let ngonTro = handLandmarks[8];
+  return dist(ngonCai.x, ngonCai.y, ngonTro.x, ngonTro.y) < 0.06;
+}
+
+// ============================================================
+// drawARFilter() — hàm chính, gọi từ drawCamera() trong camera.js
+// ============================================================
+function drawARFilter(camX, camY, loaiFilter) {
+  // 1. Vẽ AR filter bám mặt
   if (faceLandmarks) {
-    if      (filterType === 0) drawCatFilter_tracked(camX, camY);
-    else if (filterType === 1) drawRabbitFilter_tracked(camX, camY);
-    else if (filterType === 2) drawGlassesFilter_tracked(camX, camY);
-    else if (filterType === 3) drawCrownFilter_tracked(camX, camY);
+    if      (loaiFilter === 0) veFilterMeo(camX, camY);
+    else if (loaiFilter === 1) veFilterTho(camX, camY);
+    else if (loaiFilter === 2) veFilterKinh(camX, camY);
+    else if (loaiFilter === 3) veFilterVuong(camX, camY);
   } else {
-    drawARFilter_fixed(camX, camY - height * 0.08, filterType);
+    veFilterCoDinh(camX, camY - height * 0.08, loaiFilter);
   }
 
-  // xử lý + vẽ cử chỉ tay
-  xLyCuChi();
-  veHuongDanCuChi();
+  // 2. Xử lý cử chỉ tay → chụp ảnh
+  let dangCham = ktraCuChi();
+  if (gesTouchedPrev && !dangCham) {
+    gesIconTimer = 60;
+    if (typeof startPhotoSequence === "function") startPhotoSequence();
+  }
+  gesTouchedPrev = dangCham;
+
+  // 3. Vẽ hướng dẫn tay
+  veHuongDanTay(dangCham);
+}
+
+// ============================================================
+// veHuongDanTay() — vẽ điểm tay + icon + hướng dẫn
+// ============================================================
+function veHuongDanTay(dangCham) {
+  push();
+  noStroke();
+
+  // icon 📸 khi vừa chụp
+  if (gesIconTimer > 0) {
+    textAlign(CENTER, CENTER);
+    textSize(min(width * 0.12, 80));
+    fill(255, 255, 255, map(gesIconTimer, 0, 60, 0, 255));
+    text("📸", width / 2, height / 2);
+    gesIconTimer--;
+  }
+
+  // vẽ 2 điểm ngón tay
+  if (handLandmarks) {
+    let ngonCai = handLandmarks[4];
+    let ngonTro = handLandmarks[8];
+    let caiX = (1 - ngonCai.x) * width;
+    let caiY = ngonCai.y * height;
+    let troX = (1 - ngonTro.x) * width;
+    let troY = ngonTro.y * height;
+
+    if (dangCham) {
+      stroke("#ff4d6d"); strokeWeight(4);
+      line(caiX, caiY, troX, troY);
+    }
+    noStroke();
+    fill(dangCham ? "#ff4d6d" : 255);
+    circle(caiX, caiY, 20);
+    circle(troX, troY, 20);
+  }
+
+  // hướng dẫn góc dưới phải
+  fill(255, 255, 255, 180);
+  textAlign(RIGHT, CENTER);
+  textSize(min(width * 0.025, 16));
+  text("👌 엄지+검지 터치 = 촬영", width - 15, height - 35);
+
+  pop();
 }
 
 // ============================================================
 // 🐱 Filter mèo
 // ============================================================
-function drawCatFilter_tracked(camX, camY) {
+function veFilterMeo(camX, camY) {
   push();
   let mui    = lm(1,   camX, camY);
   let dinh   = lm(10,  camX, camY);
   let maTrai = lm(234, camX, camY);
   let maPhai = lm(454, camX, camY);
-  let tl     = faceWidth(camX, camY) / 180;
+  let tl     = getFaceWidth(camX, camY) / 180;
   let cx = mui.x, cy = dinh.y;
 
   fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2 * tl);
@@ -248,11 +214,11 @@ function drawCatFilter_tracked(camX, camY) {
 // ============================================================
 // 🐰 Filter thỏ
 // ============================================================
-function drawRabbitFilter_tracked(camX, camY) {
+function veFilterTho(camX, camY) {
   push();
   let mui  = lm(1,  camX, camY);
   let dinh = lm(10, camX, camY);
-  let tl   = faceWidth(camX, camY) / 180;
+  let tl   = getFaceWidth(camX, camY) / 180;
   let cx = mui.x, cy = dinh.y;
 
   fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2 * tl);
@@ -268,13 +234,13 @@ function drawRabbitFilter_tracked(camX, camY) {
 // ============================================================
 // 👓 Filter kính
 // ============================================================
-function drawGlassesFilter_tracked(camX, camY) {
+function veFilterKinh(camX, camY) {
   push();
   let mTO = lm(33,  camX, camY);
   let mTT = lm(133, camX, camY);
   let mPT = lm(362, camX, camY);
   let mPO = lm(263, camX, camY);
-  let tl  = faceWidth(camX, camY) / 180;
+  let tl  = getFaceWidth(camX, camY) / 180;
 
   let rong = dist(mTO.x, mTO.y, mTT.x, mTT.y) * 1.3;
   let cao  = rong * 0.65;
@@ -293,11 +259,11 @@ function drawGlassesFilter_tracked(camX, camY) {
 // ============================================================
 // 👑 Filter vương miện
 // ============================================================
-function drawCrownFilter_tracked(camX, camY) {
+function veFilterVuong(camX, camY) {
   push();
   let mui  = lm(1,  camX, camY);
   let dinh = lm(10, camX, camY);
-  let tl   = faceWidth(camX, camY) / 180;
+  let tl   = getFaceWidth(camX, camY) / 180;
   let cx = mui.x, cy = dinh.y;
 
   fill("#ffd700"); stroke("#cc9900"); strokeWeight(2*tl);
@@ -318,80 +284,69 @@ function drawCrownFilter_tracked(camX, camY) {
 // ============================================================
 // Filter cố định (khi chưa nhận diện được mặt)
 // ============================================================
-function drawARFilter_fixed(x, y, filterType) {
-  if      (filterType === 0) drawCatFixed(x, y);
-  else if (filterType === 1) drawRabbitFixed(x, y);
-  else if (filterType === 2) drawGlassesFixed(x, y);
-  else if (filterType === 3) drawCrownFixed(x, y);
-}
-
-function drawCatFixed(x, y) {
-  push();
-  fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2);
-  triangle(x-115,y-115,x-80,y-205,x-40,y-115);
-  triangle(x+40,y-115,x+80,y-205,x+115,y-115);
-  fill("#ff9ab0"); noStroke();
-  triangle(x-104,y-122,x-80,y-190,x-52,y-122);
-  triangle(x+52,y-122,x+80,y-190,x+104,y-122);
-  stroke("#aaa"); strokeWeight(1.5);
-  line(x-90,y+18,x-185,y+5); line(x-90,y+33,x-185,y+33);
-  line(x+90,y+18,x+185,y+5); line(x+90,y+33,x+185,y+33);
-  fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
-  pop();
-}
-
-function drawRabbitFixed(x, y) {
-  push();
-  fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2);
-  ellipse(x-72,y-195,58,175); ellipse(x+72,y-195,58,175);
-  fill("#ffb6c1"); noStroke();
-  ellipse(x-72,y-195,30,115); ellipse(x+72,y-195,30,115);
-  fill("#ffaabb"); ellipse(x,y+24,18,13);
-  pop();
-}
-
-function drawGlassesFixed(x, y) {
-  push();
-  noFill(); stroke("#222"); strokeWeight(5); rectMode(CORNER);
-  rect(x-103,y-47,88,60,14); rect(x+15,y-47,88,60,14);
-  line(x-15,y-22,x+15,y-22);
-  line(x-103,y-22,x-135,y-16); line(x+103,y-22,x+135,y-16);
-  pop();
-}
-
-function drawCrownFixed(x, y) {
-  push();
-  fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
-  beginShape();
-  vertex(x-115,y-105); vertex(x-85,y-195); vertex(x-42,y-128);
-  vertex(x,y-215);     vertex(x+42,y-128); vertex(x+85,y-195);
-  vertex(x+115,y-105); vertex(x+115,y-68); vertex(x-115,y-68);
-  endShape(CLOSE);
-  noStroke();
-  fill("#ff4d6d"); circle(x-68,y-112,20);
-  fill("#a78bfa"); circle(x,y-148,20);
-  fill("#ff4d6d"); circle(x+68,y-112,20);
-  pop();
+function veFilterCoDinh(x, y, loai) {
+  if      (loai === 0) {
+    push();
+    fill("#ffb6c1"); stroke("#cc7788"); strokeWeight(2);
+    triangle(x-115,y-115,x-80,y-205,x-40,y-115);
+    triangle(x+40,y-115,x+80,y-205,x+115,y-115);
+    fill("#ff9ab0"); noStroke();
+    triangle(x-104,y-122,x-80,y-190,x-52,y-122);
+    triangle(x+52,y-122,x+80,y-190,x+104,y-122);
+    stroke("#aaa"); strokeWeight(1.5);
+    line(x-90,y+18,x-185,y+5); line(x-90,y+33,x-185,y+33);
+    line(x+90,y+18,x+185,y+5); line(x+90,y+33,x+185,y+33);
+    fill("#ff8fab"); noStroke(); ellipse(x,y+22,16,12);
+    pop();
+  } else if (loai === 1) {
+    push();
+    fill("#f5e6f5"); stroke("#d0b0d0"); strokeWeight(2);
+    ellipse(x-72,y-195,58,175); ellipse(x+72,y-195,58,175);
+    fill("#ffb6c1"); noStroke();
+    ellipse(x-72,y-195,30,115); ellipse(x+72,y-195,30,115);
+    fill("#ffaabb"); ellipse(x,y+24,18,13);
+    pop();
+  } else if (loai === 2) {
+    push();
+    noFill(); stroke("#222"); strokeWeight(5); rectMode(CORNER);
+    rect(x-103,y-47,88,60,14); rect(x+15,y-47,88,60,14);
+    line(x-15,y-22,x+15,y-22);
+    line(x-103,y-22,x-135,y-16); line(x+103,y-22,x+135,y-16);
+    pop();
+  } else if (loai === 3) {
+    push();
+    fill("#ffd700"); stroke("#cc9900"); strokeWeight(2);
+    beginShape();
+    vertex(x-115,y-105); vertex(x-85,y-195); vertex(x-42,y-128);
+    vertex(x,y-215);     vertex(x+42,y-128); vertex(x+85,y-195);
+    vertex(x+115,y-105); vertex(x+115,y-68); vertex(x-115,y-68);
+    endShape(CLOSE);
+    noStroke();
+    fill("#ff4d6d"); circle(x-68,y-112,20);
+    fill("#a78bfa"); circle(x,y-148,20);
+    fill("#ff4d6d"); circle(x+68,y-112,20);
+    pop();
+  }
 }
 
 // hàm rỗng — giữ để camera.js không bị lỗi
 function updateParticles() {}
 
 // ============================================================
-// drawFaceStatus() — hiện trạng thái nhận diện
+// drawFaceStatus() — hiện trạng thái nhận diện mặt
 // ============================================================
 function drawFaceStatus(w, h) {
   push();
   noStroke(); textAlign(LEFT, CENTER); textSize(14);
   if (!faceReady) {
     fill(255, 200, 0, 200);
-    text("⏳ Đang tải mô hình...", 20, h - 55);
+    text("⏳ 모델 로딩 중...", 20, h - 55);
   } else if (!faceLandmarks) {
     fill(255, 100, 100, 200);
-    text("😶 Hướng mặt vào camera", 20, h - 55);
+    text("😶 얼굴을 카메라에 맞춰주세요", 20, h - 55);
   } else {
     fill(100, 220, 100, 200);
-    text("✅ Nhận diện khuôn mặt", 20, h - 55);
+    text("✅ 얼굴 인식 중", 20, h - 55);
   }
   pop();
 }
