@@ -15,8 +15,8 @@ let frameColors = ["#ffb6c1", "#b2f0e8", "#fff59d", "#e1bee7"];
 let frameDark   = ["#f48fb1", "#80cbc4", "#f9a825", "#ce93d8"];
 
 // --- Dữ liệu filter (배열 사용) ---
-let filterEmoji = ["🎀", "💕", "🐱", "👓"];
-let filterLabel = ["Ribbon", "Love", "Cat", "Glasses"];
+let filterEmoji = ["🎀", "💕", "🐱", "👓", "🐸"];
+let filterLabel = ["Ribbon", "Love", "Cat", "Glasses", "Frog"];
 
 // ============================================================
 // setup() + draw()
