@@ -1,11 +1,16 @@
+// ============================================================
+// main.js
+// ============================================================
+
 let currentScreen = "start";
 
 let selectedFilter = 0;
 let selectedFrame = 0;
 
-// ======================
+// ============================================================
 // setup
-// ======================
+// ============================================================
+
 function setup() {
 
     createCanvas(
@@ -16,11 +21,14 @@ function setup() {
     setupCamera();
 
     textAlign(CENTER, CENTER);
+
+    rectMode(CORNER);
 }
 
-// ======================
+// ============================================================
 // draw
-// ======================
+// ============================================================
+
 function draw() {
 
     background("#f6f1ff");
@@ -58,9 +66,10 @@ function draw() {
     }
 }
 
-// ======================
-// START
-// ======================
+// ============================================================
+// START SCREEN
+// ============================================================
+
 function drawStartScreen() {
 
     background("#f6f1ff");
@@ -76,44 +85,96 @@ function drawStartScreen() {
     text(
         "4CUT BOOTH",
         width / 2,
-        height * 0.25
+        height * 0.23
     );
 
-    fill("#666");
+    fill("#777");
 
     textSize(22);
 
     text(
         "포토부스 촬영",
         width / 2,
-        height * 0.35
+        height * 0.32
     );
 
-    // 시작 버튼
+    // image style card
+    fill(255);
+
+    stroke("#ff4d6d");
+
+    strokeWeight(4);
+
+    rect(
+        width / 2 - 120,
+        height * 0.42,
+        240,
+        180,
+        25
+    );
+
+    fill("#ffd6e8");
+
+    rect(
+        width / 2 - 95,
+        height * 0.47,
+        70,
+        55,
+        12
+    );
+
+    rect(
+        width / 2 + 25,
+        height * 0.47,
+        70,
+        55,
+        12
+    );
+
+    rect(
+        width / 2 - 95,
+        height * 0.58,
+        70,
+        55,
+        12
+    );
+
+    rect(
+        width / 2 + 25,
+        height * 0.58,
+        70,
+        55,
+        12
+    );
+
+    // START BUTTON
     fill("#ff4d6d");
+
+    noStroke();
 
     rect(
         width / 2 - 140,
-        height * 0.62 - 40,
+        height - 140,
         280,
-        80,
-        25
+        75,
+        22
     );
 
     fill(255);
 
-    textSize(34);
+    textSize(32);
 
     text(
         "시작하기",
         width / 2,
-        height * 0.62
+        height - 103
     );
 }
 
-// ======================
-// SETTINGS
-// ======================
+// ============================================================
+// SETTINGS SCREEN
+// ============================================================
+
 function drawSettingsScreen() {
 
     background("#f6f1ff");
@@ -128,30 +189,32 @@ function drawSettingsScreen() {
         70
     );
 
-    // 필터 제목
+    // FILTER
     fill("#555");
 
-    textSize(26);
+    textSize(24);
 
     text(
         "필터 선택",
         width / 2,
-        140
+        150
     );
 
     drawFilterOptions();
 
-    // 프레임 제목
+    // FRAME
     text(
         "프레임 선택",
         width / 2,
-        330
+        340
     );
 
     drawFrameOptions();
 
-    // 촬영 시작 버튼
+    // START CAMERA
     fill("#ff4d6d");
+
+    noStroke();
 
     rect(
         width / 2 - 150,
@@ -172,9 +235,10 @@ function drawSettingsScreen() {
     );
 }
 
-// ======================
+// ============================================================
 // FILTER OPTIONS
-// ======================
+// ============================================================
+
 function drawFilterOptions() {
 
     let filters = [
@@ -192,7 +256,7 @@ function drawFilterOptions() {
         width / 2 -
         (size * 4 + gap * 3) / 2;
 
-    let y = 180;
+    let y = 190;
 
     for (let i = 0; i < 4; i++) {
 
@@ -240,9 +304,10 @@ function drawFilterOptions() {
     }
 }
 
-// ======================
+// ============================================================
 // FRAME OPTIONS
-// ======================
+// ============================================================
+
 function drawFrameOptions() {
 
     let colors = [
@@ -260,7 +325,7 @@ function drawFrameOptions() {
         width / 2 -
         (size * 4 + gap * 3) / 2;
 
-    let y = 370;
+    let y = 390;
 
     for (let i = 0; i < 4; i++) {
 
@@ -288,9 +353,10 @@ function drawFrameOptions() {
     }
 }
 
-// ======================
+// ============================================================
 // CAMERA BUTTON
-// ======================
+// ============================================================
+
 function drawCameraButton() {
 
     fill("#ff4d6d");
@@ -298,11 +364,11 @@ function drawCameraButton() {
     noStroke();
 
     rect(
-        width / 2 - 130,
-        height - 75,
-        260,
-        55,
-        20
+        width / 2 - 135,
+        height - 80,
+        270,
+        60,
+        22
     );
 
     fill(255);
@@ -312,13 +378,14 @@ function drawCameraButton() {
     text(
         "촬영하기",
         width / 2,
-        height - 47
+        height - 50
     );
 }
 
-// ======================
-// RESULT
-// ======================
+// ============================================================
+// RESULT SCREEN
+// ============================================================
+
 function drawResultScreen() {
 
     background("#f6f1ff");
@@ -347,7 +414,6 @@ function drawResultScreen() {
 
     let gap = 10;
 
-    // frame background
     let frameColors = [
         "#ffffff",
         "#ffd6e8",
@@ -355,6 +421,7 @@ function drawResultScreen() {
         "#e2ffd6"
     ];
 
+    // FRAME
     fill(
         frameColors[selectedFrame]
     );
@@ -365,11 +432,11 @@ function drawResultScreen() {
         stripX,
         40,
         stripWidth,
-        photoHeight * 2 + 40,
+        photoHeight * 2 + 90,
         25
     );
 
-    // photos
+    // PHOTOS
     for (let i = 0; i < capturedPhotos.length; i++) {
 
         let x =
@@ -390,7 +457,23 @@ function drawResultScreen() {
         );
     }
 
-    // 저장 버튼
+    // DATE
+    fill("#555");
+
+    textSize(20);
+
+    let today =
+        year() + "." +
+        nf(month(), 2) + "." +
+        nf(day(), 2);
+
+    text(
+        today,
+        width / 2,
+        50 + photoHeight * 2 + 35
+    );
+
+    // SAVE BUTTON
     fill("#ff4d6d");
 
     rect(
@@ -411,7 +494,7 @@ function drawResultScreen() {
         height - 112
     );
 
-    // 다시 촬영 버튼
+    // RETAKE BUTTON
     fill("#ffffff");
 
     stroke("#ff4d6d");
@@ -437,9 +520,10 @@ function drawResultScreen() {
     );
 }
 
-// ======================
+// ============================================================
 // SAVED SCREEN
-// ======================
+// ============================================================
+
 function drawSavedScreen() {
 
     background("#f6f1ff");
@@ -454,7 +538,7 @@ function drawSavedScreen() {
         height * 0.35
     );
 
-    // 새로 촬영
+    // NEW PHOTO
     fill("#ff4d6d");
 
     rect(
@@ -475,7 +559,7 @@ function drawSavedScreen() {
         height * 0.55 + 30
     );
 
-    // 처음으로
+    // HOME
     fill("#ffffff");
 
     stroke("#ff4d6d");
@@ -501,9 +585,10 @@ function drawSavedScreen() {
     );
 }
 
-// ======================
-// click
-// ======================
+// ============================================================
+// CLICK
+// ============================================================
+
 function mousePressed() {
 
     handleButtons();
@@ -516,18 +601,19 @@ function touchStarted() {
     return false;
 }
 
-// ======================
-// BUTTONS
-// ======================
+// ============================================================
+// BUTTON LOGIC
+// ============================================================
+
 function handleButtons() {
 
-    // START → SETTINGS
+    // START
     if (
         currentScreen === "start" &&
         mouseX > width / 2 - 140 &&
         mouseX < width / 2 + 140 &&
-        mouseY > height * 0.62 - 40 &&
-        mouseY < height * 0.62 + 40
+        mouseY > height - 140 &&
+        mouseY < height - 65
     ) {
 
         currentScreen = "settings";
@@ -536,7 +622,6 @@ function handleButtons() {
     // SETTINGS
     else if (currentScreen === "settings") {
 
-        // filter select
         let size = 65;
         let gap = 18;
 
@@ -544,8 +629,7 @@ function handleButtons() {
             width / 2 -
             (size * 4 + gap * 3) / 2;
 
-        let y = 180;
-
+        // FILTERS
         for (let i = 0; i < 4; i++) {
 
             let bx =
@@ -554,17 +638,15 @@ function handleButtons() {
             if (
                 mouseX > bx &&
                 mouseX < bx + size &&
-                mouseY > y &&
-                mouseY < y + size
+                mouseY > 190 &&
+                mouseY < 190 + size
             ) {
 
                 selectedFilter = i;
             }
         }
 
-        // frame select
-        let fy = 370;
-
+        // FRAMES
         for (let i = 0; i < 4; i++) {
 
             let bx =
@@ -573,15 +655,15 @@ function handleButtons() {
             if (
                 mouseX > bx &&
                 mouseX < bx + size &&
-                mouseY > fy &&
-                mouseY < fy + size
+                mouseY > 390 &&
+                mouseY < 390 + 70
             ) {
 
                 selectedFrame = i;
             }
         }
 
-        // start camera
+        // START CAMERA
         if (
             mouseX > width / 2 - 150 &&
             mouseX < width / 2 + 150 &&
@@ -596,9 +678,9 @@ function handleButtons() {
     // CAMERA
     else if (
         currentScreen === "camera" &&
-        mouseX > width / 2 - 130 &&
-        mouseX < width / 2 + 130 &&
-        mouseY > height - 75 &&
+        mouseX > width / 2 - 135 &&
+        mouseX < width / 2 + 135 &&
+        mouseY > height - 80 &&
         mouseY < height - 20
     ) {
 
@@ -608,7 +690,7 @@ function handleButtons() {
     // RESULT
     else if (currentScreen === "result") {
 
-        // 저장하기
+        // SAVE
         if (
             mouseX > width / 2 - 145 &&
             mouseX < width / 2 + 145 &&
@@ -624,7 +706,7 @@ function handleButtons() {
             currentScreen = "saved";
         }
 
-        // 다시 촬영
+        // RETAKE
         if (
             mouseX > width / 2 - 145 &&
             mouseX < width / 2 + 145 &&
@@ -641,7 +723,7 @@ function handleButtons() {
     // SAVED
     else if (currentScreen === "saved") {
 
-        // 새로 촬영
+        // NEW PHOTO
         if (
             mouseX > width / 2 - 145 &&
             mouseX < width / 2 + 145 &&
@@ -654,7 +736,7 @@ function handleButtons() {
             currentScreen = "camera";
         }
 
-        // 처음으로
+        // HOME
         if (
             mouseX > width / 2 - 145 &&
             mouseX < width / 2 + 145 &&
@@ -669,9 +751,10 @@ function handleButtons() {
     }
 }
 
-// ======================
-// resize
-// ======================
+// ============================================================
+// RESIZE
+// ============================================================
+
 function windowResized() {
 
     resizeCanvas(
@@ -687,6 +770,3 @@ function windowResized() {
         );
     }
 }
-
-
-
