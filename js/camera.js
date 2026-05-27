@@ -56,8 +56,8 @@ function drawCamera() {
   text("LIVE", camX + 36, camY + 22);
   pop();
 
-  // — Tamy: AR filter overlay
-  drawARFilter(camX + camW/2, camY + camH/2, selectedFilter);
+  // — Tamy: AR filter overlay (truyền camW, camH để tính tọa độ đúng)
+  drawARFilter(camX + camW/2, camY + camH/2, selectedFilter, camW, camH);
   drawFaceStatus(width, height);
 
   // --- Filter selector (góc phải ngoài camera) ---
