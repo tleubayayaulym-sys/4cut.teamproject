@@ -1,8 +1,8 @@
 let currentScreen = "start";
 
-let selectedFilter = 0;
-
-// setup
+// =========================
+// SETUP
+// =========================
 function setup() {
 
     createCanvas(
@@ -17,22 +17,20 @@ function setup() {
     rectMode(CORNER);
 }
 
-// draw
+// =========================
+// DRAW
+// =========================
 function draw() {
 
     background("#f6f1ff");
 
-    // =========================
-    // START SCREEN
-    // =========================
+    // 시작 화면
     if (currentScreen === "start") {
 
         drawStartScreen();
     }
 
-    // =========================
-    // CAMERA SCREEN
-    // =========================
+    // 카메라 화면
     else if (currentScreen === "camera") {
 
         drawCamera();
@@ -40,9 +38,7 @@ function draw() {
         drawCameraUI();
     }
 
-    // =========================
-    // RESULT SCREEN
-    // =========================
+    // 결과 화면
     else if (currentScreen === "result") {
 
         drawResultScreen();
@@ -56,7 +52,6 @@ function drawStartScreen() {
 
     background("#f7f1ff");
 
-    // background glow
     noStroke();
 
     fill(255, 210, 230, 90);
@@ -139,7 +134,7 @@ function drawStartScreen() {
         height * 0.60
     );
 
-    // start button
+    // button width
     let btnW;
 
     if (width < 700) {
@@ -152,6 +147,7 @@ function drawStartScreen() {
         btnW = 320;
     }
 
+    // start button
     fill("#ff4d6d");
 
     rect(
@@ -180,7 +176,7 @@ function drawStartScreen() {
 // =====================================================
 function drawCameraUI() {
 
-    // top blur
+    // top overlay
     fill(0, 0, 0, 70);
 
     noStroke();
@@ -195,7 +191,7 @@ function drawCameraUI() {
     // filter buttons
     drawFilterButtons();
 
-    // bottom blur
+    // bottom overlay
     fill(0, 0, 0, 80);
 
     rect(
@@ -223,11 +219,13 @@ function drawFilterButtons() {
 
     let buttonSize;
 
+    // mobile
     if (width < 700) {
 
         buttonSize = 52;
     }
 
+    // desktop
     else {
 
         buttonSize = 60;
@@ -247,6 +245,7 @@ function drawFilterButtons() {
 
     for (let i = 0; i < 4; i++) {
 
+        // selected
         if (selectedFilter === i) {
 
             fill("#ff4d6d");
@@ -307,11 +306,13 @@ function drawCaptureButton() {
 
     let btnW;
 
+    // mobile
     if (width < 700) {
 
         btnW = width * 0.65;
     }
 
+    // desktop
     else {
 
         btnW = 320;
@@ -351,11 +352,13 @@ function drawResultScreen() {
 
     let stripWidth;
 
+    // mobile
     if (width < 700) {
 
         stripWidth = width * 0.82;
     }
 
+    // desktop
     else {
 
         stripWidth = 340;
@@ -507,9 +510,7 @@ function touchStarted() {
 // =====================================================
 function handleButtons() {
 
-    // =========================
-    // START BUTTON
-    // =========================
+    // 시작하기
     if (currentScreen === "start") {
 
         let btnW;
@@ -535,9 +536,7 @@ function handleButtons() {
         }
     }
 
-    // =========================
-    // CAMERA SCREEN
-    // =========================
+    // 카메라 화면
     else if (currentScreen === "camera") {
 
         // capture
@@ -563,52 +562,11 @@ function handleButtons() {
             startPhotoSequence();
         }
 
-        // filters
-        let buttonSize;
-
-        if (width < 700) {
-
-            buttonSize = 52;
-        }
-
-        else {
-
-            buttonSize = 60;
-        }
-
-        let gap = 15;
-
-        let totalWidth =
-            buttonSize * 4 +
-            gap * 3;
-
-        let startX =
-            width / 2 -
-            totalWidth / 2;
-
-        let y = 20;
-
-        for (let i = 0; i < 4; i++) {
-
-            let bx =
-                startX +
-                i * (buttonSize + gap);
-
-            if (
-                mouseX > bx &&
-                mouseX < bx + buttonSize &&
-                mouseY > y &&
-                mouseY < y + buttonSize
-            ) {
-
-                selectedFilter = i;
-            }
-        }
+        // filter buttons
+        handleFilterButtons();
     }
 
-    // =========================
-    // SAVE BUTTON
-    // =========================
+    // 저장하기
     else if (currentScreen === "result") {
 
         let btnW;
