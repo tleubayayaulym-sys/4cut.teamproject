@@ -229,11 +229,13 @@ function takePhoto(index) {
     if (countdown <= 0) {
       clearInterval(timer);
       countdown = 0;
-      // chụp canvas TRƯỚC khi flash — để ảnh có filter
-      let img = get(_boxX, _boxY, _boxW, _boxH);
-      capturedPhotos.push(img);
-      flashEffect();
-      setTimeout(() => { takePhoto(index + 1); }, 900);
+      // Đợi 1 frame để p5.js vẽ lại (không có countdown) rồi mới chụp
+      setTimeout(() => {
+        let img = get(_boxX, _boxY, _boxW, _boxH);
+        capturedPhotos.push(img);
+        flashEffect();
+        setTimeout(() => { takePhoto(index + 1); }, 600);
+      }, 50);
     }
   }, 1000);
 }
