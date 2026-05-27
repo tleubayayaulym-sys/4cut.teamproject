@@ -1,3 +1,5 @@
+// main.js
+
 let currentScreen = "start";
 
 // =========================
