@@ -74,16 +74,20 @@ function initFaceMesh(camera) {
   }
 
   let dangXuLy = false;
+  let demFrame = 0;
   setInterval(async () => {
-    if (!dangXuLy && videoEl.readyState >= 2) {
-      dangXuLy = true;
-      try {
-        await faceMesh.send({ image: videoEl });
+    if (dangXuLy || videoEl.readyState < 2) return;
+    dangXuLy = true;
+    demFrame++;
+    try {
+      await faceMesh.send({ image: videoEl });
+      // Hands xử lý cách 1 frame 1 để giảm lag
+      if (demFrame % 2 === 0) {
         await handDetector.send({ image: videoEl });
-      } catch (e) {}
-      dangXuLy = false;
-    }
-  }, 67);
+      }
+    } catch (e) {}
+    dangXuLy = false;
+  }, 80);
 }
 
 // ============================================================
