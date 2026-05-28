@@ -1,79 +1,47 @@
+
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Camera Test</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
+<title>AR Photo Booth</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- p5.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 
-<style>
+<!-- MediaPipe FaceMesh -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 
-html, body{
-margin:0;
-padding:0;
-overflow:hidden;
-background:black;
-}
-
-canvas{
-display:block;
-}
-
-</style>
+<!-- MediaPipe Hands -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
 </head>
 
 <body>
 
-<script>
+<!-- JS FILES -->
+<script src="js/ar-filter.js"></script>
 
-let video;
+<script src="js/camera.js"></script>
 
-function setup(){
+<script src="js/select.js"></script>
 
-createCanvas(windowWidth, windowHeight);
+<script src="js/result.js"></script>
 
-video = createCapture(VIDEO);
+<script src="js/saved.js"></script>
 
-video.size(640,480);
+<script src="js/ending.js"></script>
 
-video.hide();
-
-}
-
-function draw(){
-
-background(0);
-
-// зеркальная камера
-push();
-
-translate(width,0);
-scale(-1,1);
-
-image(video,0,0,width,height);
-
-pop();
-
-fill(255);
-
-textSize(30);
-
-textAlign(CENTER,CENTER);
-
-text("Camera Working", width/2, 40);
-
-}
-
-function windowResized(){
-
-resizeCanvas(windowWidth,windowHeight);
-
-}
-
-</script>
+<script src="js/main.js"></script>
 
 </body>
+
 </html>
+
