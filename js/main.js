@@ -1,4 +1,3 @@
-```javascript id="mainjsfull"
 // ============================================================
 // main.js
 // ============================================================
@@ -46,9 +45,6 @@ imageMode(CORNER);
 
 setupCamera();
 
-// IMPORTANT
-// wait camera ready
-
 setTimeout(() => {
 
 if (video) {
@@ -65,13 +61,11 @@ function draw() {
 
 background("#fff0f5");
 
-// ================= SCREEN =================
+// CAMERA
 
 if (currentScreen === "camera") {
 
 drawCamera();
-
-// ================= AR FILTER =================
 
 if (video) {
 
@@ -89,7 +83,7 @@ drawFaceStatus(width,height);
 
 }
 
-// ============================================================
+// SELECT
 
 else if (currentScreen === "select") {
 
@@ -97,17 +91,23 @@ drawSelectScreen();
 
 }
 
+// RESULT
+
 else if (currentScreen === "result") {
 
 drawResultScreen();
 
 }
 
+// SAVED
+
 else if (currentScreen === "saved") {
 
 drawSavedScreen();
 
 }
+
+// ENDING
 
 else if (currentScreen === "ending") {
 
@@ -160,4 +160,3 @@ function windowResized() {
 resizeCanvas(windowWidth, windowHeight);
 
 }
-```
