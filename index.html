@@ -1,21 +1,71 @@
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4CUT BOOTH ✨</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
 
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<head>
 
-    <script src="js/ar-filter.js" defer></script>
-    <script src="js/camera.js" defer></script>
-    <script src="js/result.js" defer></script>
-    <script src="js/main.js" defer></script>
-  </head>
-  <body></body>
+  <!-- ===================================================== -->
+  <!-- BASIC -->
+  <!-- ===================================================== -->
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>4CUT BOOTH</title>
+
+  <!-- ===================================================== -->
+  <!-- STYLE -->
+  <!-- ===================================================== -->
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ===================================================== -->
+  <!-- P5.JS -->
+  <!-- ===================================================== -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!-- ===================================================== -->
+  <!-- MEDIAPIPE -->
+  <!-- ===================================================== -->
+
+  <!-- Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <!-- Drawing Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <!-- FaceMesh -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+
+  <!-- Hands -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+</head>
+
+<body>
+
+  <!-- ===================================================== -->
+  <!-- MAIN PROJECT FILES -->
+  <!-- ===================================================== -->
+
+  <script src="main.js"></script>
+
+  <script src="camera.js"></script>
+
+  <script src="select.js"></script>
+
+  <script src="result.js"></script>
+
+  <script src="saved.js"></script>
+
+  <script src="ending.js"></script>
+
+  <script src="ar-filters.js"></script>
+
+</body>
+
 </html>
