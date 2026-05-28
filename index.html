@@ -1,26 +1,81 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<title>4CUT BOOTH</title>
-
-<link rel="icon" href="data:,">
-
-<link rel="stylesheet" href="style.css">
+<title>Camera Test</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<style>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+html, body{
+margin:0;
+padding:0;
+overflow:hidden;
+background:black;
+}
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+canvas{
+display:block;
+}
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</style>
 
 </head>
+
+<body>
+
+<script>
+
+let video;
+
+function setup(){
+
+createCanvas(windowWidth, windowHeight);
+
+video = createCapture(VIDEO);
+
+video.size(640,480);
+
+video.hide();
+
+}
+
+function draw(){
+
+background(0);
+
+// зеркальная камера
+push();
+
+translate(width,0);
+scale(-1,1);
+
+image(video,0,0,width,height);
+
+pop();
+
+fill(255);
+
+textSize(30);
+
+textAlign(CENTER,CENTER);
+
+text("Camera Working", width/2, 40);
+
+}
+
+function windowResized(){
+
+resizeCanvas(windowWidth,windowHeight);
+
+}
+
+</script>
+
+</body>
+</html>
+```
