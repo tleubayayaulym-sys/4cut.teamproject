@@ -1,31 +1,12 @@
 // ============================================================
-// main.js — FINAL UPDATED VERSION
-// ============================================================
-
-// ============================================================
-// GLOBAL VARIABLES
+// main.js — FULL WORKING VERSION
 // ============================================================
 
 let currentScreen = "start";
 
 let selectedFrame = 0;
 let selectedFilter = 0;
-
-let selectedFormat = 0;
-let selectedBorder = 0;
-
-// photos
-let allPhotos = [];
-let selectedPhotos = [];
-let capturedPhotos = [];
-
-// camera
-let countdown = 0;
-let isCapturing = false;
-
-// ============================================================
-// FRAME OPTIONS
-// ============================================================
+let selectedFormat = "long";
 
 let frameNames = [
   "Pink",
@@ -48,10 +29,6 @@ let frameDark = [
   "#ce93d8"
 ];
 
-// ============================================================
-// FILTER OPTIONS
-// ============================================================
-
 let filterEmoji = [
   "🎀",
   "💕",
@@ -68,28 +45,11 @@ let filterLabel = [
   "Frog"
 ];
 
-// ============================================================
-// FORMAT OPTIONS
-// ============================================================
-
-let formatNames = [
-  "Square",
-  "Long"
+let formatOptions = [
+  "long",
+  "square"
 ];
 
-// ============================================================
-// BORDER OPTIONS
-// ============================================================
-
-let borderNames = [
-  "Basic",
-  "Film",
-  "Glow",
-  "Sticker"
-];
-
-// ============================================================
-// SETUP
 // ============================================================
 
 function setup() {
@@ -103,99 +63,38 @@ function setup() {
 }
 
 // ============================================================
-// DRAW
-// ============================================================
 
 function draw() {
 
   background("#fff0f5");
 
   if (currentScreen === "start") {
-
     drawStartScreen();
-
   }
 
   else if (currentScreen === "settings") {
-
     drawSettingsScreen();
-
   }
 
   else if (currentScreen === "camera") {
-
     drawCamera();
-
   }
 
   else if (currentScreen === "select") {
-
     drawSelectScreen();
-
   }
 
   else if (currentScreen === "result") {
-
     drawResultScreen();
-
   }
 
   else if (currentScreen === "saved") {
-
     drawSavedScreen();
-
   }
 
   else if (currentScreen === "ending") {
-
     drawEndingScreen();
-
   }
-
-}
-
-// ============================================================
-// DECORATIONS
-// ============================================================
-
-function drawDecorations() {
-
-  push();
-
-  noStroke();
-
-  let shapes = ["★", "♡", "✦", "✿"];
-
-  let cols = [
-    "#ffb6c1",
-    "#b2f0e8",
-    "#fff59d",
-    "#e1bee7"
-  ];
-
-  for (let i=0; i<14; i++) {
-
-    let x =
-      (sin(frameCount * 0.008 + i * 37) * 0.5 + 0.5)
-      * width;
-
-    let y =
-      (cos(frameCount * 0.006 + i * 53) * 0.5 + 0.5)
-      * height;
-
-    fill(cols[i % cols.length] + "88");
-
-    textSize(14 + sin(frameCount * 0.02 + i) * 4);
-
-    text(
-      shapes[i % shapes.length],
-      x,
-      y
-    );
-
-  }
-
-  pop();
 
 }
 
@@ -205,21 +104,9 @@ function drawDecorations() {
 
 function drawStartScreen() {
 
-  drawDecorations();
+  background("#fff0f5");
 
   push();
-
-  fill(255);
-
-  noStroke();
-
-  rect(
-    width/2 - 230,
-    height*0.12,
-    460,
-    height*0.72,
-    32
-  );
 
   fill("#ff4d6d");
 
@@ -227,62 +114,28 @@ function drawStartScreen() {
 
   text(
     "📸 4CUT BOOTH",
-    width/2,
-    height*0.24
-  );
-
-  fill("#ffb6c1");
-
-  textSize(18);
-
-  text(
-    "✨ Web Photo Booth ✨",
-    width/2,
-    height*0.32
-  );
-
-  // creator card
-
-  fill("#fff0f5");
-
-  rect(
-    width/2 - 170,
-    height*0.42,
-    340,
-    80,
-    18
-  );
-
-  fill("#ff4d6d");
-
-  textSize(14);
-
-  text(
-    "💝 제작자",
-    width/2,
-    height*0.45
+    width / 2,
+    height * 0.25
   );
 
   fill("#555");
 
-  textSize(16);
+  textSize(18);
 
   text(
-    "아야울름 · 응웬 바오 담 · 마이티투짱",
-    width/2,
-    height*0.49
+    "Web Photo Booth Project",
+    width / 2,
+    height * 0.33
   );
-
-  // button
 
   fill("#ff4d6d");
 
   rect(
-    width/2 - 130,
-    height*0.68,
-    260,
-    62,
-    31
+    width / 2 - 120,
+    height * 0.65,
+    240,
+    60,
+    30
   );
 
   fill(255);
@@ -291,18 +144,8 @@ function drawStartScreen() {
 
   text(
     "▶ START",
-    width/2,
-    height*0.68 + 31
-  );
-
-  fill("#bbb");
-
-  textSize(13);
-
-  text(
-    "Press SPACE or TOUCH",
-    width/2,
-    height*0.78
+    width / 2,
+    height * 0.65 + 30
   );
 
   pop();
@@ -315,308 +158,226 @@ function drawStartScreen() {
 
 function drawSettingsScreen() {
 
-  drawDecorations();
+  background("#fff0f5");
 
   push();
 
-  fill(255);
-
-  noStroke();
-
-  rect(
-    width/2 - 280,
-    20,
-    560,
-    height - 40,
-    30
-  );
-
   fill("#ff4d6d");
 
-  textSize(34);
+  textSize(32);
 
   text(
-    "⚙️ Settings",
-    width/2,
-    70
+    "⚙ SETTINGS",
+    width / 2,
+    60
   );
 
-  // ============================================================
+  // ========================================================
   // FRAME
-  // ============================================================
+  // ========================================================
 
-  fill("#555");
+  fill("#333");
 
   textSize(18);
 
-  textAlign(LEFT,CENTER);
-
   text(
-    "▶ Frame",
-    width*0.12,
-    130
+    "Frame",
+    width / 2,
+    120
   );
 
-  let frameBox = 78;
+  for (let i = 0; i < frameNames.length; i++) {
 
-  for (let i=0; i<frameNames.length; i++) {
+    let bx = 100 + i * 90;
 
-    let bx = width/2 - 190 + i*100;
-
-    let by = 160;
-
-    if (selectedFrame === i) {
-
-      stroke(frameDark[i]);
-
-      strokeWeight(4);
-
-    }
-    else {
-
-      stroke("#ddd");
-
-      strokeWeight(2);
-
-    }
+    let by = 150;
 
     fill(frameColors[i]);
 
-    rect(
-      bx,
-      by,
-      frameBox,
-      frameBox,
-      18
+    stroke(
+      selectedFrame === i
+        ? frameDark[i]
+        : "#ddd"
     );
 
-    noStroke();
-
-    fill("#555");
-
-    textSize(12);
-
-    textAlign(CENTER,CENTER);
-
-    text(
-      frameNames[i],
-      bx + frameBox/2,
-      by + frameBox + 18
-    );
-
-  }
-
-  // ============================================================
-  // FILTER
-  // ============================================================
-
-  fill("#555");
-
-  textSize(18);
-
-  textAlign(LEFT,CENTER);
-
-  text(
-    "▶ AR Filter",
-    width*0.12,
-    300
-  );
-
-  for (let i=0; i<filterEmoji.length; i++) {
-
-    let bx = width/2 - 240 + i*95;
-
-    let by = 330;
-
-    if (selectedFilter === i) {
-
-      stroke("#ff4d6d");
-
-      strokeWeight(4);
-
-    }
-    else {
-
-      stroke("#ddd");
-
-      strokeWeight(2);
-
-    }
-
-    fill("#fff");
+    strokeWeight(4);
 
     rect(
       bx,
       by,
-      75,
-      75,
-      18
+      70,
+      70,
+      12
     );
 
     noStroke();
 
     fill("#333");
 
-    textSize(30);
+    textSize(12);
+
+    text(
+      frameNames[i],
+      bx + 35,
+      by + 90
+    );
+
+  }
+
+  // ========================================================
+  // FILTER
+  // ========================================================
+
+  fill("#333");
+
+  textSize(18);
+
+  text(
+    "AR Filter",
+    width / 2,
+    290
+  );
+
+  for (let i = 0; i < filterEmoji.length; i++) {
+
+    let bx = 70 + i * 80;
+
+    let by = 320;
+
+    fill("#fff");
+
+    stroke(
+      selectedFilter === i
+        ? "#ff4d6d"
+        : "#ddd"
+    );
+
+    strokeWeight(4);
+
+    rect(
+      bx,
+      by,
+      60,
+      60,
+      12
+    );
+
+    noStroke();
+
+    fill("#333");
+
+    textSize(28);
 
     text(
       filterEmoji[i],
-      bx + 37,
-      by + 37
+      bx + 30,
+      by + 30
     );
 
   }
 
-  // ============================================================
+  // ========================================================
   // FORMAT
-  // ============================================================
+  // ========================================================
 
-  fill("#555");
-
-  textSize(18);
-
-  textAlign(LEFT,CENTER);
-
-  text(
-    "▶ Photo Format",
-    width*0.12,
-    470
-  );
-
-  for (let i=0; i<formatNames.length; i++) {
-
-    let bx = width/2 - 130 + i*150;
-
-    let by = 500;
-
-    if (selectedFormat === i) {
-
-      fill("#ff4d6d");
-
-    }
-    else {
-
-      fill("#fff");
-
-      stroke("#ddd");
-
-      strokeWeight(2);
-
-    }
-
-    rect(
-      bx,
-      by,
-      120,
-      56,
-      24
-    );
-
-    noStroke();
-
-    fill(
-      selectedFormat === i
-      ? 255
-      : "#555"
-    );
-
-    textSize(18);
-
-    text(
-      formatNames[i],
-      bx + 60,
-      by + 28
-    );
-
-  }
-
-  // ============================================================
-  // BORDER
-  // ============================================================
-
-  fill("#555");
+  fill("#333");
 
   textSize(18);
 
-  textAlign(LEFT,CENTER);
-
   text(
-    "▶ Border Style",
-    width*0.12,
-    620
+    "Photo Format",
+    width / 2,
+    450
   );
 
-  for (let i=0; i<borderNames.length; i++) {
+  // LONG
 
-    let bx = width/2 - 240 + i*120;
+  fill(
+    selectedFormat === "long"
+      ? "#ff4d6d"
+      : "#fff"
+  );
 
-    let by = 650;
+  stroke("#ff4d6d");
 
-    if (selectedBorder === i) {
+  rect(
+    width / 2 - 140,
+    490,
+    100,
+    50,
+    20
+  );
 
-      fill("#ff4d6d");
-
-    }
-    else {
-
-      fill("#fff");
-
-      stroke("#ddd");
-
-      strokeWeight(2);
-
-    }
-
-    rect(
-      bx,
-      by,
-      100,
-      52,
-      22
-    );
-
-    noStroke();
-
-    fill(
-      selectedBorder === i
-      ? 255
-      : "#555"
-    );
-
-    textSize(15);
-
-    text(
-      borderNames[i],
-      bx + 50,
-      by + 26
-    );
-
-  }
-
-  // ============================================================
-  // START BUTTON
-  // ============================================================
-
-  fill("#ff4d6d");
+  fill(
+    selectedFormat === "long"
+      ? "#fff"
+      : "#ff4d6d"
+  );
 
   noStroke();
 
+  textSize(18);
+
+  text(
+    "LONG",
+    width / 2 - 90,
+    515
+  );
+
+  // SQUARE
+
+  fill(
+    selectedFormat === "square"
+      ? "#ff4d6d"
+      : "#fff"
+  );
+
+  stroke("#ff4d6d");
+
   rect(
-    width/2 - 160,
+    width / 2 + 40,
+    490,
+    100,
+    50,
+    20
+  );
+
+  fill(
+    selectedFormat === "square"
+      ? "#fff"
+      : "#ff4d6d"
+  );
+
+  noStroke();
+
+  text(
+    "SQUARE",
+    width / 2 + 90,
+    515
+  );
+
+  // ========================================================
+  // START BUTTON
+  // ========================================================
+
+  fill("#ff4d6d");
+
+  rect(
+    width / 2 - 140,
     height - 100,
-    320,
-    62,
-    31
+    280,
+    60,
+    30
   );
 
   fill(255);
 
-  textSize(28);
+  textSize(24);
 
   text(
     "📷 START CAMERA",
-    width/2,
-    height - 69
+    width / 2,
+    height - 70
   );
 
   pop();
@@ -624,36 +385,100 @@ function drawSettingsScreen() {
 }
 
 // ============================================================
-// BUTTON HANDLER
+// SELECT SCREEN
+// ============================================================
+
+function drawSelectScreen() {
+
+  background("#fff0f5");
+
+  fill("#ff4d6d");
+
+  textSize(30);
+
+  text(
+    "SELECT 4 PHOTOS",
+    width / 2,
+    50
+  );
+
+}
+
+// ============================================================
+// RESULT SCREEN
+// ============================================================
+
+function drawResultScreen() {
+
+  background("#fff0f5");
+
+  fill("#ff4d6d");
+
+  textSize(32);
+
+  text(
+    "✨ RESULT ✨",
+    width / 2,
+    60
+  );
+
+}
+
+// ============================================================
+// SAVED SCREEN
+// ============================================================
+
+function drawSavedScreen() {
+
+  background("#fff0f5");
+
+  fill("#ff4d6d");
+
+  textSize(40);
+
+  text(
+    "✅ SAVED",
+    width / 2,
+    height / 2
+  );
+
+}
+
+// ============================================================
+// ENDING SCREEN
+// ============================================================
+
+function drawEndingScreen() {
+
+  background("#fff0f5");
+
+  fill("#ff4d6d");
+
+  textSize(32);
+
+  text(
+    "THANK YOU 💕",
+    width / 2,
+    height / 2
+  );
+
+}
+
+// ============================================================
+// BUTTONS
 // ============================================================
 
 function mousePressed() {
 
-  handleButtons();
-
-}
-
-function touchStarted() {
-
-  handleButtons();
-
-  return false;
-
-}
-
-function handleButtons() {
-
-  // ============================================================
-  // START
-  // ============================================================
+  // START SCREEN
 
   if (currentScreen === "start") {
 
     if (
-      mouseX > width/2 - 130 &&
-      mouseX < width/2 + 130 &&
-      mouseY > height*0.68 &&
-      mouseY < height*0.68 + 62
+      mouseX > width / 2 - 120 &&
+      mouseX < width / 2 + 120 &&
+      mouseY > height * 0.65 &&
+      mouseY < height * 0.65 + 60
     ) {
 
       currentScreen = "settings";
@@ -662,111 +487,83 @@ function handleButtons() {
 
   }
 
-  // ============================================================
   // SETTINGS
-  // ============================================================
 
   else if (currentScreen === "settings") {
 
-    // frame
+    // FRAME
 
-    for (let i=0; i<frameNames.length; i++) {
+    for (let i = 0; i < frameNames.length; i++) {
 
-      let bx = width/2 - 190 + i*100;
+      let bx = 100 + i * 90;
 
-      let by = 160;
+      let by = 150;
 
       if (
         mouseX > bx &&
-        mouseX < bx + 78 &&
+        mouseX < bx + 70 &&
         mouseY > by &&
-        mouseY < by + 78
+        mouseY < by + 70
       ) {
 
         selectedFrame = i;
 
-        return;
-
       }
 
     }
 
-    // filter
+    // FILTER
 
-    for (let i=0; i<filterEmoji.length; i++) {
+    for (let i = 0; i < filterEmoji.length; i++) {
 
-      let bx = width/2 - 240 + i*95;
+      let bx = 70 + i * 80;
 
-      let by = 330;
+      let by = 320;
 
       if (
         mouseX > bx &&
-        mouseX < bx + 75 &&
+        mouseX < bx + 60 &&
         mouseY > by &&
-        mouseY < by + 75
+        mouseY < by + 60
       ) {
 
         selectedFilter = i;
 
-        return;
-
       }
 
     }
 
-    // format
-
-    for (let i=0; i<formatNames.length; i++) {
-
-      let bx = width/2 - 130 + i*150;
-
-      let by = 500;
-
-      if (
-        mouseX > bx &&
-        mouseX < bx + 120 &&
-        mouseY > by &&
-        mouseY < by + 56
-      ) {
-
-        selectedFormat = i;
-
-        return;
-
-      }
-
-    }
-
-    // border
-
-    for (let i=0; i<borderNames.length; i++) {
-
-      let bx = width/2 - 240 + i*120;
-
-      let by = 650;
-
-      if (
-        mouseX > bx &&
-        mouseX < bx + 100 &&
-        mouseY > by &&
-        mouseY < by + 52
-      ) {
-
-        selectedBorder = i;
-
-        return;
-
-      }
-
-    }
-
-    // start camera
+    // FORMAT
 
     if (
-      mouseX > width/2 - 160 &&
-      mouseX < width/2 + 160 &&
+      mouseX > width / 2 - 140 &&
+      mouseX < width / 2 - 40 &&
+      mouseY > 490 &&
+      mouseY < 540
+    ) {
+
+      selectedFormat = "long";
+
+    }
+
+    if (
+      mouseX > width / 2 + 40 &&
+      mouseX < width / 2 + 140 &&
+      mouseY > 490 &&
+      mouseY < 540
+    ) {
+
+      selectedFormat = "square";
+
+    }
+
+    // CAMERA START
+
+    if (
+      mouseX > width / 2 - 140 &&
+      mouseX < width / 2 + 140 &&
       mouseY > height - 100 &&
-      mouseY < height - 38
+      mouseY < height - 40
     ) {
 
       currentScreen = "camera";
@@ -775,9 +572,7 @@ function handleButtons() {
 
   }
 
-  // ============================================================
   // CAMERA
-  // ============================================================
 
   else if (currentScreen === "camera") {
 
@@ -785,107 +580,8 @@ function handleButtons() {
 
   }
 
-  // ============================================================
-  // SELECT
-  // ============================================================
-
-  else if (currentScreen === "select") {
-
-    handleSelectButtons();
-
-  }
-
-  // ============================================================
-  // RESULT
-  // ============================================================
-
-  else if (currentScreen === "result") {
-
-    handleResultButtons();
-
-  }
-
-  // ============================================================
-  // SAVED
-  // ============================================================
-
-  else if (currentScreen === "saved") {
-
-    handleSavedButtons();
-
-  }
-
-  // ============================================================
-  // ENDING
-  // ============================================================
-
-  else if (currentScreen === "ending") {
-
-    handleEndingButtons();
-
-  }
-
 }
 
-// ============================================================
-// KEYBOARD
-// ============================================================
-
-function keyPressed() {
-
-  // SPACE
-
-  if (key === ' ') {
-
-    if (currentScreen === "start") {
-
-      currentScreen = "settings";
-
-    }
-
-    else if (currentScreen === "camera") {
-
-      takeSinglePhoto();
-
-    }
-
-  }
-
-  // SAVE
-
-  if (
-    (key === 's' || key === 'S')
-    && currentScreen === "result"
-  ) {
-
-    saveResultCanvas();
-
-  }
-
-  // RESET
-
-  if (
-    (key === 'r' || key === 'R')
-    && (
-      currentScreen === "result"
-      || currentScreen === "saved"
-    )
-  ) {
-
-    allPhotos = [];
-
-    selectedPhotos = [];
-
-    capturedPhotos = [];
-
-    currentScreen = "camera";
-
-  }
-
-}
-
-// ============================================================
-// RESIZE
 // ============================================================
 
 function windowResized() {
