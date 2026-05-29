@@ -1,294 +1,121 @@
 // ============================================================
-// select.js
+// select.js — 4장 선택 화면
 // ============================================================
 
 function drawSelectScreen() {
+  drawBG();
+  push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
 
-push();
+  let cw=min(width*0.96,640), cx=width/2-cw/2;
+  drawCard(cx,8,cw,height-16,24);
 
-background("#fff0f5");
+  // 헤더
+  push();
+  for(let i=0;i<56;i++){
+    let t=i/56;
+    fill(lerpColor(color("#ffb6c1"),color("#c8b4f8"),t),150);
+    rect(cx,8+i,cw,1,i===0?24:0,i===0?24:0,0,0);
+  }
+  fill(255);textSize(min(cw*0.07,22));
+  text("🌸  4장을 선택하세요", width/2,32);
+  pop();
 
-// ============================================================
-// TITLE
-// ============================================================
+  // 선택 상태
+  push();
+  fill("#f3e5ff");noStroke();rect(width/2-100,52,200,28,14);
+  fill("#c8b4f8");textSize(13);
+  text("선택: "+selectedPhotos.length+" / 4  |  총 "+allPhotos.length+"장",width/2,66);
+  pop();
 
-fill("#ff4d6d");
+  // 사진 그리드
+  let cols=4, pad=14, gap=8;
+  let pw=(cw-pad*2-gap*(cols-1))/cols;
+  let ph=pw*0.75, startY=90;
 
-textSize(34);
+  for(let i=0;i<allPhotos.length;i++){
+    let col=i%cols, row=floor(i/cols);
+    let px=cx+pad+col*(pw+gap), py=startY+row*(ph+gap+22);
 
-text("Choose Your Best 4 ✨", width/2, 60);
+    push();
+    // 그림자
+    fill(0,0,0,18);noStroke();rect(px+3,py+3,pw,ph,10);
+    // 사진
+    imageMode(CORNER);image(allPhotos[i],px,py,pw,ph);
 
-fill("#999");
+    let isSel=selectedPhotos.indexOf(i)!==-1;
+    let ord=selectedPhotos.indexOf(i)+1;
 
-textSize(16);
+    if(isSel){
+      // 핑크 글로우 테두리
+      stroke("#ff4d6d");strokeWeight(3);noFill();rect(px,py,pw,ph,10);
+      // 번호 뱃지
+      fill("#ff4d6d");noStroke();circle(px+pw-14,py+14,26);
+      fill(255);textSize(12);textAlign(CENTER,CENTER);text(str(ord),px+pw-14,py+14);
+      // 하단 오버레이
+      fill(255,77,109,30);noStroke();rect(px,py,pw,ph,10);
+    } else {
+      stroke("#ddd");strokeWeight(1.5);noFill();rect(px,py,pw,ph,10);
+      // 호버 힌트
+      fill(0,0,0,18);noStroke();rect(px,py,pw,ph,10);
+      fill(255,150);textSize(18);textAlign(CENTER,CENTER);
+      text("＋",px+pw/2,py+ph/2);
+    }
+    fill("#bbb");noStroke();textSize(10);
+    text("📷 "+(i+1),px+pw/2,py+ph+11);
+    pop();
+  }
 
-text(
-selectedPhotos.length + " / 4 selected",
-width/2,
-95
-);
+  // 완료 버튼
+  let btnY=height-68;
+  push();
+  if(selectedPhotos.length===4){
+    noStroke();
+    fill(200,100,180,70);rect(width/2-122+4,btnY+4,244,52,26);
+    for(let i=0;i<52;i++){
+      let t=i/52;
+      fill(lerpColor(color("#ff6b9d"),color("#c8b4f8"),t));
+      rect(width/2-122,btnY+i,244,1,i===0?26:0,i===0?26:0,i===51?26:0,i===51?26:0);
+    }
+    fill(255);textSize(20);textAlign(CENTER,CENTER);
+    text("완료! ✨",width/2,btnY+26);
+  } else {
+    fill("#f0f0f0");noStroke();rect(width/2-122,btnY,244,52,26);
+    fill("#ccc");textSize(15);textAlign(CENTER,CENTER);
+    text("4장을 선택해주세요",width/2,btnY+26);
+  }
+  pop();
 
-// ============================================================
-// GRID
-// ============================================================
+  // 다시촬영 버튼
+  push();fill("#f3e5ff");noStroke();rect(16,12,100,32,16);
+  fill("#c8b4f8");textSize(13);textAlign(CENTER,CENTER);
+  text("🔄 다시촬영",66,28);pop();
 
-let cols = 4;
-
-let gap = 18;
-
-let size = min(width * 0.18, 150);
-
-let totalW = cols * size + (cols-1)*gap;
-
-let startX = width/2 - totalW/2;
-
-let startY = 130;
-
-for (let i=0; i<allPhotos.length; i++) {
-
-let col = i % cols;
-let row = floor(i / cols);
-
-let x = startX + col*(size+gap);
-let y = startY + row*(size+55);
-
-// ================= SHADOW =================
-
-fill(0,0,0,20);
-noStroke();
-
-rect(x+4,y+4,size,size,20);
-
-// ================= PHOTO CARD =================
-
-fill(255);
-
-stroke("#ffd1df");
-strokeWeight(3);
-
-rect(x,y,size,size,20);
-
-// ================= PHOTO =================
-
-image(allPhotos[i], x+6, y+6, size-12, size-12);
-
-// ================= SELECT =================
-
-let isSelected = selectedPhotos.includes(i);
-
-if (isSelected) {
-
-stroke("#ff4d6d");
-strokeWeight(5);
-
-noFill();
-
-rect(x,y,size,size,20);
-
-// number badge
-
-let order = selectedPhotos.indexOf(i) + 1;
-
-fill("#ff4d6d");
-noStroke();
-
-circle(x + size - 14, y + 14, 34);
-
-fill(255);
-
-textSize(18);
-
-text(order, x + size - 14, y + 15);
-
+  pop();
 }
 
-// ================= LABEL =================
-
-fill("#999");
-
-noStroke();
-
-textSize(14);
-
-text(
-"PHOTO " + (i+1),
-x + size/2,
-y + size + 25
-);
-
-}
-
-// ============================================================
-// COMPLETE BUTTON
-// ============================================================
-
-let btnW = 300;
-let btnH = 62;
-
-if (selectedPhotos.length === 4) {
-
-fill("#ff4d6d");
-
-}
-else {
-
-fill("#ccc");
-
-}
-
-noStroke();
-
-rect(
-width/2 - btnW/2,
-height - 95,
-btnW,
-btnH,
-30
-);
-
-fill(255);
-
-textSize(26);
-
-if (selectedPhotos.length === 4) {
-
-text(
-"완료하기 ✨",
-width/2,
-height - 64
-);
-
-}
-else {
-
-text(
-"4장 선택해주세요",
-width/2,
-height - 64
-);
-
-}
-
-// ============================================================
-// BACK BUTTON
-// ============================================================
-
-fill("#fff");
-
-stroke("#ff4d6d");
-strokeWeight(3);
-
-rect(30,30,120,48,24);
-
-fill("#ff4d6d");
-
-noStroke();
-
-textSize(20);
-
-text("← BACK", 90, 55);
-
-pop();
-
-}
-
-// ============================================================
-// SELECT BUTTONS
-// ============================================================
-
-function handleSelectButtons() {
-
-let cols = 4;
-
-let gap = 18;
-
-let size = min(width * 0.18, 150);
-
-let totalW = cols * size + (cols-1)*gap;
-
-let startX = width/2 - totalW/2;
-
-let startY = 130;
-
-// ================= BACK =================
-
-if (
-mouseX > 30 &&
-mouseX < 150 &&
-mouseY > 30 &&
-mouseY < 78
-) {
-
-currentScreen = "camera";
-return;
-
-}
-
-// ================= PHOTO CLICK =================
-
-for (let i=0; i<allPhotos.length; i++) {
-
-let col = i % cols;
-let row = floor(i / cols);
-
-let x = startX + col*(size+gap);
-let y = startY + row*(size+55);
-
-if (
-mouseX > x &&
-mouseX < x + size &&
-mouseY > y &&
-mouseY < y + size
-) {
-
-if (selectedPhotos.includes(i)) {
-
-// REMOVE
-
-selectedPhotos =
-selectedPhotos.filter(p => p !== i);
-
-}
-else {
-
-// ADD
-
-if (selectedPhotos.length < 4) {
-
-selectedPhotos.push(i);
-
-}
-
-}
-
-return;
-
-}
-
-}
-
-// ================= COMPLETE =================
-
-if (
-selectedPhotos.length === 4 &&
-mouseX > width/2 - 150 &&
-mouseX < width/2 + 150 &&
-mouseY > height - 95 &&
-mouseY < height - 33
-) {
-
-capturedPhotos = [];
-
-for (let i=0; i<4; i++) {
-
-capturedPhotos.push(
-allPhotos[selectedPhotos[i]]
-);
-
-}
-
-currentScreen = "result";
-
-}
-
+function handleSelectButtons(){
+  if(mouseX>16&&mouseX<116&&mouseY>12&&mouseY<44){
+    allPhotos=[];selectedPhotos=[];currentScreen="camera";return;
+  }
+  let cw=min(width*0.96,640),cx=width/2-cw/2;
+  let cols=4,pad=14,gap=8;
+  let pw=(cw-pad*2-gap*(cols-1))/cols;
+  let ph=pw*0.75,startY=90;
+  for(let i=0;i<allPhotos.length;i++){
+    let col=i%cols,row=floor(i/cols);
+    let px=cx+pad+col*(pw+gap),py=startY+row*(ph+gap+22);
+    if(mouseX>px&&mouseX<px+pw&&mouseY>py&&mouseY<py+ph){
+      let idx=selectedPhotos.indexOf(i);
+      if(idx!==-1) selectedPhotos.splice(idx,1);
+      else if(selectedPhotos.length<4) selectedPhotos.push(i);
+      return;
+    }
+  }
+  let btnY=height-68;
+  if(selectedPhotos.length===4&&
+     mouseX>width/2-122&&mouseX<width/2+122&&
+     mouseY>btnY&&mouseY<btnY+52){
+    capturedPhotos=selectedPhotos.map(i=>allPhotos[i]);
+    currentScreen="result";
+  }
 }
