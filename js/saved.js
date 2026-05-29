@@ -2,200 +2,64 @@
 // saved.js
 // ============================================================
 
-function drawSavedScreen() {
+function drawSavedScreen(){
+  drawBG();
+  push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
 
-push();
+  let cw=min(width*0.82,460),cx=width/2-cw/2;
+  drawCard(cx,height*0.08,cw,height*0.84,28);
 
-background("#fff0f5");
+  // 헤더 그라디언트
+  push();noStroke();
+  for(let i=0;i<70;i++){
+    let t=i/70;
+    fill(lerpColor(color("#b2f0e8"),color("#c8b4f8"),t),150);
+    rect(cx,height*0.08+i,cw,1,i===0?28:0,i===0?28:0,0,0);
+  }
+  pop();
 
-// ============================================================
-// MAIN CARD
-// ============================================================
+  // 체크 아이콘
+  push();noStroke();
+  fill(100,220,130,200);circle(width/2,height*0.28,88);
+  fill(255);textSize(38);text("✓",width/2,height*0.28+4);
+  pop();
 
-fill(255);
+  fill("#333");textSize(min(width*0.06,36));
+  text("저장 완료! 🎉",width/2,height*0.42);
+  fill("#aaa");textSize(13);
+  text("PNG 파일이 자동 다운로드됩니다",width/2,height*0.5);
+  fill("#c8b4f8");textSize(11);
+  text("형식: "+formatNames[selectedFormat]+" | 프레임: "+frameNames[selectedFrame],width/2,height*0.56);
 
-noStroke();
+  // 새로 촬영 버튼
+  let bw=min(cw-48,240),bx=width/2-bw/2;
+  push();noStroke();
+  fill(200,100,180,70);rect(bx+4,height*0.62+4,bw,50,25);
+  for(let i=0;i<50;i++){
+    let t=i/50;
+    fill(lerpColor(color("#ff6b9d"),color("#c8b4f8"),t));
+    rect(bx,height*0.62+i,bw,1,i===0?25:0,i===0?25:0,i===49?25:0,i===49?25:0);
+  }
+  fill(255);textSize(18);textAlign(CENTER,CENTER);
+  text("📷  새로 촬영",width/2,height*0.62+25);
+  pop();
 
-rect(
-width/2 - 220,
-height/2 - 260,
-440,
-520,
-35
-);
+  // 처음으로
+  push();fill("#f3e5ff");noStroke();
+  rect(bx,height*0.62+64,bw,44,22);
+  fill("#c8b4f8");textSize(16);textAlign(CENTER,CENTER);
+  text("🏠  처음으로",width/2,height*0.62+86);
+  pop();
 
-// ============================================================
-// CHECK ICON
-// ============================================================
-
-fill("#ff4d6d");
-
-circle(width/2, height/2 - 130, 110);
-
-fill(255);
-
-textSize(56);
-
-text("✓", width/2, height/2 - 122);
-
-// ============================================================
-// TITLE
-// ============================================================
-
-fill("#333");
-
-textSize(38);
-
-text(
-"Saved Successfully!",
-width/2,
-height/2 - 20
-);
-
-// ============================================================
-// SUBTITLE
-// ============================================================
-
-fill("#999");
-
-textSize(18);
-
-text(
-"PNG image downloaded ✨",
-width/2,
-height/2 + 30
-);
-
-text(
-"Thank you for using 4CUT BOOTH 💕",
-width/2,
-height/2 + 60
-);
-
-// ============================================================
-// PREVIEW MINI
-// ============================================================
-
-fill("#fff0f5");
-
-stroke("#ffb6c1");
-strokeWeight(3);
-
-rect(
-width/2 - 80,
-height/2 + 95,
-160,
-120,
-24
-);
-
-fill("#ff4d6d");
-
-textSize(18);
-
-text(
-"📸 PHOTO READY",
-width/2,
-height/2 + 155
-);
-
-// ============================================================
-// AGAIN BUTTON
-// ============================================================
-
-fill("#ff4d6d");
-
-noStroke();
-
-rect(
-width/2 - 170,
-height - 120,
-150,
-60,
-30
-);
-
-fill(255);
-
-textSize(24);
-
-text(
-"📷 AGAIN",
-width/2 - 95,
-height - 89
-);
-
-// ============================================================
-// HOME BUTTON
-// ============================================================
-
-fill("#fff");
-
-stroke("#ff4d6d");
-strokeWeight(3);
-
-rect(
-width/2 + 20,
-height - 120,
-150,
-60,
-30
-);
-
-fill("#ff4d6d");
-
-noStroke();
-
-textSize(24);
-
-text(
-"🏠 HOME",
-width/2 + 95,
-height - 89
-);
-
-pop();
-
+  pop();
 }
 
-// ============================================================
-// SAVED BUTTONS
-// ============================================================
-
-function handleSavedButtons() {
-
-// ================= AGAIN =================
-
-if (
-mouseX > width/2 - 170 &&
-mouseX < width/2 - 20 &&
-mouseY > height - 120 &&
-mouseY < height - 60
-) {
-
-allPhotos = [];
-selectedPhotos = [];
-capturedPhotos = [];
-
-currentScreen = "camera";
-
-}
-
-// ================= HOME =================
-
-if (
-mouseX > width/2 + 20 &&
-mouseX < width/2 + 170 &&
-mouseY > height - 120 &&
-mouseY < height - 60
-) {
-
-allPhotos = [];
-selectedPhotos = [];
-capturedPhotos = [];
-
-currentScreen = "ending";
-
-}
-
+function handleSavedButtons(){
+  let cw=min(width*0.82,460),bw=min(cw-48,240),bx=width/2-bw/2;
+  if(mouseX>bx&&mouseX<bx+bw&&mouseY>height*0.62&&mouseY<height*0.62+50){
+    allPhotos=[];selectedPhotos=[];capturedPhotos=[];currentScreen="camera";
+  }
+  if(mouseX>bx&&mouseX<bx+bw&&mouseY>height*0.62+64&&mouseY<height*0.62+108){
+    allPhotos=[];selectedPhotos=[];capturedPhotos=[];currentScreen="ending";
+  }
 }
