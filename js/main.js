@@ -29,7 +29,7 @@ let stickerNames = ["없음", "별✨", "하트💕", "꽃🌸", "리본🎀"];
 
 // QR 코드 관련
 let qrCanvas = null;
-let GOOGLE_DRIVE_URL = "https://drive.google.com/drive/folders/YOUR_FOLDER_ID";
+let GOOGLE_DRIVE_URL = "https://drive.google.com/drive/folders/1azvg-N9Wf7Jfpc3pcz8WQQGTQQnvbIGY?usp=share_link";
 
 // ============================================================
 function setup() {
