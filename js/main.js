@@ -40,13 +40,24 @@ function setup() {
 }
 
 function generateQR() {
-  let el = document.createElement("canvas");
-  el.id  = "qrTemp";
+  let el = document.createElement("div");
+  el.id  = "qrDiv";
   el.style.display = "none";
   document.body.appendChild(el);
-  QRCode.toCanvas(el, GOOGLE_DRIVE_URL, { width: 160, margin: 1 }, (err) => {
-    if (!err) qrCanvas = el;
+
+  new QRCode(el, {
+    text:   GOOGLE_DRIVE_URL,
+    width:  160,
+    height: 160,
+    colorDark:  "#333333",
+    colorLight: "#ffffff",
   });
+
+  // QRCode рисует canvas внутри div — берём его
+  setTimeout(() => {
+    let canvas = el.querySelector("canvas");
+    if (canvas) qrCanvas = canvas;
+  }, 500);
 }
 
 function draw() {
