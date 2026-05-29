@@ -1,15 +1,11 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #fff0f5;
-  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fff0f5 0%, #f0f5ff 50%, #f5fff0 100%);
+  font-family: 'Nunito', sans-serif;
   overflow: hidden;
 }
 
-canvas {
-  display: block;
-}
+canvas { display: block; }
