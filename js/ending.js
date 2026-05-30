@@ -48,14 +48,6 @@ function drawEndingScreen(){
        width/2,height*0.58+28);
   pop();
   
-  if(qrCanvas){
-    // Белый фон под QR чтобы сканировался
-    fill(255);noStroke();rect(qrX-6,qrY-6,qrW+12,qrW+12,6);
-    drawingContext.drawImage(qrCanvas,qrX,qrY,qrW,qrW);
-  } else {
-    fill("#f3e5ff");noStroke();rect(qrX,qrY,qrW,qrW,8);
-    fill("#c8b4f8");textSize(11);text("QR 생성 중...",width/2,qrY+qrW/2);
-  }
 
   // Кнопка "처음으로" — отдельно внизу
   let bw=min(cw-48,220),bx=width/2-bw/2;
@@ -70,7 +62,12 @@ function handleEndingButtons(){
 
   // Кнопка назад
   let bw=min(cw-48,220),bx=width/2-bw/2;
-  if(mouseX>bx&&mouseX<bx+bw&&
-   mouseY>height*0.72&&mouseY<height*0.72+48)
+ if(
+  mouseX>bx &&
+  mouseX<bx+bw &&
+  mouseY>height-80 &&
+  mouseY<height-32
+){
   currentScreen="start";
+}
 }
