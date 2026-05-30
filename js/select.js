@@ -13,12 +13,21 @@ function drawSelectScreen() {
   push(); fill("#ffb6c1"); noStroke();
   rect(cx,8,cw,56,24,24,0,0);
   fill(255); textSize(min(cw*0.07,22));
-  text("🌸  4장을 선택하세요", width/2, 36); pop();
+  let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+text("🌸  "+requiredPhotos+"장을 선택하세요", width/2, 36);
+  pop();
 
   // 상태
   push(); fill("#f3e5ff"); noStroke(); rect(width/2-110,54,220,28,14);
   fill("#c8b4f8"); textSize(13);
-  text("선택: "+selectedPhotos.length+" / 4  |  총 "+allPhotos.length+"장",width/2,68);
+ let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+
+text(
+  "선택: "+selectedPhotos.length+" / "+requiredPhotos+
+  "  |  총 "+allPhotos.length+"장",
+  width/2,
+  68
+);
   pop();
 
   // 사진 그리드
@@ -52,12 +61,15 @@ function drawSelectScreen() {
 
   // 완료 버튼
   let btnY=height-68;
-  if(selectedPhotos.length===4){
+let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+
+if(selectedPhotos.length===requiredPhotos){
     drawPinkBtn(width/2-122, btnY, 244, 52, "완료! ✨");
   } else {
     push(); fill("#f0f0f0"); noStroke(); rect(width/2-122,btnY,244,52,26);
     fill("#ccc"); textSize(15); textAlign(CENTER,CENTER);
-    text("4장을 선택해주세요",width/2,btnY+26); pop();
+    text(requiredPhotos+"장을 선택해주세요",width/2,btnY+26);
+  pop();
   }
 
   drawLightBtn(16,12,100,32,"🔄 다시촬영");
@@ -76,14 +88,34 @@ function handleSelectButtons(){
     let col=i%cols,row=floor(i/cols);
     let px=cx+pad+col*(pw+gap),py=startY+row*(ph+gap+22);
     if(mouseX>px&&mouseX<px+pw&&mouseY>py&&mouseY<py+ph){
-      let idx=selectedPhotos.indexOf(i);
-      if(idx!==-1) selectedPhotos.splice(idx,1);
-      else if(selectedPhotos.length<4) selectedPhotos.push(i);
+     let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+
+let idx = selectedPhotos.indexOf(i);
+
+if(selectedFormat===3){
+
+  if(idx!==-1){
+    selectedPhotos=[];
+  }else{
+    selectedPhotos=[i];
+  }
+
+}else{
+
+  if(idx!==-1){
+    selectedPhotos.splice(idx,1);
+  }else if(selectedPhotos.length<requiredPhotos){
+    selectedPhotos.push(i);
+  }
+
+}
       return;
     }
   }
   let btnY=height-68;
-  if(selectedPhotos.length===4&&
+  let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+
+if(selectedPhotos.length===requiredPhotos &&
      mouseX>width/2-122&&mouseX<width/2+122&&
      mouseY>btnY&&mouseY<btnY+52){
     capturedPhotos=selectedPhotos.map(i=>allPhotos[i]);
