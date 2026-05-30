@@ -28,6 +28,15 @@ function drawSavedScreen(){
   let bw=min(cw-48,240),bx=width/2-bw/2;
   drawPinkBtn(bx,height*0.62,bw,50,"📷  새로 촬영");
   drawLightBtn(bx,height*0.62+64,bw,44,"🏠  처음으로");
+  if(recordedVideoURL){
+  drawLightBtn(
+    bx,
+    height*0.62+120,
+    bw,
+    44,
+    "🎥 비디오 저장"
+  );
+}
   pop();
 }
 
@@ -39,4 +48,16 @@ function handleSavedButtons(){
   if(mouseX>bx&&mouseX<bx+bw&&mouseY>height*0.62+64&&mouseY<height*0.62+108){
     allPhotos=[];selectedPhotos=[];capturedPhotos=[];currentScreen="ending";
   }
+  if(
+  recordedVideoURL &&
+  mouseX>bx &&
+  mouseX<bx+bw &&
+  mouseY>height*0.62+120 &&
+  mouseY<height*0.62+164
+){
+  let a=document.createElement("a");
+  a.href=recordedVideoURL;
+  a.download="photobooth-video.webm";
+  a.click();
+}
 }
