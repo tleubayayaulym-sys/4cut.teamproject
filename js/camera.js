@@ -1,6 +1,12 @@
 // ============================================================
 // camera.js — 담당: 틀레우바이 아야으름
 // ============================================================
+// ================= VIDEO RECORD =================
+
+let mediaRecorder;
+let recordedChunks = [];
+let recordedVideoURL = null;
+
 
 let video;
 let capturedPhotos = [];
@@ -18,6 +24,27 @@ function setupCamera() {
     video = createCapture(VIDEO, () => { cameraError = false; });
     video.size(640, 480);
     video.hide();
+
+    let stream = video.elt.srcObject;
+
+if (stream) {
+  mediaRecorder = new MediaRecorder(stream);
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      recordedChunks.push(e.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    let blob = new Blob(recordedChunks, {
+      type: "video/webm"
+    });
+
+    recordedVideoURL = URL.createObjectURL(blob);
+  };
+}
+    
     initFaceMesh(video);
   } catch(e) { cameraError = true; }
 }
@@ -128,7 +155,15 @@ function drawCamera() {
   if (allPhotos.length > 0) {
     drawLightBtn(width/2+124, btnY, 120, 50, "선택하기 →");
   }
-
+if (recordedVideoURL) {
+  drawLightBtn(
+    width/2 - 60,
+    height - 130,
+    120,
+    40,
+    "🎥 Video"
+  );
+}
   // Back
   drawLightBtn(16, 12, 82, 32, "← Back");
 
@@ -192,10 +227,29 @@ function handleCameraButtons() {
      mouseY>btnY&&mouseY<btnY+50){
     takeSinglePhoto();
   }
+  if (
+  recordedVideoURL &&
+  mouseX > width/2 - 60 &&
+  mouseX < width/2 + 60 &&
+  mouseY > height - 130 &&
+  mouseY < height - 90
+) {
+  let a = document.createElement("a");
+  a.href = recordedVideoURL;
+  a.download = "photobooth-video.webm";
+  a.click();
+}
+  
 }
 
 function takeSinglePhoto() {
   if(isCapturing||allPhotos.length>=MAX_PHOTOS) return;
+
+  if (allPhotos.length === 0 && mediaRecorder) {
+  recordedChunks = [];
+  mediaRecorder.start();
+}
+  
   isCapturing=true; countdown=3;
   let timer=setInterval(()=>{
     countdown--;
@@ -206,10 +260,21 @@ function takeSinglePhoto() {
         allPhotos.push(img);
         flashEffect();
         isCapturing=false;
+
         if(allPhotos.length>=MAX_PHOTOS){
-          selectedPhotos=[];
-          setTimeout(()=>{ currentScreen="select"; },800);
-        }
+
+  if(mediaRecorder &&
+     mediaRecorder.state !== "inactive"){
+    mediaRecorder.stop();
+  }
+
+  selectedPhotos=[];
+
+  setTimeout(()=>{
+    currentScreen="select";
+  },800);
+}
+        
       },80);
     }
   },1000);
