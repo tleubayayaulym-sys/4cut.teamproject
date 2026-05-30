@@ -3,6 +3,7 @@
 // ============================================================
 
 function drawSelectScreen() {
+  let requiredPhotos = (selectedFormat === 3) ? 1 : 4;
   drawBG();
   push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
 
@@ -24,7 +25,7 @@ text("🌸  "+requiredPhotos+"장을 선택하세요", width/2, 36);
 
 text(
   "선택: "+selectedPhotos.length+" / "+requiredPhotos+
-  "  |  총 "+allPhotos.length+"장",
+  " | 총 "+allPhotos.length+"장",
   width/2,
   68
 );
@@ -77,6 +78,7 @@ if(selectedPhotos.length===requiredPhotos){
 }
 
 function handleSelectButtons(){
+  let requiredPhotos = (selectedFormat === 3) ? 1 : 4;
   if(mouseX>16&&mouseX<116&&mouseY>12&&mouseY<44){
     allPhotos=[];selectedPhotos=[];currentScreen="camera";return;
   }
