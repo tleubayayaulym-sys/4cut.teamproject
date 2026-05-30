@@ -25,10 +25,29 @@ function setupCamera() {
     video.size(640, 480);
     video.hide();
 
-    let stream = video.elt.srcObject;
+    video.elt.onloadedmetadata = () => {
 
-if (stream) {
+  const stream = video.elt.srcObject;
+
   mediaRecorder = new MediaRecorder(stream);
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      recordedChunks.push(e.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+
+    const blob = new Blob(recordedChunks, {
+      type: "video/webm"
+    });
+
+    recordedVideoURL = URL.createObjectURL(blob);
+
+    console.log("VIDEO READY");
+  };
+};
 
   mediaRecorder.ondataavailable = (e) => {
     if (e.data.size > 0) {
