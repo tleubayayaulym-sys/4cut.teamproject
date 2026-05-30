@@ -47,18 +47,7 @@ function drawEndingScreen(){
   text("p5.js  ·  MediaPipe FaceMesh  ·  MediaPipe Hands  ·  GitHub Pages",
        width/2,height*0.58+28);
   pop();
-
-  // QR — большой, сверху, без кнопки рядом
-  push();
-  fill("#fff");noStroke();
-  rect(cx+16,height*0.65,cw-32,150,14);
-  fill("#ff4d6d");textSize(13);textAlign(CENTER,CENTER);
-  text("📱  제작 영상 보기",width/2,height*0.65+18);
-
-  let qrW=100;
-  let qrX=width/2-qrW/2;
-  let qrY=height*0.65+30;
-
+  
   if(qrCanvas){
     // Белый фон под QR чтобы сканировался
     fill(255);noStroke();rect(qrX-6,qrY-6,qrW+12,qrW+12,6);
@@ -68,16 +57,9 @@ function drawEndingScreen(){
     fill("#c8b4f8");textSize(11);text("QR 생성 중...",width/2,qrY+qrW/2);
   }
 
-  fill("#888");textSize(10);
-  text("📁 Google Drive 영상 폴더",width/2,qrY+qrW+14);
-  // Показываем ссылку кликабельной
-  fill("#c8b4f8");textSize(9);
-  text("tap to open →",width/2,qrY+qrW+28);
-  pop();
-
   // Кнопка "처음으로" — отдельно внизу
   let bw=min(cw-48,220),bx=width/2-bw/2;
-  drawPinkBtn(bx,height-64,bw,48,"🏠  처음으로");
+ drawPinkBtn(bx,height*0.72,bw,48,"🏠  처음으로");
 
   pop();
 }
@@ -85,16 +67,10 @@ function drawEndingScreen(){
 function handleEndingButtons(){
   let cw=min(width*0.88,520),cx=width/2-cw/2;
 
-  // Клик по QR — открыть ссылку
-  let qrW=100,qrX=width/2-qrW/2;
-  let qrY=height*0.65+30;
-  if(mouseX>qrX-6&&mouseX<qrX+qrW+6&&mouseY>qrY-6&&mouseY<qrY+qrW+6){
-    window.open(GOOGLE_DRIVE_URL,"_blank");
-    return;
-  }
 
   // Кнопка назад
   let bw=min(cw-48,220),bx=width/2-bw/2;
-  if(mouseX>bx&&mouseX<bx+bw&&mouseY>height-64&&mouseY<height-16)
-    currentScreen="start";
+  if(mouseX>bx&&mouseX<bx+bw&&
+   mouseY>height*0.72&&mouseY<height*0.72+48)
+  currentScreen="start";
 }
