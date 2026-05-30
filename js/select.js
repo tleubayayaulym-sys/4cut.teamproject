@@ -18,17 +18,23 @@ function drawSelectScreen() {
 text("🌸  "+requiredPhotos+"장을 선택하세요", width/2, 36);
   pop();
 
-  // 상태
-  push(); fill("#f3e5ff"); noStroke(); rect(width/2-110,54,220,28,14);
-  fill("#c8b4f8"); textSize(13);
- 
+ // 상태
+push();
+fill("#f3e5ff");
+noStroke();
+rect(width/2-110,54,220,28,14);
+
+fill("#c8b4f8");
+textSize(13);
+
+text(
   "선택: "+selectedPhotos.length+" / "+requiredPhotos+
   " | 총 "+allPhotos.length+"장",
   width/2,
   68
 );
-  pop();
 
+pop();
   // 사진 그리드
   let cols=4, pad=14, gap=8;
   let pw=(cw-pad*2-gap*(cols-1))/cols;
