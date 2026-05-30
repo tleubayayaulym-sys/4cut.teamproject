@@ -57,17 +57,24 @@ function drawEndingScreen(){
 }
 
 function handleEndingButtons(){
-  let cw=min(width*0.88,520),cx=width/2-cw/2;
 
+  let cw = min(width*0.88,520);
 
-  // Кнопка назад
-  let bw=min(cw-48,220),bx=width/2-bw/2;
- if(
-  mouseX>bx &&
-  mouseX<bx+bw &&
-  mouseY>height-80 &&
-  mouseY<height-32
-){
-  currentScreen="start";
-}
+  let bw = min(cw-48,220);
+  let bx = width/2 - bw/2;
+  let by = height*0.72;
+
+  if(
+    mouseX >= bx &&
+    mouseX <= bx + bw &&
+    mouseY >= by &&
+    mouseY <= by + 48
+  ){
+
+    allPhotos = [];
+    selectedPhotos = [];
+    capturedPhotos = [];
+
+    currentScreen = "start";
+  }
 }
