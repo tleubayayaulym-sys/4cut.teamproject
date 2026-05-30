@@ -19,33 +19,10 @@ let filterLabel = ["Ribbon", "Love", "Cat", "Glasses", "Frog"];
 let formatNames = ["길게", "정사각", "넓게", "폴라로이드"];
 let stickerNames = ["없음", "별✨", "하트💕", "꽃🌸", "리본🎀"];
 
-let qrCanvas = null;
-let GOOGLE_DRIVE_URL = "https://drive.google.com/drive/folders/1azvg-N9Wf7Jfpc3pcz8WQQGTQQnvbIGY?usp=share_link";
-
-// ============================================================
-function setup() {
+  function setup() {
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
   setupCamera();
-  generateQR();
-}
-
-function generateQR() {
-  let el = document.createElement("div");
-  el.id = "qrDiv";
-  el.style.display = "none";
-  document.body.appendChild(el);
-  try {
-    new QRCode(el, {
-      text: GOOGLE_DRIVE_URL,
-      width: 160, height: 160,
-      colorDark: "#333333", colorLight: "#ffffff",
-    });
-    setTimeout(() => {
-      let canvas = el.querySelector("canvas");
-      if (canvas) qrCanvas = canvas;
-    }, 800);
-  } catch(e) {}
 }
 
 function draw() {
