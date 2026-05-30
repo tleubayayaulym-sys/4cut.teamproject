@@ -14,16 +14,14 @@ function drawSelectScreen() {
   push(); fill("#ffb6c1"); noStroke();
   rect(cx,8,cw,56,24,24,0,0);
   fill(255); textSize(min(cw*0.07,22));
-  let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+
 text("🌸  "+requiredPhotos+"장을 선택하세요", width/2, 36);
   pop();
 
   // 상태
   push(); fill("#f3e5ff"); noStroke(); rect(width/2-110,54,220,28,14);
   fill("#c8b4f8"); textSize(13);
- let requiredPhotos = (selectedFormat===3) ? 1 : 4;
-
-text(
+ 
   "선택: "+selectedPhotos.length+" / "+requiredPhotos+
   " | 총 "+allPhotos.length+"장",
   width/2,
@@ -62,7 +60,6 @@ text(
 
   // 완료 버튼
   let btnY=height-68;
-let requiredPhotos = (selectedFormat===3) ? 1 : 4;
 
 if(selectedPhotos.length===requiredPhotos){
     drawPinkBtn(width/2-122, btnY, 244, 52, "완료! ✨");
@@ -90,7 +87,7 @@ function handleSelectButtons(){
     let col=i%cols,row=floor(i/cols);
     let px=cx+pad+col*(pw+gap),py=startY+row*(ph+gap+22);
     if(mouseX>px&&mouseX<px+pw&&mouseY>py&&mouseY<py+ph){
-     let requiredPhotos = (selectedFormat===3) ? 1 : 4;
+  
 
 let idx = selectedPhotos.indexOf(i);
 
@@ -115,7 +112,6 @@ if(selectedFormat===3){
     }
   }
   let btnY=height-68;
-  let requiredPhotos = (selectedFormat===3) ? 1 : 4;
 
 if(selectedPhotos.length===requiredPhotos &&
      mouseX>width/2-122&&mouseX<width/2+122&&
