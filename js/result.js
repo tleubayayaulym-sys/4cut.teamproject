@@ -29,35 +29,35 @@ function drawResultScreen() {
   let stripX = 16;
   let stripY = 50;
 
-  // Заголовок
+  // 제목
   fill("#c8b4f8"); textSize(min(width*0.038,22));
-  text("✨  나의 인생네컷", stripX + stripW/2, 30);
+  text("✨  나의 인생네컷", stripX+stripW/2, 30);
 
-  // Тень
+  // 그림자
   fill(180,150,200,50); noStroke();
-  rect(stripX+5, stripY+5, stripW, stripH, 16);
+  rect(stripX+5,stripY+5,stripW,stripH,16);
 
-  // Фрейм
+  // 프레임
   fill(frameColors[selectedFrame]);
   stroke(frameDark[selectedFrame]); strokeWeight(3);
-  rect(stripX, stripY, stripW, stripH, 12);
+  rect(stripX,stripY,stripW,stripH,12);
 
-  // Декор точки
+  // 상단 도트 장식
   push(); noStroke();
   for(let i=0;i<6;i++){
     fill(frameDark[selectedFrame]);
-    circle(stripX+12+i*stripW/6, stripY+7, 4);
+    circle(stripX+12+i*stripW/6,stripY+7,4);
   }
   pop();
 
-  // Фотографии
-  for(let i=0; i<count; i++){
-    let px, py, pw, ph;
+  // 사진
+  for(let i=0;i<count;i++){
+    let px,py,pw,ph;
     if(cols===4){
       pw=(stripW-pad*2-gap*3)/4; ph=photoH;
       px=stripX+pad+i*(pw+gap); py=stripY+padTop;
     } else if(cols===2){
-      let col=i%2, row=floor(i/2);
+      let col=i%2,row=floor(i/2);
       pw=(stripW-pad*2-gap)/2; ph=photoH;
       px=stripX+pad+col*(pw+gap); py=stripY+padTop+row*(ph+gap);
     } else {
@@ -77,12 +77,12 @@ function drawResultScreen() {
     } else {
       fill(230); noStroke(); rect(px,py,pw,ph,6);
       fill(180); textSize(11); textAlign(CENTER,CENTER);
-      text("사진 없음", px+pw/2, py+ph/2);
+      text("사진 없음",px+pw/2,py+ph/2);
     }
     pop();
   }
 
-  // Дата
+  // 날짜
   push(); noStroke();
   let d=new Date();
   let dateStr=d.getFullYear()+"."+
@@ -90,28 +90,28 @@ function drawResultScreen() {
     String(d.getDate()).padStart(2,"0");
   if(selectedFormat===3){
     fill(frameDark[selectedFrame]); textSize(12);
-    text("📸 4CUT BOOTH", stripX+stripW/2, stripY+stripH-52);
+    text("📸 4CUT BOOTH",stripX+stripW/2,stripY+stripH-52);
     fill(80); textSize(10);
-    text(dateStr, stripX+stripW/2, stripY+stripH-32);
+    text(dateStr,stripX+stripW/2,stripY+stripH-32);
   } else {
     fill(80); textSize(10);
-    text(dateStr, stripX+stripW/2, stripY+stripH-16);
+    text(dateStr,stripX+stripW/2,stripY+stripH-16);
   }
   pop();
 
   // ============================================================
-  // 오른쪽 패널 — 모든 컨트롤
+  // 오른쪽 패널
   // ============================================================
-  let panelX = stripX + stripW + 14;
-  let panelW = width - panelX - 12;
-  let panelY = stripY;
+  let panelX=stripX+stripW+14;
+  let panelW=width-panelX-12;
+  let panelY=stripY;
 
   // 프레임 선택
-  drawCard(panelX, panelY, panelW, 150, 14);
+  drawCard(panelX,panelY,panelW,150,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
-  text("🎨 프레임", panelX+10, panelY+14);
+  text("🎨 프레임",panelX+10,panelY+14);
 
-  let fSize=min(panelW*0.22,32), fGapR=6;
+  let fSize=min(panelW*0.22,32),fGapR=6;
   let fRowW=fSize*2+fGapR;
   let fStartX=panelX+(panelW-fRowW)/2;
   for(let i=0;i<frameColors.length;i++){
@@ -129,10 +129,10 @@ function drawResultScreen() {
   }
 
   // 형식 선택
-  let fmt2Y = panelY+160;
-  drawCard(panelX, fmt2Y, panelW, 160, 14);
+  let fmt2Y=panelY+160;
+  drawCard(panelX,fmt2Y,panelW,160,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
-  text("📐 형식", panelX+10, fmt2Y+14);
+  text("📐 형식",panelX+10,fmt2Y+14);
 
   let fmtIcons=["📏","⬛","🖥️","📷"];
   let fmtLabels=["Strip","Square","Wide","Polar"];
@@ -153,13 +153,13 @@ function drawResultScreen() {
   }
 
   // 스티커 선택
-  let stk2Y = fmt2Y+168;
-  drawCard(panelX, stk2Y, panelW, 80, 14);
+  let stk2Y=fmt2Y+168;
+  drawCard(panelX,stk2Y,panelW,80,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
-  text("🌟 스티커", panelX+10, stk2Y+14);
+  text("🌟 스티커",panelX+10,stk2Y+14);
 
   let stkIcons=["✕","✦","💕","🌸","🎀"];
-  let stkW=min((panelW-20)/5-4, 28);
+  let stkW=min((panelW-20)/5-4,28);
   for(let i=0;i<5;i++){
     push();
     let sx=panelX+10+i*(stkW+4);
@@ -172,19 +172,18 @@ function drawResultScreen() {
     pop();
   }
 
-  // Кнопки — справа снизу
-  let btn2Y = stk2Y + 88;
-  drawPinkBtn(panelX, btn2Y, panelW, 46, "💾  저장하기");
-  drawLightBtn(panelX, btn2Y+54, panelW, 38, "🔄  다시 찍기");
-
+  // 버튼
+  let btn2Y=stk2Y+88;
+  drawPinkBtn(panelX,btn2Y,panelW,46,"💾  저장하기");
+  drawLightBtn(panelX,btn2Y+54,panelW,38,"🔄  다시 찍기");
   fill("#ddd"); textSize(9); textAlign(CENTER,CENTER);
-  text("S키 저장  |  R키 재촬영", panelX+panelW/2, btn2Y+102);
+  text("S키 저장  |  R키 재촬영",panelX+panelW/2,btn2Y+102);
 
   pop();
 }
 
 // ============================================================
-// 스티커 오버레이
+// 스티커 오버레이 (캔버스에 표시용)
 // ============================================================
 function drawStickerOverlay(px,py,pw,ph,photoIndex){
   push(); noStroke();
@@ -198,7 +197,7 @@ function drawStickerOverlay(px,py,pw,ph,photoIndex){
   let list=stickers[selectedSticker]||[];
   for(let s of list){
     textSize(min(pw*0.15,16)); textAlign(CENTER,CENTER);
-    text(s.s, px+pw*s.x, py+ph*s.y);
+    text(s.s,px+pw*s.x,py+ph*s.y);
   }
   stroke(255,180); strokeWeight(1.5); noFill();
   let cs=8;
@@ -210,15 +209,47 @@ function drawStickerOverlay(px,py,pw,ph,photoIndex){
 }
 
 // ============================================================
+// 스티커 오버레이 (저장용 — graphics 객체 사용)
+// ============================================================
+function saveStickerOverlay(g,px,py,pw,ph){
+  let stickers=[
+    [],
+    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
+    [{x:0.1,y:0.1,s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9,y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
+    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9,y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
+    [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
+  ];
+  let list=stickers[selectedSticker]||[];
+
+  g.noStroke(); g.textAlign(CENTER,CENTER);
+  for(let s of list){
+    g.textSize(min(pw*0.15,16));
+    g.text(s.s,px+pw*s.x,py+ph*s.y);
+  }
+
+  // угловые линии
+  g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
+  let cs=8;
+  g.line(px+3,py+3,px+3+cs,py+3);
+  g.line(px+3,py+3,px+3,py+3+cs);
+  g.line(px+pw-3,py+3,px+pw-3-cs,py+3);
+  g.line(px+pw-3,py+3,px+pw-3,py+3+cs);
+  g.line(px+3,py+ph-3,px+3+cs,py+ph-3);
+  g.line(px+3,py+ph-3,px+3,py+ph-3-cs);
+  g.line(px+pw-3,py+ph-3,px+pw-3-cs,py+ph-3);
+  g.line(px+pw-3,py+ph-3,px+pw-3,py+ph-3-cs);
+}
+
+// ============================================================
 function handleResultButtons(){
   let {w:stripW,photoH,pad,bot,cols,count}=getStripDimensions();
   let gap=8,padTop=12;
   let stripH=calcStripH(photoH,gap,padTop,bot,cols,count);
-  let stripX=16, stripY=50;
+  let stripX=16,stripY=50;
   let panelX=stripX+stripW+14;
   let panelW=width-panelX-12;
 
-  // Фрейм
+  // 프레임
   let fSize=min(panelW*0.22,32),fGapR=6;
   let fRowW=fSize*2+fGapR,fStartX=panelX+(panelW-fRowW)/2;
   for(let i=0;i<frameColors.length;i++){
@@ -227,7 +258,7 @@ function handleResultButtons(){
     if(dist(mouseX,mouseY,fx+fSize/2,fy+fSize/2)<fSize/2){selectedFrame=i;return;}
   }
 
-  // Формат
+  // 형식
   let fmt2Y=stripY+160;
   let fw=(panelW-20)/2-4;
   for(let i=0;i<4;i++){
@@ -236,7 +267,7 @@ function handleResultButtons(){
     if(mouseX>fx&&mouseX<fx+fw&&mouseY>fy&&mouseY<fy+44){selectedFormat=i;return;}
   }
 
-  // Стикеры
+  // 스티커
   let stk2Y=fmt2Y+168;
   let stkW=min((panelW-20)/5-4,28);
   for(let i=0;i<5;i++){
@@ -245,7 +276,7 @@ function handleResultButtons(){
     if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){selectedSticker=i;return;}
   }
 
-  // Кнопки
+  // 버튼
   let btn2Y=stk2Y+88;
   if(mouseX>panelX&&mouseX<panelX+panelW&&mouseY>btn2Y&&mouseY<btn2Y+46){
     saveResultCanvas();return;
@@ -263,36 +294,62 @@ function saveResultCanvas(){
 
   let g=createGraphics(stripW,stripH);
   g.rectMode(CORNER); g.textAlign(CENTER,CENTER);
+
+  // 프레임 배경
   g.fill(frameColors[selectedFrame]);
   g.stroke(frameDark[selectedFrame]); g.strokeWeight(3);
   g.rect(0,0,stripW,stripH,12);
 
+  // 도트 장식
   for(let i=0;i<6;i++){
-    g.fill(frameDark[selectedFrame]);g.noStroke();
+    g.fill(frameDark[selectedFrame]); g.noStroke();
     g.circle(12+i*stripW/6,7,4);
   }
 
+  // 사진 + 스티커
   for(let i=0;i<count;i++){
     let px,py,pw,ph;
     if(cols===4){
-      pw=(stripW-pad*2-gap*3)/4;ph=photoH;
-      px=pad+i*(pw+gap);py=padTop;
+      pw=(stripW-pad*2-gap*3)/4; ph=photoH;
+      px=pad+i*(pw+gap); py=padTop;
     } else if(cols===2){
       let col=i%2,row=floor(i/2);
-      pw=(stripW-pad*2-gap)/2;ph=photoH;
-      px=pad+col*(pw+gap);py=padTop+row*(ph+gap);
+      pw=(stripW-pad*2-gap)/2; ph=photoH;
+      px=pad+col*(pw+gap); py=padTop+row*(ph+gap);
     } else {
-      px=pad;py=padTop+i*(photoH+gap);
-      pw=stripW-pad*2;ph=photoH;
+      px=pad; py=padTop+i*(photoH+gap);
+      pw=stripW-pad*2; ph=photoH;
     }
-    if(capturedPhotos[i]) g.image(capturedPhotos[i],px,py,pw,ph);
-    else{g.fill(220);g.noStroke();g.rect(px,py,pw,ph,6);}
+
+    if(capturedPhotos[i]){
+      g.image(capturedPhotos[i],px,py,pw,ph);
+      // стикеры через g
+      if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph);
+      // полароид рамка
+      if(selectedFormat===3){
+        g.stroke(255); g.strokeWeight(3); g.noFill();
+        g.rect(px,py,pw,ph,4);
+      }
+    } else {
+      g.fill(220); g.noStroke(); g.rect(px,py,pw,ph,6);
+    }
   }
 
+  // 날짜
   let d=new Date();
-  let ds=d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
-  g.noStroke();g.fill(80);g.textSize(10);
-  g.text(ds,stripW/2,stripH-12);
+  let ds=d.getFullYear()+"."+
+    String(d.getMonth()+1).padStart(2,"0")+"."+
+    String(d.getDate()).padStart(2,"0");
+
+  if(selectedFormat===3){
+    g.fill(frameDark[selectedFrame]); g.noStroke(); g.textSize(12);
+    g.text("📸 4CUT BOOTH",stripW/2,stripH-48);
+    g.fill(80); g.textSize(10);
+    g.text(ds,stripW/2,stripH-28);
+  } else {
+    g.noStroke(); g.fill(80); g.textSize(10);
+    g.text(ds,stripW/2,stripH-12);
+  }
 
   save(g,"4cut_"+formatNames[selectedFormat]+"_"+frameNames[selectedFrame]+".png");
   g.remove();
