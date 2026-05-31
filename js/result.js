@@ -37,7 +37,7 @@ function drawResultScreen() {
   fill(180,150,200,50); noStroke();
   rect(stripX+5,stripY+5,stripW,stripH,16);
 
-  // 프레임
+  // 프레임 배경
   fill(frameColors[selectedFrame]);
   stroke(frameDark[selectedFrame]); strokeWeight(3);
   rect(stripX,stripY,stripW,stripH,12);
@@ -50,14 +50,16 @@ function drawResultScreen() {
   }
   pop();
 
-  // 사진
-  for(let i=0;i<count;i++){
+  // ============================================================
+  // 사진 + 스티커
+  // ============================================================
+  for(let i=0; i<count; i++){
     let px,py,pw,ph;
     if(cols===4){
       pw=(stripW-pad*2-gap*3)/4; ph=photoH;
       px=stripX+pad+i*(pw+gap); py=stripY+padTop;
     } else if(cols===2){
-      let col=i%2,row=floor(i/2);
+      let col=i%2, row=floor(i/2);
       pw=(stripW-pad*2-gap)/2; ph=photoH;
       px=stripX+pad+col*(pw+gap); py=stripY+padTop+row*(ph+gap);
     } else {
@@ -65,21 +67,26 @@ function drawResultScreen() {
       pw=stripW-pad*2; ph=photoH;
     }
 
-    push();
-    fill(0,0,0,18); noStroke(); rect(px+2,py+2,pw,ph,6);
+    // 그림자
+    push(); fill(0,0,0,18); noStroke(); rect(px+2,py+2,pw,ph,6); pop();
+
     if(capturedPhotos[i]){
-      imageMode(CORNER); image(capturedPhotos[i],px,py,pw,ph);
-      if(selectedSticker>0) drawStickerOverlay(px,py,pw,ph,i);
+      // 사진
+      push(); imageMode(CORNER); image(capturedPhotos[i],px,py,pw,ph); pop();
+      // 스티커 — 사진 위에 별도 push/pop
+      if(selectedSticker>0){
+        push(); drawStickerOverlay(px,py,pw,ph,i); pop();
+      }
+      // 폴라로이드 테두리
       if(selectedFormat===3){
-        stroke(255,255,255,180); strokeWeight(3); noFill();
-        rect(px,py,pw,ph,4);
+        push(); stroke(255,255,255,180); strokeWeight(3); noFill();
+        rect(px,py,pw,ph,4); pop();
       }
     } else {
-      fill(230); noStroke(); rect(px,py,pw,ph,6);
+      push(); fill(230); noStroke(); rect(px,py,pw,ph,6);
       fill(180); textSize(11); textAlign(CENTER,CENTER);
-      text("사진 없음",px+pw/2,py+ph/2);
+      text("사진 없음",px+pw/2,py+ph/2); pop();
     }
-    pop();
   }
 
   // 날짜
@@ -121,7 +128,9 @@ function drawResultScreen() {
     if(selectedFrame===i){stroke(frameDark[i]);strokeWeight(3);}
     else{stroke("#ddd");strokeWeight(1.5);}
     fill(frameColors[i]); circle(fx+fSize/2,fy+fSize/2,fSize);
-    if(selectedFrame===i){fill(255,200);noStroke();circle(fx+fSize/2,fy+fSize/2,fSize*0.4);}
+    if(selectedFrame===i){
+      fill(255,200);noStroke();circle(fx+fSize/2,fy+fSize/2,fSize*0.4);
+    }
     noStroke();fill(selectedFrame===i?frameDark[i]:"#aaa");
     textSize(8);textAlign(CENTER,CENTER);
     text(frameNames[i],fx+fSize/2,fy+fSize+8);
@@ -183,40 +192,46 @@ function drawResultScreen() {
 }
 
 // ============================================================
-// 스티커 오버레이 (캔버스에 표시용)
+// 스티커 오버레이 (캔버스 표시용 — push/pop 없음)
 // ============================================================
 function drawStickerOverlay(px,py,pw,ph,photoIndex){
-  push(); noStroke();
   let stickers=[
     [],
     [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
-    [{x:0.1,y:0.1,s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9,y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
-    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9,y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
+    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
+    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
     [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
   ];
   let list=stickers[selectedSticker]||[];
+
+  noStroke(); textAlign(CENTER,CENTER);
   for(let s of list){
-    textSize(min(pw*0.15,16)); textAlign(CENTER,CENTER);
-    text(s.s,px+pw*s.x,py+ph*s.y);
+    textSize(min(pw*0.15,16));
+    text(s.s, px+pw*s.x, py+ph*s.y);
   }
+
+  // угловые линии
   stroke(255,180); strokeWeight(1.5); noFill();
   let cs=8;
-  line(px+3,py+3,px+3+cs,py+3); line(px+3,py+3,px+3,py+3+cs);
-  line(px+pw-3,py+3,px+pw-3-cs,py+3); line(px+pw-3,py+3,px+pw-3,py+3+cs);
-  line(px+3,py+ph-3,px+3+cs,py+ph-3); line(px+3,py+ph-3,px+3,py+ph-3-cs);
-  line(px+pw-3,py+ph-3,px+pw-3-cs,py+ph-3); line(px+pw-3,py+ph-3,px+pw-3,py+ph-3-cs);
-  pop();
+  line(px+3,py+3,  px+3+cs,py+3);
+  line(px+3,py+3,  px+3,   py+3+cs);
+  line(px+pw-3,py+3,  px+pw-3-cs,py+3);
+  line(px+pw-3,py+3,  px+pw-3,   py+3+cs);
+  line(px+3,py+ph-3,  px+3+cs,py+ph-3);
+  line(px+3,py+ph-3,  px+3,   py+ph-3-cs);
+  line(px+pw-3,py+ph-3,  px+pw-3-cs,py+ph-3);
+  line(px+pw-3,py+ph-3,  px+pw-3,   py+ph-3-cs);
 }
 
 // ============================================================
-// 스티커 오버레이 (저장용 — graphics 객체 사용)
+// 스티커 오버레이 (저장용 — graphics 객체)
 // ============================================================
 function saveStickerOverlay(g,px,py,pw,ph){
   let stickers=[
     [],
     [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
-    [{x:0.1,y:0.1,s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9,y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
-    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9,y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
+    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
+    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
     [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
   ];
   let list=stickers[selectedSticker]||[];
@@ -224,20 +239,19 @@ function saveStickerOverlay(g,px,py,pw,ph){
   g.noStroke(); g.textAlign(CENTER,CENTER);
   for(let s of list){
     g.textSize(min(pw*0.15,16));
-    g.text(s.s,px+pw*s.x,py+ph*s.y);
+    g.text(s.s, px+pw*s.x, py+ph*s.y);
   }
 
-  // угловые линии
   g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
   let cs=8;
-  g.line(px+3,py+3,px+3+cs,py+3);
-  g.line(px+3,py+3,px+3,py+3+cs);
-  g.line(px+pw-3,py+3,px+pw-3-cs,py+3);
-  g.line(px+pw-3,py+3,px+pw-3,py+3+cs);
-  g.line(px+3,py+ph-3,px+3+cs,py+ph-3);
-  g.line(px+3,py+ph-3,px+3,py+ph-3-cs);
-  g.line(px+pw-3,py+ph-3,px+pw-3-cs,py+ph-3);
-  g.line(px+pw-3,py+ph-3,px+pw-3,py+ph-3-cs);
+  g.line(px+3,py+3,  px+3+cs,py+3);
+  g.line(px+3,py+3,  px+3,   py+3+cs);
+  g.line(px+pw-3,py+3,  px+pw-3-cs,py+3);
+  g.line(px+pw-3,py+3,  px+pw-3,   py+3+cs);
+  g.line(px+3,py+ph-3,  px+3+cs,py+ph-3);
+  g.line(px+3,py+ph-3,  px+3,   py+ph-3-cs);
+  g.line(px+pw-3,py+ph-3,  px+pw-3-cs,py+ph-3);
+  g.line(px+pw-3,py+ph-3,  px+pw-3,   py+ph-3-cs);
 }
 
 // ============================================================
@@ -255,7 +269,9 @@ function handleResultButtons(){
   for(let i=0;i<frameColors.length;i++){
     let fx=fStartX+(i%2)*(fSize+fGapR);
     let fy=stripY+28+floor(i/2)*(fSize+fGapR+14);
-    if(dist(mouseX,mouseY,fx+fSize/2,fy+fSize/2)<fSize/2){selectedFrame=i;return;}
+    if(dist(mouseX,mouseY,fx+fSize/2,fy+fSize/2)<fSize/2){
+      selectedFrame=i; return;
+    }
   }
 
   // 형식
@@ -264,7 +280,9 @@ function handleResultButtons(){
   for(let i=0;i<4;i++){
     let fx=panelX+10+(i%2)*(fw+8);
     let fy=fmt2Y+28+floor(i/2)*52;
-    if(mouseX>fx&&mouseX<fx+fw&&mouseY>fy&&mouseY<fy+44){selectedFormat=i;return;}
+    if(mouseX>fx&&mouseX<fx+fw&&mouseY>fy&&mouseY<fy+44){
+      selectedFormat=i; return;
+    }
   }
 
   // 스티커
@@ -273,13 +291,15 @@ function handleResultButtons(){
   for(let i=0;i<5;i++){
     let sx=panelX+10+i*(stkW+4);
     let sy=stk2Y+28;
-    if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){selectedSticker=i;return;}
+    if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){
+      selectedSticker=i; return;
+    }
   }
 
   // 버튼
   let btn2Y=stk2Y+88;
   if(mouseX>panelX&&mouseX<panelX+panelW&&mouseY>btn2Y&&mouseY<btn2Y+46){
-    saveResultCanvas();return;
+    saveResultCanvas(); return;
   }
   if(mouseX>panelX&&mouseX<panelX+panelW&&mouseY>btn2Y+54&&mouseY<btn2Y+92){
     allPhotos=[];selectedPhotos=[];capturedPhotos=[];currentScreen="camera";
@@ -323,9 +343,7 @@ function saveResultCanvas(){
 
     if(capturedPhotos[i]){
       g.image(capturedPhotos[i],px,py,pw,ph);
-      // стикеры через g
       if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph);
-      // полароид рамка
       if(selectedFormat===3){
         g.stroke(255); g.strokeWeight(3); g.noFill();
         g.rect(px,py,pw,ph,4);
@@ -340,7 +358,6 @@ function saveResultCanvas(){
   let ds=d.getFullYear()+"."+
     String(d.getMonth()+1).padStart(2,"0")+"."+
     String(d.getDate()).padStart(2,"0");
-
   if(selectedFormat===3){
     g.fill(frameDark[selectedFrame]); g.noStroke(); g.textSize(12);
     g.text("📸 4CUT BOOTH",stripW/2,stripH-48);
