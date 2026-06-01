@@ -61,13 +61,27 @@ function drawCamera() {
 
   _boxX=camX; _boxY=camY; _boxW=camW; _boxH=camH;
 
-  // Shadow
-  push(); fill(180,150,200,50); noStroke();
-  rect(camX+6, camY+6, camW, camH, 16); pop();
+  // Outer glow (màu frame nhạt)
+  for (let g = 12; g >= 2; g -= 2) {
+    push(); noFill();
+    let alpha = map(g, 2, 12, 80, 8);
+    stroke(red(color(frameColors[selectedFrame])),
+           green(color(frameColors[selectedFrame])),
+           blue(color(frameColors[selectedFrame])), alpha);
+    strokeWeight(g*2);
+    rect(camX, camY, camW, camH, 18);
+    pop();
+  }
 
-  // Frame border
-  push(); stroke(frameDark[selectedFrame]); strokeWeight(5); noFill();
-  rect(camX-3, camY-3, camW+6, camH+6, 16); pop();
+  // Viền tối bo góc — giống ảnh tham khảo
+  push(); stroke(30, 30, 30, 210); strokeWeight(4); noFill();
+  rect(camX, camY, camW, camH, 16);
+  pop();
+
+  // Inner highlight (viền trắng mỏng bên trong)
+  push(); stroke(255, 255, 255, 40); strokeWeight(1.5); noFill();
+  rect(camX+3, camY+3, camW-6, camH-6, 13);
+  pop();
 
   // Video with flip
   push();
