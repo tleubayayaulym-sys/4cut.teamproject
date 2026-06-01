@@ -268,9 +268,9 @@ function drawResultScreen() {
   drawCard(panelX,stk2Y,panelW,80,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
   text("🌟 스티커",panelX+10,stk2Y+14);
-  let stkIcons=["✕","✦","💕","🌸","🎀"];
-  let stkW=min((panelW-20)/5-4,28);
-  for(let i=0;i<5;i++){
+  let stkIcons=["✕","🎀","💕","🪐","🍦","✦"];
+  let stkW=min((panelW-16)/6-3,26);
+  for(let i=0;i<stickerSets.length;i++){
     push();
     let sx=panelX+10+i*(stkW+4);
     let sy=stk2Y+28;
@@ -293,19 +293,67 @@ function drawResultScreen() {
 }
 
 // ============================================================
+// Bộ sticker data (배열 사용)
+// Mỗi sticker có: x/y (vị trí tỉ lệ), s (emoji), size (tỉ lệ size)
+let stickerSets = [
+  // 0: Không sticker
+  [],
+  // 1: Girlypop — nơ, gương, bướm, sparkle
+  [
+    {x:0.08, y:0.06, s:"🎀", sz:0.18},
+    {x:0.82, y:0.04, s:"🪞", sz:0.15},
+    {x:0.88, y:0.82, s:"🦋", sz:0.16},
+    {x:0.04, y:0.84, s:"✨", sz:0.14},
+    {x:0.5,  y:0.05, s:"🎀", sz:0.12},
+  ],
+  // 2: Pastel Love — tim, hoa, ngôi sao
+  [
+    {x:0.08, y:0.08, s:"💕", sz:0.16},
+    {x:0.84, y:0.06, s:"🌸", sz:0.17},
+    {x:0.9,  y:0.86, s:"💗", sz:0.15},
+    {x:0.05, y:0.88, s:"🌷", sz:0.16},
+    {x:0.45, y:0.06, s:"✿",  sz:0.14},
+    {x:0.88, y:0.44, s:"💫", sz:0.13},
+  ],
+  // 3: Space — hành tinh, sao, tên lửa
+  [
+    {x:0.82, y:0.04, s:"🪐", sz:0.20},
+    {x:0.06, y:0.06, s:"⭐", sz:0.16},
+    {x:0.88, y:0.84, s:"🌙", sz:0.17},
+    {x:0.05, y:0.82, s:"🚀", sz:0.16},
+    {x:0.5,  y:0.04, s:"✦",  sz:0.12},
+    {x:0.86, y:0.44, s:"💫", sz:0.13},
+  ],
+  // 4: Food — kem, cà phê, bánh
+  [
+    {x:0.06, y:0.04, s:"🍦", sz:0.18},
+    {x:0.82, y:0.06, s:"☕", sz:0.17},
+    {x:0.86, y:0.82, s:"🧁", sz:0.18},
+    {x:0.04, y:0.82, s:"🍓", sz:0.16},
+    {x:0.5,  y:0.04, s:"🍰", sz:0.14},
+  ],
+  // 5: Vintage Star — ngôi sao, kim cương, hoa nhỏ
+  [
+    {x:0.06, y:0.06, s:"✦",  sz:0.16},
+    {x:0.86, y:0.04, s:"★",  sz:0.18},
+    {x:0.9,  y:0.86, s:"✦",  sz:0.15},
+    {x:0.04, y:0.88, s:"✿",  sz:0.16},
+    {x:0.5,  y:0.05, s:"◆",  sz:0.12},
+    {x:0.88, y:0.46, s:"✦",  sz:0.11},
+  ],
+];
+
 function drawStickerOverlay(px,py,pw,ph,stickerIndex){
-  let stickers=[
-    [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
-    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
-    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
-    [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
-  ];
+  let stickers = stickerSets;
+  let list=stickers[stickerIndex]||[];
   let list=stickers[stickerIndex]||[];
   if(list.length===0) return;
   noStroke(); textAlign(CENTER,CENTER);
   for(let s of list){
-    textSize(min(pw*0.15,16));
+    // size mỗi sticker riêng biệt, có hiệu ứng nhấp nháy nhẹ
+    let sz = min(pw * (s.sz || 0.15), 22);
+    let nhip = 1 + sin(frameCount * 0.04 + s.x * 10) * 0.08;
+    textSize(sz * nhip);
     text(s.s, px+pw*s.x, py+ph*s.y);
   }
   stroke(255,180); strokeWeight(1.5); noFill();
@@ -317,17 +365,10 @@ function drawStickerOverlay(px,py,pw,ph,stickerIndex){
 }
 
 function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
-  let stickers=[
-    [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
-    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
-    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
-    [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
-  ];
-  let list=stickers[stickerIndex]||[];
+  let list = (stickerSets[stickerIndex]) || [];
   if(list.length===0) return;
-  let sz=min(pw*0.15,16);
   for(let s of list){
+    let sz = min(pw * (s.sz || 0.15), 22);
     g.push(); g.noStroke(); g.textAlign(CENTER,CENTER);
     g.textSize(sz); g.text(s.s, px+pw*s.x, py+ph*s.y); g.pop();
   }
@@ -382,8 +423,8 @@ function handleResultButtons(){
 
   // Sticker
   let stk2Y=fmt2Y+168;
-  let stkW=min((panelW-20)/5-4,28);
-  for(let i=0;i<5;i++){
+  let stkW=min((panelW-16)/6-3,26);
+  for(let i=0;i<stickerSets.length;i++){
     let sx=panelX+10+i*(stkW+4), sy=stk2Y+28;
     if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){ selectedSticker=i; return; }
   }
