@@ -46,7 +46,7 @@ function drawResultScreen() {
   push(); noStroke();
   for(let i=0;i<6;i++){
     fill(frameDark[selectedFrame]);
-    circle(stripX+12+i*stripW/6,stripY+7,4);
+    circle(stripX+12+i*stripW/6, stripY+7, 4);
   }
   pop();
 
@@ -75,7 +75,7 @@ function drawResultScreen() {
       push(); imageMode(CORNER); image(capturedPhotos[i],px,py,pw,ph); pop();
       // 스티커 — 사진 위에 별도 push/pop
       if(selectedSticker>0){
-        push(); drawStickerOverlay(px,py,pw,ph,i); pop();
+        push(); drawStickerOverlay(px,py,pw,ph,selectedSticker); pop();
       }
       // 폴라로이드 테두리
       if(selectedFormat===3){
@@ -192,17 +192,18 @@ function drawResultScreen() {
 }
 
 // ============================================================
-// 스티커 오버레이 (캔버스 표시용 — push/pop 없음)
+// 스티커 오버레이 (캔버스 표시용)
+// stickerIndex 를 파라미터로 받음
 // ============================================================
-function drawStickerOverlay(px,py,pw,ph,photoIndex){
+function drawStickerOverlay(px,py,pw,ph,stickerIndex){
   let stickers=[
     [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
+    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9, s:"✦"}],
     [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
     [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
     [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
   ];
-  let list=stickers[selectedSticker]||[];
+  let list=stickers[stickerIndex]||[];
 
   noStroke(); textAlign(CENTER,CENTER);
   for(let s of list){
@@ -210,31 +211,30 @@ function drawStickerOverlay(px,py,pw,ph,photoIndex){
     text(s.s, px+pw*s.x, py+ph*s.y);
   }
 
-  // угловые линии
   stroke(255,180); strokeWeight(1.5); noFill();
   let cs=8;
-  line(px+3,py+3,  px+3+cs,py+3);
-  line(px+3,py+3,  px+3,   py+3+cs);
-  line(px+pw-3,py+3,  px+pw-3-cs,py+3);
-  line(px+pw-3,py+3,  px+pw-3,   py+3+cs);
-  line(px+3,py+ph-3,  px+3+cs,py+ph-3);
-  line(px+3,py+ph-3,  px+3,   py+ph-3-cs);
-  line(px+pw-3,py+ph-3,  px+pw-3-cs,py+ph-3);
-  line(px+pw-3,py+ph-3,  px+pw-3,   py+ph-3-cs);
+  line(px+3,   py+3,    px+3+cs,   py+3);
+  line(px+3,   py+3,    px+3,      py+3+cs);
+  line(px+pw-3,py+3,    px+pw-3-cs,py+3);
+  line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
+  line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
+  line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
+  line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
+  line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
 }
 
 // ============================================================
 // 스티커 오버레이 (저장용 — graphics 객체)
 // ============================================================
-function saveStickerOverlay(g,px,py,pw,ph){
+function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   let stickers=[
     [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
+    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9, s:"✦"}],
     [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
     [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
     [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
   ];
-  let list=stickers[selectedSticker]||[];
+  let list=stickers[stickerIndex]||[];
 
   g.noStroke(); g.textAlign(CENTER,CENTER);
   for(let s of list){
@@ -244,14 +244,14 @@ function saveStickerOverlay(g,px,py,pw,ph){
 
   g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
   let cs=8;
-  g.line(px+3,py+3,  px+3+cs,py+3);
-  g.line(px+3,py+3,  px+3,   py+3+cs);
-  g.line(px+pw-3,py+3,  px+pw-3-cs,py+3);
-  g.line(px+pw-3,py+3,  px+pw-3,   py+3+cs);
-  g.line(px+3,py+ph-3,  px+3+cs,py+ph-3);
-  g.line(px+3,py+ph-3,  px+3,   py+ph-3-cs);
-  g.line(px+pw-3,py+ph-3,  px+pw-3-cs,py+ph-3);
-  g.line(px+pw-3,py+ph-3,  px+pw-3,   py+ph-3-cs);
+  g.line(px+3,   py+3,    px+3+cs,   py+3);
+  g.line(px+3,   py+3,    px+3,      py+3+cs);
+  g.line(px+pw-3,py+3,    px+pw-3-cs,py+3);
+  g.line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
+  g.line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
+  g.line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
+  g.line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
+  g.line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
 }
 
 // ============================================================
@@ -343,7 +343,8 @@ function saveResultCanvas(){
 
     if(capturedPhotos[i]){
       g.image(capturedPhotos[i],px,py,pw,ph);
-      if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph);
+      // передаём selectedSticker явно
+      if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph,selectedSticker);
       if(selectedFormat===3){
         g.stroke(255); g.strokeWeight(3); g.noFill();
         g.rect(px,py,pw,ph,4);
