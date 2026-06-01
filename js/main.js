@@ -1,20 +1,26 @@
 // ============================================================
 // main.js — 담당: 틀레우바이 아야으름
-// 화면: start → settings → camera → result → saved → ending
 // ============================================================
 
-let currentScreen  = "start";
-let selectedFrame  = 0;
-let selectedFilter = 0;
+let currentScreen   = "start";
+let selectedFrame   = 0;
+let selectedFilter  = 0;
+let selectedFormat  = 0;
+let selectedSticker = 0;
 
 // Frame data (배열 사용)
-let frameNames  = ["Pink", "Mint", "Yellow", "Lavender"];
+let frameNames  = ["Pink", "Mint", "Lemon", "Lavender"];
 let frameColors = ["#ffb6c1", "#b2f0e8", "#fff59d", "#e1bee7"];
 let frameDark   = ["#f48fb1", "#80cbc4", "#f9a825", "#ce93d8"];
+let frameLight  = ["#fff0f5", "#e8fffe", "#fffde7", "#f3e5f5"];
 
 // Filter data (배열 사용)
 let filterEmoji = ["🎀", "💕", "🐱", "👓", "🐸"];
 let filterLabel = ["Ribbon", "Love", "Cat", "Glasses", "Frog"];
+
+// Format data (배열 사용)
+let formatNames  = ["길게", "정사각", "넓게", "폴라로이드"];
+let stickerNames = ["없음", "Girlypop🎀", "Love💕", "Space🪐", "Food🍦", "Vintage✦"];
 
 // ============================================================
 // setup() + draw()
@@ -26,286 +32,300 @@ function setup() {
 }
 
 function draw() {
-  background("#f6f1ff");
   if      (currentScreen === "start")    drawStartScreen();
   else if (currentScreen === "settings") drawSettingsScreen();
   else if (currentScreen === "camera")   drawCameraScreen();
+  else if (currentScreen === "select")   drawSelectScreen();
   else if (currentScreen === "result")   drawResultScreen();
   else if (currentScreen === "saved")    drawSavedScreen();
   else if (currentScreen === "ending")   drawEndingScreen();
 }
 
 // ============================================================
-// SCREEN 1: START
-// 제목, 멤버 이름, 사용법 포함 (thầy yêu cầu)
+// 배경 — pastel blob + dust particles
+// ============================================================
+function drawBG() {
+  background("#fff0f5");
+  push(); noStroke();
+
+  // Blob pastel loang (dùng ellipse — đã học)
+  fill(255, 182, 193, 80);
+  ellipse(width * 0.1, height * 0.1, width * 0.7, height * 0.7);
+  fill(206, 147, 216, 60);
+  ellipse(width * 0.85, height * 0.3, width * 0.6, height * 0.6);
+  fill(255, 249, 196, 70);
+  ellipse(width * 0.5, height * 0.9, width * 0.8, height * 0.5);
+  fill(178, 240, 232, 50);
+  ellipse(width * 0.2, height * 0.8, width * 0.5, height * 0.4);
+
+  // Hạt bụi lấp lánh vintage (for loop + sin/cos — đã học)
+  let dustSymbols = ["✦", "✿", "◦", "·", "✧", "◌"];
+  let dustCols    = [
+    [255, 182, 193],
+    [206, 147, 216],
+    [255, 236, 179],
+    [178, 240, 232],
+    [255, 255, 255]
+  ];
+  for (let i = 0; i < 20; i++) {
+    let x   = (sin(frameCount * 0.006 + i * 137.5) * 0.48 + 0.5) * width;
+    let y   = (cos(frameCount * 0.004 + i * 97.3)  * 0.48 + 0.5) * height;
+    let sz  = 7 + sin(frameCount * 0.015 + i) * 3;
+    let alp = map(sin(frameCount * 0.02 + i * 0.7), -1, 1, 30, 90);
+    let dc  = dustCols[i % dustCols.length];
+    fill(dc[0], dc[1], dc[2], alp);
+    textSize(sz); textAlign(CENTER, CENTER);
+    text(dustSymbols[i % dustSymbols.length], x, y);
+  }
+  pop();
+}
+
+// ============================================================
+// 공통 UI 컴포넌트
+// ============================================================
+function drawCard(x, y, w, h, r=20, alpha=215) {
+  push(); noStroke();
+  // Shadow
+  fill(180, 150, 200, 35);
+  rect(x+4, y+5, w, h, r);
+  // Nền trắng mờ
+  fill(255, 255, 255, alpha);
+  rect(x, y, w, h, r);
+  // Viền pastel mỏng
+  noFill(); stroke(220, 190, 230, 80); strokeWeight(1);
+  rect(x, y, w, h, r);
+  pop();
+}
+
+function drawPinkBtn(x, y, w, h, label) {
+  push(); noStroke();
+  // Shadow mềm
+  fill(220, 100, 140, 50);
+  rect(x+3, y+5, w, h, h/2);
+  // Nền hồng
+  fill(255, 105, 135);
+  rect(x, y, w, h, h/2);
+  // Highlight trên
+  fill(255, 150, 170, 80);
+  rect(x, y, w, h*0.5, h/2, h/2, 0, 0);
+  // Text
+  fill(255);
+  textSize(min(h*0.38, 18));
+  textAlign(CENTER, CENTER);
+  text(label, x+w/2, y+h/2);
+  pop();
+}
+
+function drawLightBtn(x, y, w, h, label) {
+  push(); noStroke();
+  // Shadow
+  fill(180, 150, 210, 40);
+  rect(x+3, y+4, w, h, h/2);
+  // Nền pastel tím
+  fill(243, 229, 245);
+  rect(x, y, w, h, h/2);
+  // Highlight
+  fill(255, 255, 255, 100);
+  rect(x+2, y+2, w-4, h*0.45, h/2, h/2, 0, 0);
+  // Viền
+  noFill(); stroke(206, 147, 216, 120); strokeWeight(1);
+  rect(x, y, w, h, h/2);
+  // Text
+  noStroke(); fill(150, 100, 180);
+  textSize(min(h*0.36, 16));
+  textAlign(CENTER, CENTER);
+  text(label, x+w/2, y+h/2);
+  pop();
+}
+
+// ============================================================
+// START 화면
 // ============================================================
 function drawStartScreen() {
-  push();
-  rectMode(CORNER); noStroke();
+  drawBG();
+  push(); rectMode(CORNER); noStroke();
 
-  // Trang trí góc
-  for (let i = 0; i < frameColors.length; i++) {
-    push();
-    fill(frameColors[i] + "66"); noStroke();
-    circle(
-      i % 2 === 0 ? width * 0.08 : width * 0.92,
-      i < 2 ? height * 0.12 : height * 0.88,
-      180
-    );
+  let cw = min(width*0.82, 480);
+  let ch = height*0.82;
+  let cx = width/2 - cw/2;
+  let cy = height*0.09;
+  drawCard(cx, cy, cw, ch, 28);
+
+  // 상단 핑크 배너
+  push(); fill("#ffb6c1"); noStroke();
+  rect(cx, cy, cw, 88, 28, 28, 0, 0);
+  pop();
+
+  fill(255); textSize(min(cw*0.1, 38));
+  text("📸  4CUT BOOTH", width/2, cy+38);
+  fill(255, 255, 255, 180); textSize(12);
+  text("✨  인생네컷 스타일 웹 포토부스  ✨", width/2, cy+68);
+
+  // 제작자 카드
+  let cardX = cx+24, cardW = cw-48;
+  drawCard(cardX, cy+102, cardW, 60, 14, 160);
+  fill("#c8b4f8"); textSize(11); textAlign(CENTER,CENTER);
+  text("💝  TEAM 13", width/2, cy+120);
+  fill("#555"); textSize(13);
+  text("아야울름  ·  응웬 바오 담  ·  마이티투짱", width/2, cy+142);
+
+  // 사용법 카드
+  drawCard(cardX, cy+176, cardW, 118, 14, 160);
+  fill("#ff4d6d"); textSize(11);
+  text("📖  HOW TO USE", width/2, cy+194);
+  fill("#555"); textSize(12);
+  text("① 프레임 · 필터 · 형식 선택",    width/2, cy+214);
+  text("② 최대 8장 자유롭게 촬영",        width/2, cy+232);
+  text("③ 마음에 드는 4장 선택",          width/2, cy+250);
+  text("④ 장식 추가 후 저장 & 공유! 🎉", width/2, cy+268);
+
+  // 포맷 미리보기
+  let preY = cy+310;
+  fill("#aaa"); textSize(11);
+  text("사진 형식 선택 가능", width/2, preY);
+  let fmts  = ["│","■","─","⬜"];
+  let fcols = ["#ffb6c1","#b2f0e8","#fff59d","#e1bee7"];
+  for (let i=0; i<4; i++) {
+    push(); fill(fcols[i]); noStroke();
+    rect(cx+36+i*56, preY+12, 42, 42, 8);
+    fill("#555"); textSize(18); textAlign(CENTER,CENTER);
+    text(fmts[i], cx+57+i*56, preY+33);
+    fill("#999"); textSize(9);
+    text(formatNames[i], cx+57+i*56, preY+56);
     pop();
   }
 
-  // Logo
-  fill("#ff4d6d");
-  textSize(min(width * 0.1, 64));
-  text("📸 4CUT BOOTH", width / 2, height * 0.2);
+  // START 버튼
+  let btnW = min(cw-48, 260);
+  let btnX = width/2 - btnW/2;
+  let btnY = cy+ch-68;
+  drawPinkBtn(btnX, btnY, btnW, 50, "▶  START");
 
-  // Subtitle
-  fill("#888");
-  textSize(min(width * 0.028, 18));
-  text("인생네컷 스타일 웹 포토부스", width / 2, height * 0.28);
-
-  // 제작자 이름 (thầy yêu cầu có tên tác giả)
-  push();
-  fill("#fff"); noStroke();
-  rect(width/2 - min(width*0.32, 180), height*0.35 - 18,
-       min(width*0.64, 360), 80, 12);
-  fill("#ff4d6d"); textSize(13);
-  text("제작자", width/2, height*0.35);
-  fill("#333"); textSize(min(width*0.025, 15));
-  text("틀레우바이  ·  응웬 바오 담  ·  마이티투짱", width/2, height*0.35 + 24);
-  pop();
-
-  // 사용법 (thầy yêu cầu có hướng dẫn)
-  push();
-  fill("#fff"); noStroke();
-  rect(width/2 - min(width*0.32, 180), height*0.48 - 14,
-       min(width*0.64, 360), 100, 12);
-  fill("#ff4d6d"); textSize(13);
-  text("사용법", width/2, height*0.48);
-  fill("#555"); textSize(min(width*0.022, 13));
-  text("① 프레임과 AR 필터를 선택하세요", width/2, height*0.48 + 22);
-  text("② 얼굴을 카메라에 맞추세요", width/2,     height*0.48 + 42);
-  text("③ 엄지+검지 터치 또는 버튼으로 촬영!", width/2, height*0.48 + 62);
-  pop();
-
-  // START button
-  fill("#ff4d6d"); noStroke();
-  rect(width/2 - min(width*0.22, 125), height*0.72 - 28,
-       min(width*0.44, 250), 56, 28);
-  fill(255);
-  textSize(min(width * 0.045, 28));
-  text("▶  START", width / 2, height * 0.72);
-
-  // Space hint
-  fill("#bbb"); textSize(12);
-  text("Space 또는 화면 터치", width / 2, height * 0.72 + 46);
-
+  fill("#c8b4f8"); textSize(11);
+  text("Space 또는 화면을 터치하세요", width/2, cy+ch-8);
   pop();
 }
 
 // ============================================================
-// SCREEN 2: SETTINGS
+// SETTINGS 화면
 // ============================================================
 function drawSettingsScreen() {
-  push();
-  rectMode(CORNER); noStroke();
+  drawBG();
+  push(); rectMode(CORNER); noStroke();
 
-  fill("#ff4d6d");
-  textSize(min(width * 0.048, 32));
-  text("⚙️  Settings", width / 2, 52);
+  let cw = min(width*0.88, 540);
+  let cx = width/2 - cw/2;
+  drawCard(cx, 8, cw, height-16, 24);
 
-  // Frame selection
-  fill("#444"); textSize(16); textAlign(LEFT, CENTER);
-  text("▶  프레임 선택", width * 0.08, 100);
+  // 헤더
+  push(); fill("#ffb6c1"); noStroke();
+  rect(cx, 8, cw, 60, 24, 24, 0, 0);
+  fill(255); textSize(min(cw*0.08,24)); textAlign(CENTER,CENTER);
+  text("⚙️  Settings", width/2, 38);
+  pop();
 
-  let fBox  = min(width * 0.14, 76);
-  let fGap  = min(width * 0.04, 18);
-  let fTot  = fBox * frameNames.length + fGap * (frameNames.length - 1);
-  let fSX   = width/2 - fTot/2;
+  let lx = cx+20;
 
-  for (let i = 0; i < frameNames.length; i++) {
-    push();
-    let bx = fSX + i * (fBox + fGap);
-    let by = 118;
-    if (selectedFrame === i) { stroke(frameDark[i]); strokeWeight(4); }
-    else { stroke("#ddd"); strokeWeight(2); }
-    fill(frameColors[i]);
-    rect(bx, by, fBox, fBox, 10);
-    noStroke(); fill(selectedFrame === i ? frameDark[i] : "#666");
-    textAlign(CENTER, CENTER); textSize(11);
-    text(frameNames[i], bx + fBox/2, by + fBox + 11);
+  // 프레임 선택
+  fill("#555"); textSize(13); textAlign(LEFT,CENTER);
+  text("🎨  프레임", lx, 84);
+  let fBox=min(cw*0.18,80), fGap=min(cw*0.04,14);
+  let fTot=fBox*frameNames.length+fGap*(frameNames.length-1);
+  let fSX=width/2-fTot/2;
+  for (let i=0; i<frameNames.length; i++) {
+    push(); let bx=fSX+i*(fBox+fGap), by=98;
+    fill(0,0,0,15); noStroke(); rect(bx+3,by+3,fBox,fBox,14);
+    if(selectedFrame===i){stroke(frameDark[i]);strokeWeight(3);}
+    else{stroke("#eee");strokeWeight(1.5);}
+    fill(frameColors[i]); rect(bx,by,fBox,fBox,14);
+    if(selectedFrame===i){
+      fill(frameDark[i]);noStroke();circle(bx+fBox-13,by+13,22);
+      fill(255);textSize(11);textAlign(CENTER,CENTER);text("✓",bx+fBox-13,by+13);
+    }
+    noStroke();fill(selectedFrame===i?frameDark[i]:"#aaa");
+    textAlign(CENTER,CENTER);textSize(11);
+    text(frameNames[i],bx+fBox/2,by+fBox+13);
     pop();
   }
 
-  // Filter selection
-  fill("#444"); noStroke(); textSize(16); textAlign(LEFT, CENTER);
-  text("▶  AR 필터 선택", width * 0.08, 248);
-
-  let filtBox = min(width * 0.14, 76);
-  let filtGap = min(width * 0.035, 14);
-  let filtTot = filtBox * filterEmoji.length + filtGap * (filterEmoji.length - 1);
-  let filtSX  = width/2 - filtTot/2;
-
-  for (let i = 0; i < filterEmoji.length; i++) {
-    push();
-    let bx = filtSX + i * (filtBox + filtGap);
-    let by = 266;
-    if (selectedFilter === i) { stroke("#ff4d6d"); strokeWeight(4); }
-    else { stroke("#ddd"); strokeWeight(2); }
-    fill("#fff"); rect(bx, by, filtBox, filtBox, 10);
-    noStroke(); fill("#333");
-    textAlign(CENTER, CENTER); textSize(28);
-    text(filterEmoji[i], bx + filtBox/2, by + filtBox/2);
-    textSize(10); fill("#666");
-    text(filterLabel[i], bx + filtBox/2, by + filtBox + 11);
+  // 필터 선택
+  fill("#555"); textSize(13); textAlign(LEFT,CENTER);
+  text("✨  AR 필터", lx, 206);
+  let filtBox=min(cw*0.16,70), filtGap=min(cw*0.03,10);
+  let filtTot=filtBox*filterEmoji.length+filtGap*(filterEmoji.length-1);
+  let filtSX=width/2-filtTot/2;
+  for (let i=0; i<filterEmoji.length; i++) {
+    push(); let bx=filtSX+i*(filtBox+filtGap), by=220;
+    fill(0,0,0,15);noStroke();rect(bx+3,by+3,filtBox,filtBox,12);
+    if(selectedFilter===i){stroke("#ff4d6d");strokeWeight(3);}
+    else{stroke("#eee");strokeWeight(1.5);}
+    fill(selectedFilter===i?"#fff0f5":"#fff");rect(bx,by,filtBox,filtBox,12);
+    if(selectedFilter===i){
+      fill("#ff4d6d");noStroke();circle(bx+filtBox-12,by+12,20);
+      fill(255);textSize(10);textAlign(CENTER,CENTER);text("✓",bx+filtBox-12,by+12);
+    }
+    noStroke();fill("#333");textAlign(CENTER,CENTER);textSize(24);
+    text(filterEmoji[i],bx+filtBox/2,by+filtBox/2);
+    textSize(10);fill("#aaa");
+    text(filterLabel[i],bx+filtBox/2,by+filtBox+13);
     pop();
   }
 
-  // 촬영 시작 button
-  fill("#ff4d6d"); noStroke();
-  rect(width/2 - min(width*0.28, 150), height - 88,
-       min(width*0.56, 300), 58, 29);
-  fill(255); textAlign(CENTER, CENTER);
-  textSize(min(width * 0.042, 26));
-  text("촬영 시작  📷", width / 2, height - 59);
-
-  // Back
-  fill("#eee"); noStroke();
-  rect(20, 14, 78, 34, 17);
-  fill("#777"); textSize(13);
-  text("← Back", 59, 31);
-
-  pop();
-}
-
-// ============================================================
-// SCREEN 3: CAMERA — gọi camera.js (fullscreen)
-// ============================================================
-function drawCameraScreen() {
-  drawCamera();
-}
-
-// ============================================================
-// SCREEN 5: SAVED
-// ============================================================
-function drawSavedScreen() {
-  push();
-  rectMode(CORNER); noStroke();
-
-  fill("#4caf50"); circle(width/2, height*0.3, 100);
-  fill(255); textSize(48); text("✓", width/2, height*0.3 + 6);
-
-  fill("#333"); textSize(min(width*0.07, 42));
-  text("저장 완료!", width/2, height*0.48);
-
-  fill("#888"); textSize(15);
-  text("PNG 파일이 자동 다운로드됩니다!", width/2, height*0.56);
-
-  // 새로 촬영
-  fill("#ff4d6d"); noStroke();
-  rect(width/2 - min(width*0.22,118), height*0.66,
-       min(width*0.44,236), 50, 25);
-  fill(255); textSize(20);
-  text("📷  새로 촬영", width/2, height*0.66 + 25);
-
-  // 처음으로
-  fill("#eee"); noStroke();
-  rect(width/2 - min(width*0.22,118), height*0.66 + 64,
-       min(width*0.44,236), 44, 22);
-  fill("#555"); textSize(17);
-  text("🏠  처음으로", width/2, height*0.66 + 86);
-
-  pop();
-}
-
-// ============================================================
-// SCREEN 6: ENDING CREDIT (thầy yêu cầu)
-// ============================================================
-function drawEndingScreen() {
-  push();
-  rectMode(CORNER); noStroke();
-
-  // Trang trí nền
-  for (let i = 0; i < frameColors.length; i++) {
-    push();
-    fill(frameColors[i] + "55"); noStroke();
-    circle(
-      (i % 2 === 0 ? width*0.12 : width*0.88),
-      (i < 2 ? height*0.1 : height*0.9),
-      200
-    );
+  // 형식 선택
+  fill("#555"); textSize(13); textAlign(LEFT,CENTER);
+  text("📐  사진 형식", lx, 320);
+  let fmtW=min(cw*0.2,86), fmtGap=min(cw*0.03,10);
+  let fmtTot=fmtW*4+fmtGap*3;
+  let fmtSX=width/2-fmtTot/2;
+  let fmtIcons=["📏","⬛","🖥️","📷"];
+  let fmtH=[100,80,60,100];
+  for (let i=0; i<4; i++) {
+    push(); let bx=fmtSX+i*(fmtW+fmtGap), by=334;
+    fill(0,0,0,15);noStroke();rect(bx+3,by+3,fmtW,fmtH[i],12);
+    if(selectedFormat===i){stroke("#c8b4f8");strokeWeight(3);}
+    else{stroke("#eee");strokeWeight(1.5);}
+    fill(selectedFormat===i?"#f3e5ff":"#fff");rect(bx,by,fmtW,fmtH[i],12);
+    if(selectedFormat===i){
+      fill("#c8b4f8");noStroke();circle(bx+fmtW-12,by+12,20);
+      fill(255);textSize(10);textAlign(CENTER,CENTER);text("✓",bx+fmtW-12,by+12);
+    }
+    noStroke();fill("#333");textAlign(CENTER,CENTER);textSize(22);
+    text(fmtIcons[i],bx+fmtW/2,by+fmtH[i]/2-6);
+    textSize(10);fill("#888");
+    text(formatNames[i],bx+fmtW/2,by+fmtH[i]-14);
     pop();
   }
 
-  // Tiêu đề
-  fill("#ff4d6d");
-  textSize(min(width*0.06, 38));
-  text("📸 4CUT BOOTH", width/2, height*0.12);
-
-  fill("#888"); textSize(14);
-  text("Art & Technology Team Project  |  2025", width/2, height*0.2);
-
-  // Đường kẻ
-  push();
-  stroke(frameDark[0]); strokeWeight(2); noFill();
-  line(width*0.15, height*0.25, width*0.85, height*0.25);
-  pop();
-
-  // Thành viên
-  let members = [
-    { name: "틀레우바이 아야으름", role: "카메라 촬영 · UI 설계 · 전체 흐름 제어" },
-    { name: "응웬 바오 담",        role: "AR 필터 · Face Mesh · Hand Pose 제스처" },
-    { name: "마이티투짱",          role: "결과 화면 · 프레임 디자인 · 저장 기능"  }
-  ];
-
-  for (let i = 0; i < members.length; i++) {
-    push();
-    let my = height * 0.33 + i * 90;
-
-    // Card
-    fill("#fff"); noStroke();
-    rect(width/2 - min(width*0.32,180), my - 30,
-         min(width*0.64,360), 72, 12);
-
-    // Số thứ tự
-    fill(frameDark[i]); noStroke();
-    circle(width/2 - min(width*0.32,180) + 30, my + 6, 34);
-    fill(255); textSize(16);
-    text(str(i+1), width/2 - min(width*0.32,180) + 30, my + 6);
-
-    // Tên
-    fill("#333"); textSize(min(width*0.035,20)); textAlign(LEFT, CENTER);
-    text(members[i].name, width/2 - min(width*0.32,180) + 55, my - 5);
-
-    // Vai trò
-    fill("#888"); textSize(12);
-    text(members[i].role, width/2 - min(width*0.32,180) + 55, my + 16);
-
+  // 스티커 선택
+  fill("#555"); textSize(13); textAlign(LEFT,CENTER);
+  text("🌟  장식 스티커", lx, 456);
+  let stkW=min(cw*0.13,56), stkGap=7;
+  let stkTot=stkW*stickerNames.length+stkGap*(stickerNames.length-1);
+  let stkSX=width/2-stkTot/2;
+  let stkIcons=["✕","🎀","💕","🪐","🍦","✦"];
+  for (let i=0; i<stickerNames.length; i++) {
+    push(); let bx=stkSX+i*(stkW+stkGap), by=470;
+    fill(0,0,0,15);noStroke();rect(bx+3,by+3,stkW,stkW,10);
+    if(selectedSticker===i){stroke("#ffb6c1");strokeWeight(3);}
+    else{stroke("#eee");strokeWeight(1.5);}
+    fill(selectedSticker===i?"#fff0f5":"#fff");rect(bx,by,stkW,stkW,10);
+    noStroke();fill("#333");textAlign(CENTER,CENTER);textSize(20);
+    text(stkIcons[i],bx+stkW/2,by+stkW/2-4);
+    textSize(9);fill("#aaa");
+    text(stickerNames[i].replace(/[^\x00-\x7F]/g,"").trim()||stickerNames[i],
+         bx+stkW/2,by+stkW-10);
     pop();
   }
 
-  // Công nghệ
-  push();
-  fill("#fff"); noStroke();
-  rect(width/2 - min(width*0.32,180), height*0.73,
-       min(width*0.64,360), 58, 12);
-  fill("#ff4d6d"); textSize(12); textAlign(CENTER, CENTER);
-  text("사용 기술", width/2, height*0.73 + 10);
-  fill("#555"); textSize(11);
-  text("p5.js  ·  MediaPipe FaceMesh  ·  MediaPipe Hands  ·  GitHub Pages",
-       width/2, height*0.73 + 32);
-  pop();
+  // 촬영 시작 버튼
+  let btnW=min(cw-40,300), btnX=width/2-btnW/2;
+  drawPinkBtn(btnX, height-86, btnW, 52, "촬영 시작  📷");
 
-  // 처음으로 button
-  fill("#ff4d6d"); noStroke();
-  rect(width/2 - min(width*0.22,118), height*0.86,
-       min(width*0.44,236), 50, 25);
-  fill(255); textSize(18);
-  text("🏠  처음으로", width/2, height*0.86 + 25);
-
+  drawLightBtn(16, 12, 82, 32, "← Back");
   pop();
 }
+
+function drawCameraScreen() { drawCamera(); }
 
 // ============================================================
 // MOUSE + TOUCH
@@ -314,92 +334,74 @@ function mousePressed() { handleButtons(); }
 function touchStarted()  { handleButtons(); return false; }
 
 function handleButtons() {
-
-  // START
-  if (currentScreen === "start") {
-    let bw = min(width*0.44, 250);
-    let bx = width/2 - bw/2;
-    let by = height*0.72 - 28;
-    if (mouseX > bx && mouseX < bx+bw && mouseY > by && mouseY < by+56)
-      currentScreen = "settings";
+  if (currentScreen==="start") {
+    let cw=min(width*0.82,480), cy=height*0.09, ch=height*0.82;
+    let btnW=min(cw-48,260), btnX=width/2-btnW/2, btnY=cy+ch-68;
+    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>btnY&&mouseY<btnY+50)
+      currentScreen="settings";
   }
 
-  // SETTINGS
-  else if (currentScreen === "settings") {
-    // Back
-    if (mouseX>20 && mouseX<98 && mouseY>14 && mouseY<48) {
-      currentScreen = "start"; return;
-    }
+  else if (currentScreen==="settings") {
+    if(mouseX>16&&mouseX<98&&mouseY>12&&mouseY<44){currentScreen="start";return;}
+
+    let cw=min(width*0.88,540);
+
     // Frame
-    let fBox = min(width*0.14,76), fGap = min(width*0.04,18);
-    let fSX  = width/2 - (fBox*frameNames.length + fGap*(frameNames.length-1))/2;
-    for (let i = 0; i < frameNames.length; i++) {
-      let bx = fSX + i*(fBox+fGap);
-      if (mouseX>bx && mouseX<bx+fBox && mouseY>118 && mouseY<118+fBox) {
-        selectedFrame = i; return;
-      }
+    let fBox=min(cw*0.18,80),fGap=min(cw*0.04,14);
+    let fSX=width/2-(fBox*4+fGap*3)/2;
+    for(let i=0;i<frameNames.length;i++){
+      let bx=fSX+i*(fBox+fGap);
+      if(mouseX>bx&&mouseX<bx+fBox&&mouseY>98&&mouseY<98+fBox){selectedFrame=i;return;}
     }
+
     // Filter
-    let filtBox = min(width*0.14,76), filtGap = min(width*0.035,14);
-    let filtSX  = width/2 - (filtBox*filterEmoji.length + filtGap*(filterEmoji.length-1))/2;
-    for (let i = 0; i < filterEmoji.length; i++) {
-      let bx = filtSX + i*(filtBox+filtGap);
-      if (mouseX>bx && mouseX<bx+filtBox && mouseY>266 && mouseY<266+filtBox) {
-        selectedFilter = i; return;
-      }
+    let filtBox=min(cw*0.16,70),filtGap=min(cw*0.03,10);
+    let filtSX=width/2-(filtBox*5+filtGap*4)/2;
+    for(let i=0;i<filterEmoji.length;i++){
+      let bx=filtSX+i*(filtBox+filtGap);
+      if(mouseX>bx&&mouseX<bx+filtBox&&mouseY>220&&mouseY<220+filtBox){selectedFilter=i;return;}
     }
+
+    // Format
+    let fmtW=min(cw*0.2,86),fmtGap=min(cw*0.03,10);
+    let fmtSX=width/2-(fmtW*4+fmtGap*3)/2;
+    let fmtH=[100,80,60,100];
+    for(let i=0;i<4;i++){
+      let bx=fmtSX+i*(fmtW+fmtGap);
+      if(mouseX>bx&&mouseX<bx+fmtW&&mouseY>334&&mouseY<334+fmtH[i]){selectedFormat=i;return;}
+    }
+
+    // Sticker
+    let stkW=min(cw*0.13,56),stkGap=7;
+    let stkSX=width/2-(stkW*stickerNames.length+stkGap*(stickerNames.length-1))/2;
+    for(let i=0;i<stickerNames.length;i++){
+      let bx=stkSX+i*(stkW+stkGap);
+      if(mouseX>bx&&mouseX<bx+stkW&&mouseY>470&&mouseY<470+stkW){selectedSticker=i;return;}
+    }
+
     // 촬영 시작
-    let bw = min(width*0.56,300), bx = width/2-bw/2;
-    if (mouseX>bx && mouseX<bx+bw && mouseY>height-88 && mouseY<height-30)
-      currentScreen = "camera";
+    let btnW=min(cw-40,300),btnX=width/2-btnW/2;
+    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>height-86&&mouseY<height-34)
+      currentScreen="camera";
   }
 
-  // CAMERA
-  else if (currentScreen === "camera") {
-    handleCameraButtons();
-  }
-
-  // RESULT
-  else if (currentScreen === "result") {
-    handleResultButtons();
-  }
-
-  // SAVED
-  else if (currentScreen === "saved") {
-    let bw = min(width*0.44,236), bx = width/2-bw/2;
-    // 새로 촬영
-    if (mouseX>bx && mouseX<bx+bw && mouseY>height*0.66 && mouseY<height*0.66+50) {
-      capturedPhotos = []; currentScreen = "camera";
-    }
-    // 처음으로
-    if (mouseX>bx && mouseX<bx+bw && mouseY>height*0.66+64 && mouseY<height*0.66+108) {
-      capturedPhotos = []; currentScreen = "ending";
-    }
-  }
-
-  // ENDING
-  else if (currentScreen === "ending") {
-    let bw = min(width*0.44,236), bx = width/2-bw/2;
-    if (mouseX>bx && mouseX<bx+bw && mouseY>height*0.86 && mouseY<height*0.86+50)
-      currentScreen = "start";
-  }
+  else if(currentScreen==="camera")  { handleCameraButtons(); }
+  else if(currentScreen==="select")  { handleSelectButtons(); }
+  else if(currentScreen==="result")  { handleResultButtons(); }
+  else if(currentScreen==="saved")   { handleSavedButtons(); }
+  else if(currentScreen==="ending")  { handleEndingButtons(); }
 }
 
-// KEYBOARD
 function keyPressed() {
-  if (key === ' ') {
-    if      (currentScreen === "start")    currentScreen = "settings";
-    else if (currentScreen === "camera")   startPhotoSequence();
+  if(key===' '){
+    if(currentScreen==="start")       currentScreen="settings";
+    else if(currentScreen==="camera") takeSinglePhoto();
   }
-  if (key === 'r' || key === 'R') {
-    if (currentScreen === "result") { capturedPhotos = []; currentScreen = "camera"; }
+  if((key==='s'||key==='S')&&currentScreen==="result") saveResultCanvas();
+  if((key==='r'||key==='R')&&(currentScreen==="result"||currentScreen==="saved")){
+    allPhotos=[];selectedPhotos=[];capturedPhotos=[];currentScreen="camera";
   }
-  if (key === 's' || key === 'S') {
-    if (currentScreen === "result") saveResultCanvas();
-  }
+  return false;
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  if (video) video.size(windowWidth, windowHeight);
-}
+function windowResized() { resizeCanvas(windowWidth,windowHeight); }
