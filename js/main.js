@@ -45,20 +45,32 @@ function draw() {
 // 배경 — pastel blob + dust particles
 // ============================================================
 function drawBG() {
-  background("#fff0f5");
+  // Gradient ombre mượt: dùng for loop + lerpColor (đã học)
+  // Màu thay đổi chậm theo frameCount — tạo hiệu ứng sống động
+  let t = (sin(frameCount * 0.003) + 1) / 2; // 0→1 dao động chậm
+
+  // 3 màu pastel luân phiên nhau
+  let colTop    = lerpColor(color(255,182,193), color(225,190,231), t);
+  let colMid    = lerpColor(color(255,240,220), color(178,240,232), t);
+  let colBot    = lerpColor(color(225,245,255), color(255,249,196), t);
+
+  // Vẽ gradient bằng for loop — dải ngang mỏng, lerpColor từng dải
+  noStroke();
+  let strips = 60; // số dải — càng nhiều càng mượt
+  for (let i = 0; i < strips; i++) {
+    let ty   = map(i, 0, strips, 0, 1);
+    let col;
+    if (ty < 0.5) {
+      col = lerpColor(colTop, colMid, ty * 2);
+    } else {
+      col = lerpColor(colMid, colBot, (ty - 0.5) * 2);
+    }
+    fill(col);
+    rect(0, i * height / strips, width, height / strips + 1);
+  }
+
+  // Hạt bụi lấp lánh nhẹ (for loop + sin/cos — đã học)
   push(); noStroke();
-
-  // Blob pastel loang (dùng ellipse — đã học)
-  fill(255, 182, 193, 80);
-  ellipse(width * 0.1, height * 0.1, width * 0.7, height * 0.7);
-  fill(206, 147, 216, 60);
-  ellipse(width * 0.85, height * 0.3, width * 0.6, height * 0.6);
-  fill(255, 249, 196, 70);
-  ellipse(width * 0.5, height * 0.9, width * 0.8, height * 0.5);
-  fill(178, 240, 232, 50);
-  ellipse(width * 0.2, height * 0.8, width * 0.5, height * 0.4);
-
-  // Hạt bụi lấp lánh vintage (for loop + sin/cos — đã học)
   let dustSymbols = ["✦", "✿", "◦", "·", "✧", "◌"];
   let dustCols    = [
     [255, 182, 193],
@@ -67,11 +79,11 @@ function drawBG() {
     [178, 240, 232],
     [255, 255, 255]
   ];
-  for (let i = 0; i < 20; i++) {
-    let x   = (sin(frameCount * 0.006 + i * 137.5) * 0.48 + 0.5) * width;
-    let y   = (cos(frameCount * 0.004 + i * 97.3)  * 0.48 + 0.5) * height;
-    let sz  = 7 + sin(frameCount * 0.015 + i) * 3;
-    let alp = map(sin(frameCount * 0.02 + i * 0.7), -1, 1, 30, 90);
+  for (let i = 0; i < 18; i++) {
+    let x   = (sin(frameCount * 0.005 + i * 137.5) * 0.46 + 0.5) * width;
+    let y   = (cos(frameCount * 0.004 + i * 97.3)  * 0.46 + 0.5) * height;
+    let sz  = 6 + sin(frameCount * 0.012 + i) * 2.5;
+    let alp = map(sin(frameCount * 0.018 + i * 0.7), -1, 1, 20, 75);
     let dc  = dustCols[i % dustCols.length];
     fill(dc[0], dc[1], dc[2], alp);
     textSize(sz); textAlign(CENTER, CENTER);
