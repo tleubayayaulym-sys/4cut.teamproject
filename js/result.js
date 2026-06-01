@@ -195,32 +195,42 @@ function drawResultScreen() {
 // 스티커 오버레이 (캔버스 표시용)
 // stickerIndex 를 파라미터로 받음
 // ============================================================
-function drawStickerOverlay(px,py,pw,ph,stickerIndex){
+function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   let stickers=[
     [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9, s:"✦"}],
+    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
     [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
     [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
     [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
   ];
   let list=stickers[stickerIndex]||[];
+  if(list.length===0) return;
 
-  noStroke(); textAlign(CENTER,CENTER);
+  let sz = min(pw*0.15, 16);
+
   for(let s of list){
-    textSize(min(pw*0.15,16));
-    text(s.s, px+pw*s.x, py+ph*s.y);
+    // каждый стикер рисуем через drawingContext напрямую
+    g.push();
+    g.noStroke();
+    g.textAlign(CENTER, CENTER);
+    g.textSize(sz);
+    g.text(s.s, px + pw*s.x, py + ph*s.y);
+    g.pop();
   }
 
-  stroke(255,180); strokeWeight(1.5); noFill();
+  // угловые линии
+  g.push();
+  g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
   let cs=8;
-  line(px+3,   py+3,    px+3+cs,   py+3);
-  line(px+3,   py+3,    px+3,      py+3+cs);
-  line(px+pw-3,py+3,    px+pw-3-cs,py+3);
-  line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
-  line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
-  line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
-  line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
-  line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
+  g.line(px+3,   py+3,    px+3+cs,   py+3);
+  g.line(px+3,   py+3,    px+3,      py+3+cs);
+  g.line(px+pw-3,py+3,    px+pw-3-cs,py+3);
+  g.line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
+  g.line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
+  g.line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
+  g.line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
+  g.line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
+  g.pop();
 }
 
 // ============================================================
@@ -327,7 +337,7 @@ function saveResultCanvas(){
   }
 
   // 사진 + 스티커
-  for(let i=0;i<count;i++){
+ for(let i=0;i<count;i++){
     let px,py,pw,ph;
     if(cols===4){
       pw=(stripW-pad*2-gap*3)/4; ph=photoH;
@@ -342,15 +352,25 @@ function saveResultCanvas(){
     }
 
     if(capturedPhotos[i]){
+      g.push();
+      g.imageMode(CORNER);
       g.image(capturedPhotos[i],px,py,pw,ph);
-      // передаём selectedSticker явно
-      if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph,selectedSticker);
+      g.pop();
+
+      if(selectedSticker>0){
+        saveStickerOverlay(g,px,py,pw,ph,selectedSticker);
+      }
+
       if(selectedFormat===3){
+        g.push();
         g.stroke(255); g.strokeWeight(3); g.noFill();
         g.rect(px,py,pw,ph,4);
+        g.pop();
       }
     } else {
+      g.push();
       g.fill(220); g.noStroke(); g.rect(px,py,pw,ph,6);
+      g.pop();
     }
   }
 
