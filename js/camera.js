@@ -25,6 +25,7 @@ function setupCamera() {
     });
     video.size(640, 480);
     video.hide();
+    initFaceMesh(video);
 
     // MediaRecorder — запускаем когда видео готово
     video.elt.onloadedmetadata = () => {
