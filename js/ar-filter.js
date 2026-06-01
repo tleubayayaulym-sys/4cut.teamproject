@@ -98,8 +98,13 @@ function lm(index, camX, camY) {
     return { x: camX, y: camY };
   }
   let d = faceLandmarks[index];
+  // Khi flipCamera=true (mirror), tọa độ x phải lật ngược
+  // vì FaceMesh trả về x theo video gốc, nhưng ta vẽ video bị lật
+  let xOffset = (typeof flipCamera !== "undefined" && flipCamera)
+    ? (0.5 - d.x) * _camW   // mirror: lật x
+    : (d.x - 0.5) * _camW;  // normal: giữ nguyên
   return {
-    x: camX + (d.x - 0.5) * _camW,
+    x: camX + xOffset,
     y: camY + (d.y - 0.5) * _camH
   };
 }
@@ -580,9 +585,12 @@ function veHuongDanTay(dangCham, camX, camY) {
   if (handLandmarks) {
     let ngonCai = handLandmarks[4];
     let ngonTro = handLandmarks[8];
-    let caiX = (1 - ngonCai.x) * width;
+    // Khi mirror, tọa độ tay cũng phải lật theo
+    let caiX = (typeof flipCamera !== "undefined" && flipCamera)
+      ? (1 - ngonCai.x) * width : ngonCai.x * width;
     let caiY = ngonCai.y * height;
-    let troX = (1 - ngonTro.x) * width;
+    let troX = (typeof flipCamera !== "undefined" && flipCamera)
+      ? (1 - ngonTro.x) * width : ngonTro.x * width;
     let troY = ngonTro.y * height;
     if (dangCham) { stroke("#ff4d6d"); strokeWeight(4); line(caiX,caiY,troX,troY); }
     noStroke();
