@@ -50,9 +50,7 @@ function drawResultScreen() {
   }
   pop();
 
-  // ============================================================
   // 사진 + 스티커
-  // ============================================================
   for(let i=0; i<count; i++){
     let px,py,pw,ph;
     if(cols===4){
@@ -71,13 +69,10 @@ function drawResultScreen() {
     push(); fill(0,0,0,18); noStroke(); rect(px+2,py+2,pw,ph,6); pop();
 
     if(capturedPhotos[i]){
-      // 사진
       push(); imageMode(CORNER); image(capturedPhotos[i],px,py,pw,ph); pop();
-      // 스티커 — 사진 위에 별도 push/pop
       if(selectedSticker>0){
         push(); drawStickerOverlay(px,py,pw,ph,selectedSticker); pop();
       }
-      // 폴라로이드 테두리
       if(selectedFormat===3){
         push(); stroke(255,255,255,180); strokeWeight(3); noFill();
         rect(px,py,pw,ph,4); pop();
@@ -106,9 +101,7 @@ function drawResultScreen() {
   }
   pop();
 
-  // ============================================================
   // 오른쪽 패널
-  // ============================================================
   let panelX=stripX+stripW+14;
   let panelW=width-panelX-12;
   let panelY=stripY;
@@ -193,7 +186,38 @@ function drawResultScreen() {
 
 // ============================================================
 // 스티커 오버레이 (캔버스 표시용)
-// stickerIndex 를 파라미터로 받음
+// ============================================================
+function drawStickerOverlay(px,py,pw,ph,stickerIndex){
+  let stickers=[
+    [],
+    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9,s:"✦"}],
+    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
+    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
+    [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
+  ];
+  let list=stickers[stickerIndex]||[];
+  if(list.length===0) return;
+
+  noStroke(); textAlign(CENTER,CENTER);
+  for(let s of list){
+    textSize(min(pw*0.15,16));
+    text(s.s, px+pw*s.x, py+ph*s.y);
+  }
+
+  stroke(255,180); strokeWeight(1.5); noFill();
+  let cs=8;
+  line(px+3,   py+3,    px+3+cs,   py+3);
+  line(px+3,   py+3,    px+3,      py+3+cs);
+  line(px+pw-3,py+3,    px+pw-3-cs,py+3);
+  line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
+  line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
+  line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
+  line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
+  line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
+}
+
+// ============================================================
+// 스티커 오버레이 (저장용 — graphics 객체)
 // ============================================================
 function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   let stickers=[
@@ -206,19 +230,16 @@ function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   let list=stickers[stickerIndex]||[];
   if(list.length===0) return;
 
-  let sz = min(pw*0.15, 16);
-
+  let sz=min(pw*0.15,16);
   for(let s of list){
-    // каждый стикер рисуем через drawingContext напрямую
     g.push();
     g.noStroke();
-    g.textAlign(CENTER, CENTER);
+    g.textAlign(CENTER,CENTER);
     g.textSize(sz);
-    g.text(s.s, px + pw*s.x, py + ph*s.y);
+    g.text(s.s, px+pw*s.x, py+ph*s.y);
     g.pop();
   }
 
-  // угловые линии
   g.push();
   g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
   let cs=8;
@@ -234,37 +255,6 @@ function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
 }
 
 // ============================================================
-// 스티커 오버레이 (저장용 — graphics 객체)
-// ============================================================
-function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
-  let stickers=[
-    [],
-    [{x:0.08,y:0.08,s:"✦"},{x:0.88,y:0.06,s:"★"},{x:0.92,y:0.88,s:"✦"},{x:0.06,y:0.9, s:"✦"}],
-    [{x:0.1, y:0.1, s:"💕"},{x:0.84,y:0.08,s:"💗"},{x:0.9, y:0.84,s:"💕"},{x:0.08,y:0.86,s:"💗"}],
-    [{x:0.08,y:0.08,s:"🌸"},{x:0.86,y:0.06,s:"🌷"},{x:0.9, y:0.86,s:"🌸"},{x:0.06,y:0.88,s:"🌷"}],
-    [{x:0.08,y:0.06,s:"🎀"},{x:0.84,y:0.04,s:"🎀"},{x:0.88,y:0.86,s:"✨"},{x:0.06,y:0.86,s:"✨"}],
-  ];
-  let list=stickers[stickerIndex]||[];
-
-  g.noStroke(); g.textAlign(CENTER,CENTER);
-  for(let s of list){
-    g.textSize(min(pw*0.15,16));
-    g.text(s.s, px+pw*s.x, py+ph*s.y);
-  }
-
-  g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
-  let cs=8;
-  g.line(px+3,   py+3,    px+3+cs,   py+3);
-  g.line(px+3,   py+3,    px+3,      py+3+cs);
-  g.line(px+pw-3,py+3,    px+pw-3-cs,py+3);
-  g.line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
-  g.line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
-  g.line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
-  g.line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
-  g.line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
-}
-
-// ============================================================
 function handleResultButtons(){
   let {w:stripW,photoH,pad,bot,cols,count}=getStripDimensions();
   let gap=8,padTop=12;
@@ -273,7 +263,6 @@ function handleResultButtons(){
   let panelX=stripX+stripW+14;
   let panelW=width-panelX-12;
 
-  // 프레임
   let fSize=min(panelW*0.22,32),fGapR=6;
   let fRowW=fSize*2+fGapR,fStartX=panelX+(panelW-fRowW)/2;
   for(let i=0;i<frameColors.length;i++){
@@ -284,7 +273,6 @@ function handleResultButtons(){
     }
   }
 
-  // 형식
   let fmt2Y=stripY+160;
   let fw=(panelW-20)/2-4;
   for(let i=0;i<4;i++){
@@ -295,7 +283,6 @@ function handleResultButtons(){
     }
   }
 
-  // 스티커
   let stk2Y=fmt2Y+168;
   let stkW=min((panelW-20)/5-4,28);
   for(let i=0;i<5;i++){
@@ -306,7 +293,6 @@ function handleResultButtons(){
     }
   }
 
-  // 버튼
   let btn2Y=stk2Y+88;
   if(mouseX>panelX&&mouseX<panelX+panelW&&mouseY>btn2Y&&mouseY<btn2Y+46){
     saveResultCanvas(); return;
@@ -325,19 +311,16 @@ function saveResultCanvas(){
   let g=createGraphics(stripW,stripH);
   g.rectMode(CORNER); g.textAlign(CENTER,CENTER);
 
-  // 프레임 배경
   g.fill(frameColors[selectedFrame]);
   g.stroke(frameDark[selectedFrame]); g.strokeWeight(3);
   g.rect(0,0,stripW,stripH,12);
 
-  // 도트 장식
   for(let i=0;i<6;i++){
     g.fill(frameDark[selectedFrame]); g.noStroke();
     g.circle(12+i*stripW/6,7,4);
   }
 
-  // 사진 + 스티커
- for(let i=0;i<count;i++){
+  for(let i=0;i<count;i++){
     let px,py,pw,ph;
     if(cols===4){
       pw=(stripW-pad*2-gap*3)/4; ph=photoH;
@@ -374,7 +357,6 @@ function saveResultCanvas(){
     }
   }
 
-  // 날짜
   let d=new Date();
   let ds=d.getFullYear()+"."+
     String(d.getMonth()+1).padStart(2,"0")+"."+
