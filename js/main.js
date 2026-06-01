@@ -12,8 +12,8 @@ let selectedLayout  = 0;
 
 // 10 Frame colors — pastel palette
 let frameNames  = ["Pink","Mint","Lemon","Lavender","Peach","Sky","Lilac","Rose","Sage","Cream"];
-let frameColors = ["#ffb6c1","#b2f0e8","#fff59d","#e1bee7","#ffccb3","#b3d9ff","#d4b3ff","#ff9eb5","#c8e6c4","#fff8e7"];
-let frameDark   = ["#f48fb1","#80cbc4","#f9a825","#ce93d8","#ff8c66","#66b3ff","#b366ff","#ff6685","#88c68a","#e8d5a3"];
+let frameColors = ["#ffe4ec","#d6f5f0","#fffce0","#f3e8ff","#ffe8d6","#dceeff","#ecdeff","#ffd6e4","#e4f5e4","#fffdf0"];
+let frameDark   = ["#f8b8c8","#96d9d0","#f5d97a","#d8aeed","#f5b89a","#99c9f5","#c49af5","#f59ab0","#a8d8a8","#e8d8a8"];
 let frameLight  = ["#fff0f5","#e8fffe","#fffde7","#f3e5f5","#fff3ee","#e8f4ff","#f3eaff","#ffe8ef","#edf7ed","#fffdf5"];
 
 // Filter data
