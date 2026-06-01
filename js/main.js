@@ -139,7 +139,7 @@ function drawStartScreen() {
   fill("#c8b4f8"); textSize(11); textAlign(CENTER,CENTER);
   text("💝  TEAM 13", width/2, y1+16);
   fill("#444"); textSize(13);
-  text("틀레우바이아야울름  ·  응웬바오담  · 마이티투짱", width/2, y1+38);
+  text("틀레우바이아야울름  ·  응웬바오담  ·  마이티투짱", width/2, y1+38);
 
   // How to use card
   let y2 = y1+70;
