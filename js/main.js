@@ -52,10 +52,11 @@ function draw() {
 // BACKGROUND — smooth ombre gradient
 // ============================================================
 function drawBG() {
+  // White + blue pastel blending ombre
   let t = (sin(frameCount * 0.003) + 1) / 2;
-  let colTop = lerpColor(color(255,182,193), color(225,190,231), t);
-  let colMid = lerpColor(color(255,240,220), color(178,240,232), t);
-  let colBot = lerpColor(color(225,245,255), color(255,249,196), t);
+  let colTop = lerpColor(color(255, 255, 255), color(210, 235, 255), t);   // white → light blue
+  let colMid = lerpColor(color(220, 240, 255), color(255, 255, 255), t);   // sky → white
+  let colBot = lerpColor(color(240, 248, 255), color(200, 225, 255), t);   // white → soft blue
   noStroke();
   let strips = 60;
   for (let i = 0; i < strips; i++) {
@@ -66,14 +67,15 @@ function drawBG() {
     fill(col);
     rect(0, i * height/strips, width, height/strips + 1);
   }
+  // Subtle blue-white dust
   push(); noStroke();
-  let dust = ["✦","✿","◦","·","✧","◌"];
-  let dc   = [[255,182,193],[206,147,216],[255,236,179],[178,240,232],[255,255,255]];
-  for (let i = 0; i < 18; i++) {
+  let dust = ["✦","◦","·","✧","◌","○"];
+  let dc   = [[180,210,255],[210,230,255],[255,255,255],[150,200,255],[200,220,255]];
+  for (let i = 0; i < 14; i++) {
     let x   = (sin(frameCount*0.005+i*137.5)*0.46+0.5)*width;
     let y   = (cos(frameCount*0.004+i*97.3)*0.46+0.5)*height;
-    let sz  = 6+sin(frameCount*0.012+i)*2.5;
-    let alp = map(sin(frameCount*0.018+i*0.7),-1,1,20,75);
+    let sz  = 6+sin(frameCount*0.012+i)*2;
+    let alp = map(sin(frameCount*0.018+i*0.7),-1,1,15,55);
     let c   = dc[i%dc.length];
     fill(c[0],c[1],c[2],alp); textSize(sz); textAlign(CENTER,CENTER);
     text(dust[i%dust.length],x,y);
@@ -139,7 +141,7 @@ function drawStartScreen() {
   fill("#c8b4f8"); textSize(11); textAlign(CENTER,CENTER);
   text("💝  TEAM 13", width/2, y1+16);
   fill("#444"); textSize(13);
-  text("틀레우바이아야울름  ·  응웬바오담  ·  마이티투짱", width/2, y1+38);
+  text("Ayayulm  ·  Nguyen Bao Dam  ·  Mai Thi Tu Trang", width/2, y1+38);
 
   // How to use card
   let y2 = y1+70;
