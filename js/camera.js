@@ -1,48 +1,3 @@
-Skip to content
-tleubayayaulym-sys
-4cut.teamproject
-Repository navigation
-Code
-Issues
-Pull requests
-Agents
-Actions
-Projects
-Wiki
-Security and quality
-Insights
-Settings
-Commit 7c4e197
-dami12356
-dami12356
-authored
-3 hours ago
-·
-·
-Verified
-Update camera.js
-main
-1 parent 
-755f76a
- commit 
-7c4e197
-1 file changed
-
-+1
--1
-Lines changed: 1 addition & 1 deletion
-File tree
-Filter files…
-js
-camera.js
-Search within code
- 
-‎js/camera.js‎
-+1
--1
-Lines changed: 1 addition & 1 deletion
-Original file line number	Diff line number	Diff line change
-@@ -1,134 +1,134 @@
 // ============================================================
 // camera.js — 담당: 틀레우바이 아야으름
 // ============================================================
@@ -178,11 +133,3 @@ function drawCamera() {
   let prevSize  = min(width*0.075,50);
   let prevGap   = 6;
   let prevTotal = prevSize*MAX_PHOTOS+prevGap*(MAX_PHOTOS-1);
-0 commit comments
-Comments
-0
- (0)
-Comment
-You're not receiving notifications from this thread.
-
-Copied!
