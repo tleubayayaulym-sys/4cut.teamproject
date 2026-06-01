@@ -96,7 +96,7 @@ function drawResultScreen() {
 
   let L        = getLayoutConfig();
   let margin   = 20;
-  let divX     = width * 0.52; // divider: left 52% photo, right 48% panel
+  let divX     = width * 0.62; // divider: left 62% photo, right 38% panel
 
   // ---- LEFT: Photo Strip ----
   let availH   = height - 80;
@@ -107,7 +107,7 @@ function drawResultScreen() {
     photoH  = cellW * 0.75;
     stripW  = pad*2 + cellW*4 + gap*3;
   } else if (L.cols===2){
-    let cellW = min((divX-margin*2-pad*2-gap)/2, availH*0.45/0.75);
+    let cellW = min((divX-margin*2-pad*2-gap)/2, availH*0.48/0.75);
     photoH  = cellW * 0.75;
     stripW  = pad*2 + cellW*2 + gap;
   } else {
@@ -322,7 +322,7 @@ function saveStickerOverlay(g,px,py,pw,ph,idx) {
 function handleResultButtons() {
   let L        = getLayoutConfig();
   let margin   = 20;
-  let divX     = width*0.52;
+  let divX     = width*0.62;
   let availH   = height-80;
   let pad=8, gap=5, bot=32;
   let photoH, stripW;
