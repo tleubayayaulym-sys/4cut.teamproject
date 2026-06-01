@@ -1,7 +1,88 @@
 // ============================================================
 // result.js — 담당: 마이티투짱
+// + Photo filter thêm bởi Tamy
 // ============================================================
 
+// --- Photo filter data (배열 사용) ---
+let filterNames2  = ["Original", "Warm", "Cool", "B&W", "Vintage", "Dreamy"];
+let filterEmoji2  = ["🌿", "🌅", "❄️", "🖤", "📷", "🌸"];
+let selectedPhotoFilter = 0;
+
+// Hàm áp dụng filter lên ảnh khi vẽ trên canvas
+function applyPhotoFilter(px, py, pw, ph) {
+  if (selectedPhotoFilter === 0) return; // Original — không làm gì
+  push();
+  noStroke();
+  blendMode(MULTIPLY);
+  if (selectedPhotoFilter === 1) {
+    // Warm — overlay vàng nắng
+    fill(255, 200, 100, 60);
+    rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 2) {
+    // Cool — overlay xanh lạnh
+    fill(100, 160, 255, 55);
+    rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 4) {
+    // Vintage — overlay nâu ố vàng
+    fill(180, 140, 80, 70);
+    rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 5) {
+    // Dreamy — overlay hồng pastel
+    fill(255, 180, 220, 50);
+    rect(px, py, pw, ph);
+  }
+  blendMode(BLEND);
+  pop();
+
+  if (selectedPhotoFilter === 3) {
+    // B&W — overlay trắng đen (dùng SCREEN blend)
+    push();
+    noStroke();
+    // Tạo hiệu ứng desaturate bằng lớp trắng bán trong suốt + multiply
+    blendMode(MULTIPLY);
+    fill(200, 200, 200, 180);
+    rect(px, py, pw, ph);
+    blendMode(BLEND);
+    pop();
+  }
+
+  // Vintage thêm grain nhẹ
+  if (selectedPhotoFilter === 4) {
+    push();
+    for (let g = 0; g < 80; g++) {
+      let gx = px + random(pw);
+      let gy = py + random(ph);
+      let ga = random(20, 50);
+      stroke(200, 180, 120, ga);
+      strokeWeight(0.5);
+      point(gx, gy);
+    }
+    pop();
+  }
+}
+
+// Hàm áp dụng filter khi lưu (graphics buffer)
+function applyPhotoFilterSave(g, px, py, pw, ph) {
+  if (selectedPhotoFilter === 0) return;
+  g.push();
+  g.noStroke();
+  g.blendMode(MULTIPLY);
+  if (selectedPhotoFilter === 1) {
+    g.fill(255, 200, 100, 60); g.rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 2) {
+    g.fill(100, 160, 255, 55); g.rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 3) {
+    g.fill(200, 200, 200, 180); g.rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 4) {
+    g.fill(180, 140, 80, 70); g.rect(px, py, pw, ph);
+  } else if (selectedPhotoFilter === 5) {
+    g.fill(255, 180, 220, 50); g.rect(px, py, pw, ph);
+  }
+  g.blendMode(BLEND);
+  g.pop();
+}
+
+// ============================================================
 function getStripDimensions() {
   let base = min(width*0.28, 180);
   switch(selectedFormat){
@@ -50,7 +131,7 @@ function drawResultScreen() {
   }
   pop();
 
-  // 사진 + 스티커
+  // 사진 + 필터 + 스티커
   for(let i=0; i<count; i++){
     let px,py,pw,ph;
     if(cols===4){
@@ -65,11 +146,12 @@ function drawResultScreen() {
       pw=stripW-pad*2; ph=photoH;
     }
 
-    // 그림자
     push(); fill(0,0,0,18); noStroke(); rect(px+2,py+2,pw,ph,6); pop();
 
     if(capturedPhotos[i]){
       push(); imageMode(CORNER); image(capturedPhotos[i],px,py,pw,ph); pop();
+      // Photo filter overlay
+      applyPhotoFilter(px, py, pw, ph);
       if(selectedSticker>0){
         push(); drawStickerOverlay(px,py,pw,ph,selectedSticker); pop();
       }
@@ -110,7 +192,6 @@ function drawResultScreen() {
   drawCard(panelX,panelY,panelW,150,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
   text("🎨 프레임",panelX+10,panelY+14);
-
   let fSize=min(panelW*0.22,32),fGapR=6;
   let fRowW=fSize*2+fGapR;
   let fStartX=panelX+(panelW-fRowW)/2;
@@ -130,12 +211,40 @@ function drawResultScreen() {
     pop();
   }
 
+  // --- PHOTO FILTER 선택 (Tamy 추가) ---
+  let flt2Y = panelY + 155;
+  drawCard(panelX, flt2Y, panelW, 120, 14);
+  fill("#888"); textSize(11); textAlign(LEFT,CENTER);
+  text("🎞 필터", panelX+10, flt2Y+14);
+
+  let fltW = min((panelW-16)/3 - 3, 44);
+  let fltGap = 4;
+  for (let i = 0; i < filterNames2.length; i++) {
+    push();
+    let col2 = i % 3;
+    let row2 = floor(i / 3);
+    let fx2 = panelX + 8 + col2 * (fltW + fltGap);
+    let fy2 = flt2Y + 28 + row2 * 46;
+    if (selectedPhotoFilter === i) {
+      fill("#ffe0f0"); stroke("#ff4d6d"); strokeWeight(2);
+    } else {
+      fill("#fafafa"); stroke("#eee"); strokeWeight(1);
+    }
+    rect(fx2, fy2, fltW, 38, 8);
+    noStroke();
+    fill(selectedPhotoFilter === i ? "#ff4d6d" : "#777");
+    textSize(11); textAlign(CENTER, CENTER);
+    text(filterEmoji2[i], fx2 + fltW/2, fy2 + 12);
+    textSize(8);
+    text(filterNames2[i], fx2 + fltW/2, fy2 + 28);
+    pop();
+  }
+
   // 형식 선택
-  let fmt2Y=panelY+160;
+  let fmt2Y = flt2Y + 128;
   drawCard(panelX,fmt2Y,panelW,160,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
   text("📐 형식",panelX+10,fmt2Y+14);
-
   let fmtIcons=["📏","⬛","🖥️","📷"];
   let fmtLabels=["Strip","Square","Wide","Polar"];
   for(let i=0;i<4;i++){
@@ -159,7 +268,6 @@ function drawResultScreen() {
   drawCard(panelX,stk2Y,panelW,80,14);
   fill("#888"); textSize(11); textAlign(LEFT,CENTER);
   text("🌟 스티커",panelX+10,stk2Y+14);
-
   let stkIcons=["✕","✦","💕","🌸","🎀"];
   let stkW=min((panelW-20)/5-4,28);
   for(let i=0;i<5;i++){
@@ -185,8 +293,6 @@ function drawResultScreen() {
 }
 
 // ============================================================
-// 스티커 오버레이 (캔버스 표시용)
-// ============================================================
 function drawStickerOverlay(px,py,pw,ph,stickerIndex){
   let stickers=[
     [],
@@ -197,28 +303,19 @@ function drawStickerOverlay(px,py,pw,ph,stickerIndex){
   ];
   let list=stickers[stickerIndex]||[];
   if(list.length===0) return;
-
   noStroke(); textAlign(CENTER,CENTER);
   for(let s of list){
     textSize(min(pw*0.15,16));
     text(s.s, px+pw*s.x, py+ph*s.y);
   }
-
   stroke(255,180); strokeWeight(1.5); noFill();
   let cs=8;
-  line(px+3,   py+3,    px+3+cs,   py+3);
-  line(px+3,   py+3,    px+3,      py+3+cs);
-  line(px+pw-3,py+3,    px+pw-3-cs,py+3);
-  line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
-  line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
-  line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
-  line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
-  line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
+  line(px+3,py+3,px+3+cs,py+3); line(px+3,py+3,px+3,py+3+cs);
+  line(px+pw-3,py+3,px+pw-3-cs,py+3); line(px+pw-3,py+3,px+pw-3,py+3+cs);
+  line(px+3,py+ph-3,px+3+cs,py+ph-3); line(px+3,py+ph-3,px+3,py+ph-3-cs);
+  line(px+pw-3,py+ph-3,px+pw-3-cs,py+ph-3); line(px+pw-3,py+ph-3,px+pw-3,py+ph-3-cs);
 }
 
-// ============================================================
-// 스티커 오버레이 (저장용 — graphics 객체)
-// ============================================================
 function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   let stickers=[
     [],
@@ -229,28 +326,17 @@ function saveStickerOverlay(g, px, py, pw, ph, stickerIndex){
   ];
   let list=stickers[stickerIndex]||[];
   if(list.length===0) return;
-
   let sz=min(pw*0.15,16);
   for(let s of list){
-    g.push();
-    g.noStroke();
-    g.textAlign(CENTER,CENTER);
-    g.textSize(sz);
-    g.text(s.s, px+pw*s.x, py+ph*s.y);
-    g.pop();
+    g.push(); g.noStroke(); g.textAlign(CENTER,CENTER);
+    g.textSize(sz); g.text(s.s, px+pw*s.x, py+ph*s.y); g.pop();
   }
-
-  g.push();
-  g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
+  g.push(); g.stroke(255,180); g.strokeWeight(1.5); g.noFill();
   let cs=8;
-  g.line(px+3,   py+3,    px+3+cs,   py+3);
-  g.line(px+3,   py+3,    px+3,      py+3+cs);
-  g.line(px+pw-3,py+3,    px+pw-3-cs,py+3);
-  g.line(px+pw-3,py+3,    px+pw-3,   py+3+cs);
-  g.line(px+3,   py+ph-3, px+3+cs,   py+ph-3);
-  g.line(px+3,   py+ph-3, px+3,      py+ph-3-cs);
-  g.line(px+pw-3,py+ph-3, px+pw-3-cs,py+ph-3);
-  g.line(px+pw-3,py+ph-3, px+pw-3,   py+ph-3-cs);
+  g.line(px+3,py+3,px+3+cs,py+3); g.line(px+3,py+3,px+3,py+3+cs);
+  g.line(px+pw-3,py+3,px+pw-3-cs,py+3); g.line(px+pw-3,py+3,px+pw-3,py+3+cs);
+  g.line(px+3,py+ph-3,px+3+cs,py+ph-3); g.line(px+3,py+ph-3,px+3,py+ph-3-cs);
+  g.line(px+pw-3,py+ph-3,px+pw-3-cs,py+ph-3); g.line(px+pw-3,py+ph-3,px+pw-3,py+ph-3-cs);
   g.pop();
 }
 
@@ -263,34 +349,43 @@ function handleResultButtons(){
   let panelX=stripX+stripW+14;
   let panelW=width-panelX-12;
 
+  // Frame
   let fSize=min(panelW*0.22,32),fGapR=6;
   let fRowW=fSize*2+fGapR,fStartX=panelX+(panelW-fRowW)/2;
   for(let i=0;i<frameColors.length;i++){
     let fx=fStartX+(i%2)*(fSize+fGapR);
     let fy=stripY+28+floor(i/2)*(fSize+fGapR+14);
-    if(dist(mouseX,mouseY,fx+fSize/2,fy+fSize/2)<fSize/2){
-      selectedFrame=i; return;
+    if(dist(mouseX,mouseY,fx+fSize/2,fy+fSize/2)<fSize/2){ selectedFrame=i; return; }
+  }
+
+  // Photo filter buttons
+  let flt2Y = stripY + 155;
+  let fltW  = min((panelW-16)/3 - 3, 44);
+  let fltGap = 4;
+  for (let i = 0; i < filterNames2.length; i++) {
+    let col2 = i % 3, row2 = floor(i / 3);
+    let fx2 = panelX + 8 + col2 * (fltW + fltGap);
+    let fy2 = flt2Y + 28 + row2 * 46;
+    if (mouseX > fx2 && mouseX < fx2+fltW && mouseY > fy2 && mouseY < fy2+38) {
+      selectedPhotoFilter = i; return;
     }
   }
 
-  let fmt2Y=stripY+160;
+  // Format
+  let fmt2Y = flt2Y + 128;
   let fw=(panelW-20)/2-4;
   for(let i=0;i<4;i++){
     let fx=panelX+10+(i%2)*(fw+8);
     let fy=fmt2Y+28+floor(i/2)*52;
-    if(mouseX>fx&&mouseX<fx+fw&&mouseY>fy&&mouseY<fy+44){
-      selectedFormat=i; return;
-    }
+    if(mouseX>fx&&mouseX<fx+fw&&mouseY>fy&&mouseY<fy+44){ selectedFormat=i; return; }
   }
 
+  // Sticker
   let stk2Y=fmt2Y+168;
   let stkW=min((panelW-20)/5-4,28);
   for(let i=0;i<5;i++){
-    let sx=panelX+10+i*(stkW+4);
-    let sy=stk2Y+28;
-    if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){
-      selectedSticker=i; return;
-    }
+    let sx=panelX+10+i*(stkW+4), sy=stk2Y+28;
+    if(mouseX>sx&&mouseX<sx+stkW&&mouseY>sy&&mouseY<sy+stkW){ selectedSticker=i; return; }
   }
 
   let btn2Y=stk2Y+88;
@@ -335,25 +430,16 @@ function saveResultCanvas(){
     }
 
     if(capturedPhotos[i]){
-      g.push();
-      g.imageMode(CORNER);
-      g.image(capturedPhotos[i],px,py,pw,ph);
-      g.pop();
-
-      if(selectedSticker>0){
-        saveStickerOverlay(g,px,py,pw,ph,selectedSticker);
-      }
-
+      g.push(); g.imageMode(CORNER);
+      g.image(capturedPhotos[i],px,py,pw,ph); g.pop();
+      applyPhotoFilterSave(g, px, py, pw, ph);
+      if(selectedSticker>0) saveStickerOverlay(g,px,py,pw,ph,selectedSticker);
       if(selectedFormat===3){
-        g.push();
-        g.stroke(255); g.strokeWeight(3); g.noFill();
-        g.rect(px,py,pw,ph,4);
-        g.pop();
+        g.push(); g.stroke(255); g.strokeWeight(3); g.noFill();
+        g.rect(px,py,pw,ph,4); g.pop();
       }
     } else {
-      g.push();
-      g.fill(220); g.noStroke(); g.rect(px,py,pw,ph,6);
-      g.pop();
+      g.push(); g.fill(220); g.noStroke(); g.rect(px,py,pw,ph,6); g.pop();
     }
   }
 
@@ -364,8 +450,7 @@ function saveResultCanvas(){
   if(selectedFormat===3){
     g.fill(frameDark[selectedFrame]); g.noStroke(); g.textSize(12);
     g.text("📸 4CUT BOOTH",stripW/2,stripH-48);
-    g.fill(80); g.textSize(10);
-    g.text(ds,stripW/2,stripH-28);
+    g.fill(80); g.textSize(10); g.text(ds,stripW/2,stripH-28);
   } else {
     g.noStroke(); g.fill(80); g.textSize(10);
     g.text(ds,stripW/2,stripH-12);
