@@ -262,9 +262,7 @@ function veFilterTim(camX, camY) {
     let ty = mui.y + t.oy * tl - dy;
 
     let do_mo = map(sin(frameCount * 0.04 + t.pha), -1, 1, 120, 220);
-    let c = color(mauTimList[t.mau % mauTimList.length]);
-c.setAlpha(do_mo);
-fill(c);
+    fill(mauTimList[t.mau % mauTimList.length], do_mo);
     noStroke();
     veTim(tx, ty, t.kich * tl);
   }
@@ -279,14 +277,14 @@ fill(c);
 
   // --- Tim nhỏ trên má ---
   push();
-  let c1=color("#ffb6c1"); c1.setAlpha(200); fill(c1); noStroke();
-veTim(maTrai.x+5*tl, maTrai.y+2*tl, 12*tl);
-let c2=color("#b2f0e8"); c2.setAlpha(200); fill(c2);
-veTim(maTrai.x+22*tl, maTrai.y-8*tl, 9*tl);
-let c3=color("#fff59d"); c3.setAlpha(200); fill(c3);
-veTim(maPhai.x-5*tl, maPhai.y+2*tl, 12*tl);
-let c4=color("#c8e6c9"); c4.setAlpha(200); fill(c4);
-veTim(maPhai.x-22*tl, maPhai.y-8*tl, 9*tl);
+  fill("#ffb6c1", 200); noStroke();
+  veTim(maTrai.x + 5*tl, maTrai.y + 2*tl, 12*tl);
+  fill("#b2f0e8", 200);
+  veTim(maTrai.x + 22*tl, maTrai.y - 8*tl, 9*tl);
+  fill("#fff59d", 200);
+  veTim(maPhai.x - 5*tl, maPhai.y + 2*tl, 12*tl);
+  fill("#c8e6c9", 200);
+  veTim(maPhai.x - 22*tl, maPhai.y - 8*tl, 9*tl);
   pop();
 
   pop();
@@ -307,62 +305,104 @@ function veFilterMeoKawaii(camX, camY) {
   let cx     = dinh.x;
   let cy     = dinh.y;
 
-  // --- Tai mèo outline mỏng (dùng beginShape/vertex) ---
+  // --- Tai mèo pastel mờ nhạt ---
+  // Tai có nhiều lớp để trông mềm mại như ảnh tham khảo
   // Tai trái
   push();
-  fill("#fff0f5"); stroke("#ffb6c1"); strokeWeight(3*tl);
+  // Lớp ngoài mờ (tạo hiệu ứng fuzzy/mờ)
+  for (let k = 3; k >= 0; k--) {
+    let alpha = map(k, 3, 0, 30, 90);
+    fill(255, 182, 193, alpha); noStroke();
+    beginShape();
+    vertex(cx - (72+k*3)*tl, cy + (12-k)*tl);
+    vertex(cx - (88+k*2)*tl, cy - (58+k*4)*tl);
+    vertex(cx - (32+k*2)*tl, cy - (12+k)*tl);
+    endShape(CLOSE);
+  }
+  // Bên trong tai (tam giác hồng nhạt)
+  fill(255, 182, 193, 160); noStroke();
   beginShape();
-  vertex(cx - 75*tl, cy + 10*tl);  // chân trái
-  vertex(cx - 95*tl, cy - 65*tl);  // đỉnh tai
-  vertex(cx - 35*tl, cy - 15*tl);  // chân phải
-  endShape(CLOSE);
-  // Màu hồng bên trong tai
-  fill("#ffb6c1"); noStroke();
-  beginShape();
-  vertex(cx - 75*tl, cy + 3*tl);
-  vertex(cx - 90*tl, cy - 52*tl);
-  vertex(cx - 42*tl, cy - 12*tl);
+  vertex(cx - 74*tl, cy + 8*tl);
+  vertex(cx - 86*tl, cy - 56*tl);
+  vertex(cx - 38*tl, cy - 14*tl);
   endShape(CLOSE);
   pop();
 
   // Tai phải
   push();
-  fill("#fff0f5"); stroke("#ffb6c1"); strokeWeight(3*tl);
+  for (let k = 3; k >= 0; k--) {
+    let alpha = map(k, 3, 0, 30, 90);
+    fill(255, 182, 193, alpha); noStroke();
+    beginShape();
+    vertex(cx + (32+k*2)*tl, cy - (12+k)*tl);
+    vertex(cx + (88+k*2)*tl, cy - (58+k*4)*tl);
+    vertex(cx + (72+k*3)*tl, cy + (12-k)*tl);
+    endShape(CLOSE);
+  }
+  fill(255, 182, 193, 160); noStroke();
   beginShape();
-  vertex(cx + 35*tl, cy - 15*tl);
-  vertex(cx + 95*tl, cy - 65*tl);
-  vertex(cx + 75*tl, cy + 10*tl);
-  endShape(CLOSE);
-  fill("#ffb6c1"); noStroke();
-  beginShape();
-  vertex(cx + 42*tl, cy - 12*tl);
-  vertex(cx + 90*tl, cy - 52*tl);
-  vertex(cx + 75*tl, cy + 3*tl);
+  vertex(cx + 38*tl, cy - 14*tl);
+  vertex(cx + 86*tl, cy - 56*tl);
+  vertex(cx + 74*tl, cy + 8*tl);
   endShape(CLOSE);
   pop();
 
-  // --- Mũi tim hồng ---
+  // --- Vạch đầu (3 vạch nhỏ giữa đỉnh đầu như ảnh) ---
   push();
-  fill("#ff8fab"); noStroke();
-  veTim(mui.x, mui.y + 5*tl, 13*tl);
+  stroke(255, 182, 193, 180);
+  strokeWeight(2.5 * tl);
+  // Dùng for loop vẽ 3 vạch song song
+  for (let i = 0; i < 3; i++) {
+    let vx = cx + (i - 1) * 8 * tl;
+    line(vx, cy - 18*tl, vx, cy - 36*tl);
+  }
   pop();
 
-  // --- Râu mèo thẳng (stroke mỏng) ---
+  // --- Râu mèo cong tự nhiên (dùng bezierVertex) ---
   push();
-  stroke("#888"); strokeWeight(1.5*tl); noFill();
-  // Râu trái: 2 đường thẳng song song
-  line(maTrai.x, maTrai.y,       maTrai.x - 65*tl, maTrai.y - 8*tl);
-  line(maTrai.x, maTrai.y + 12*tl, maTrai.x - 65*tl, maTrai.y + 8*tl);
+  stroke(255, 105, 130, 200);
+  strokeWeight(2 * tl);
+  noFill();
+  // Râu trái — 2 đường cong
+  beginShape();
+  vertex(maTrai.x - 5*tl, maTrai.y - 5*tl);
+  bezierVertex(
+    maTrai.x - 25*tl, maTrai.y - 15*tl,
+    maTrai.x - 50*tl, maTrai.y - 12*tl,
+    maTrai.x - 65*tl, maTrai.y - 8*tl
+  );
+  endShape();
+  beginShape();
+  vertex(maTrai.x - 5*tl, maTrai.y + 8*tl);
+  bezierVertex(
+    maTrai.x - 25*tl, maTrai.y + 4*tl,
+    maTrai.x - 50*tl, maTrai.y + 8*tl,
+    maTrai.x - 65*tl, maTrai.y + 12*tl
+  );
+  endShape();
   // Râu phải
-  line(maPhai.x, maPhai.y,         maPhai.x + 65*tl, maPhai.y - 8*tl);
-  line(maPhai.x, maPhai.y + 12*tl, maPhai.x + 65*tl, maPhai.y + 8*tl);
+  beginShape();
+  vertex(maPhai.x + 5*tl, maPhai.y - 5*tl);
+  bezierVertex(
+    maPhai.x + 25*tl, maPhai.y - 15*tl,
+    maPhai.x + 50*tl, maPhai.y - 12*tl,
+    maPhai.x + 65*tl, maPhai.y - 8*tl
+  );
+  endShape();
+  beginShape();
+  vertex(maPhai.x + 5*tl, maPhai.y + 8*tl);
+  bezierVertex(
+    maPhai.x + 25*tl, maPhai.y + 4*tl,
+    maPhai.x + 50*tl, maPhai.y + 8*tl,
+    maPhai.x + 65*tl, maPhai.y + 12*tl
+  );
+  endShape();
   pop();
 
-  // --- Blush nhẹ ---
+  // --- Mũi tim nhỏ hồng ---
   push();
-  noStroke(); fill(255, 182, 193, 100);
-  ellipse(maTrai.x + 6*tl, maTrai.y + 10*tl, 32*tl, 16*tl);
-  ellipse(maPhai.x - 6*tl, maPhai.y + 10*tl, 32*tl, 16*tl);
+  fill(255, 105, 130, 220); noStroke();
+  veTim(mui.x, mui.y + 4*tl, 11*tl);
   pop();
 
   pop();
