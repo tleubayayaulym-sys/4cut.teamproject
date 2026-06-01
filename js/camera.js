@@ -23,7 +23,7 @@ function setupCamera() {
     video = createCapture(VIDEO, () => {
       cameraError = false;
     });
-    video.size(640, 480);
+video.size(windowWidth, windowHeight);
     video.hide();
     initFaceMesh(video);
 
