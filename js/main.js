@@ -16,6 +16,15 @@ let frameColors = ["#ffe4ec","#d6f5f0","#fffce0","#f3e8ff","#ffe8d6","#dceeff","
 let frameDark   = ["#f8b8c8","#96d9d0","#f5d97a","#d8aeed","#f5b89a","#99c9f5","#c49af5","#f59ab0","#a8d8a8","#e8d8a8"];
 let frameLight  = ["#fff0f5","#e8fffe","#fffde7","#f3e5f5","#fff3ee","#e8f4ff","#f3eaff","#ffe8ef","#edf7ed","#fffdf5"];
 
+let formatNames = [
+  "None",
+  "Warm",
+  "Cool",
+  "B&W",
+  "Vintage",
+  "Dreamy"
+];
+
 // Filter data
 let filterEmoji = ["🚫","💕","👓","🐸"];
 let filterLabel = ["None","Love","Glasses","Frog"];
