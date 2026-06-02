@@ -17,8 +17,8 @@ let frameDark   = ["#f8b8c8","#96d9d0","#f5d97a","#d8aeed","#f5b89a","#99c9f5","
 let frameLight  = ["#fff0f5","#e8fffe","#fffde7","#f3e5f5","#fff3ee","#e8f4ff","#f3eaff","#ffe8ef","#edf7ed","#fffdf5"];
 
 // Filter data
-let filterEmoji = ["🚫","🎀","💕","🐱","👓","🐸"];
-let filterLabel = ["None","Ribbon","Love","Cat","Glasses","Frog"];
+let filterEmoji = ["🚫","💕","👓","🐸"];
+let filterLabel = ["None","Love","Glasses","Frog"];
 
 // Layout definitions
 let layouts = [
