@@ -341,6 +341,9 @@ function touchStarted()  { handleButtons(); return false; }
 
 function handleButtons() {
   if (currentScreen === "start") {
+    currentScreen = "layout";
+    return;
+}
     let cw=min(width*0.82,460), cy=height*0.08;
     let y2=cy+84+70+108;
     let btnW=min(min(cw,460)-40,240), btnX=width/2-btnW/2;
