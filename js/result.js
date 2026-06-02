@@ -382,15 +382,22 @@ function handleResultButtons() {
 
   // Color tone
   let toneBtnW=(panW-30)/3-4, toneBtnH=32;
+  // color tone starts after label (+22)
+  let toneStartY = scrollY + 22;
   for(let i=0;i<toneNames2.length;i++){
     let col=i%3, row=floor(i/3);
     let bx=panX+10+col*(toneBtnW+6);
-    let by=scrollY+row*(toneBtnH+6);
+    let by=toneStartY+row*(toneBtnH+6);
     if(mouseX>bx&&mouseX<bx+toneBtnW&&mouseY>by&&mouseY<by+toneBtnH){ selectedFormat=i; return; }
   }
-  scrollY+=ceil(toneNames2.length/3)*(toneBtnH+6)+24;
+  scrollY+=22+ceil(toneNames2.length/3)*(toneBtnH+6)+14;
 
-  if(mouseX>panX+10&&mouseX<panX+panW-10&&mouseY>scrollY&&mouseY<scrollY+44){ saveResultCanvas(); return; }
+  // Save button — check strictly, avoid accidental trigger
+  if(mouseX>panX+10&&mouseX<panX+panW-10&&
+     mouseY>scrollY+4&&mouseY<scrollY+40&&
+     !isCapturing){
+    saveResultCanvas(); return;
+  }
   if(mouseX>panX+10&&mouseX<panX+panW-10&&mouseY>scrollY+52&&mouseY<scrollY+88){
     allPhotos=[];selectedPhotos=[];capturedPhotos=[];
     photoStickers=[0,0,0,0,0,0]; currentScreen="camera";
