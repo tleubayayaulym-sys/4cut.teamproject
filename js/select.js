@@ -3,7 +3,7 @@
 // ============================================================
 
 function drawSelectScreen() {
-  let requiredPhotos = (selectedFormat === 3) ? 1 : 4;
+  let requiredPhotos = layouts[selectedLayout].count;
   drawBG();
   push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
 
@@ -81,7 +81,7 @@ if(selectedPhotos.length===requiredPhotos){
 }
 
 function handleSelectButtons(){
-  let requiredPhotos = (selectedFormat === 3) ? 1 : 4;
+  let requiredPhotos = layouts[selectedLayout].count;
   if(mouseX>16&&mouseX<116&&mouseY>12&&mouseY<44){
     allPhotos=[];selectedPhotos=[];currentScreen="camera";return;
   }
@@ -97,7 +97,7 @@ function handleSelectButtons(){
 
 let idx = selectedPhotos.indexOf(i);
 
-if(selectedFormat===3){
+if(requiredPhotos===1){
 
   if(idx!==-1){
     selectedPhotos=[];
