@@ -122,17 +122,18 @@ function drawARFilter(camX, camY, loaiFilter, camW, camH) {
   if (camW) _camW = camW;
   if (camH) _camH = camH;
 
-  // loaiFilter: 0=None, 1=Love, 2=Glasses, 3=Frog
+  // loaiFilter: 0=None, 1=Love, 2=Glasses, 3=Frog, 4=Avocado
   if (loaiFilter > 0) {
     if (faceLandmarks) {
       if      (loaiFilter === 1) veFilterTim(camX, camY);
       else if (loaiFilter === 2) veFilterKinhTron(camX, camY);
       else if (loaiFilter === 3) veFilterEch(camX, camY);
+      else if (loaiFilter === 4) veFilterBo(camX, camY);
     } else {
-      // fallback cố định
       if      (loaiFilter === 1) veFilterCoDinh(camX, camY - _camH*0.06, 1);
       else if (loaiFilter === 2) veFilterCoDinh(camX, camY - _camH*0.06, 3);
       else if (loaiFilter === 3) veFilterCoDinh(camX, camY - _camH*0.06, 4);
+      else if (loaiFilter === 4) veFilterBo(camX, camY);
     }
   }
 
@@ -563,6 +564,129 @@ function veHuongDanTay(dangCham, camX, camY) {
     fill(dangCham ? "#ff4d6d" : 255);
     circle(caiX, caiY, 20); circle(troX, troY, 20);
   }
+  pop();
+}
+
+
+// ============================================================
+// 🥑 Filter quả bơ cute
+// Kỹ thuật: ellipse, beginShape/bezierVertex, arc, for loop
+// ============================================================
+function veFilterBo(camX, camY) {
+  push();
+  let dinh   = lm(10,  camX, camY);
+  let mui    = lm(1,   camX, camY);
+  let tl     = getFaceWidth(camX, camY) / 180;
+
+  let cx = dinh.x;
+  // Quả bơ ngồi trên đầu
+  let cy = dinh.y - 30*tl;
+  let bw = 110 * tl; // chiều rộng quả bơ
+  let bh = 145 * tl; // chiều cao quả bơ
+
+  // --- Vỏ ngoài (xanh đậm) ---
+  push();
+  fill("#2d5a1b"); stroke("#1a3a0a"); strokeWeight(3*tl);
+  beginShape();
+  // Hình quả bơ — đỉnh nhọn trên, tròn dưới
+  vertex(cx, cy - bh*0.5);
+  bezierVertex(cx + bw*0.15, cy - bh*0.5,
+               cx + bw*0.5,  cy - bh*0.1,
+               cx + bw*0.5,  cy + bh*0.25);
+  bezierVertex(cx + bw*0.5,  cy + bh*0.55,
+               cx + bw*0.3,  cy + bh*0.5,
+               cx,           cy + bh*0.5);
+  bezierVertex(cx - bw*0.3,  cy + bh*0.5,
+               cx - bw*0.5,  cy + bh*0.55,
+               cx - bw*0.5,  cy + bh*0.25);
+  bezierVertex(cx - bw*0.5,  cy - bh*0.1,
+               cx - bw*0.15, cy - bh*0.5,
+               cx,           cy - bh*0.5);
+  endShape(CLOSE);
+
+  // Vệt tối bên phải (texture vỏ)
+  fill("#1a3a0a"); noStroke();
+  beginShape();
+  vertex(cx + bw*0.28, cy - bh*0.3);
+  bezierVertex(cx + bw*0.48, cy - bh*0.05,
+               cx + bw*0.48, cy + bh*0.2,
+               cx + bw*0.38, cy + bh*0.42);
+  bezierVertex(cx + bw*0.5,  cy + bh*0.3,
+               cx + bw*0.5,  cy - bh*0.1,
+               cx + bw*0.28, cy - bh*0.3);
+  endShape(CLOSE);
+  pop();
+
+  // --- Thịt xanh nhạt bên trong ---
+  push();
+  fill("#c8e8a0"); stroke("#2d5a1b"); strokeWeight(2.5*tl);
+  beginShape();
+  vertex(cx, cy - bh*0.42);
+  bezierVertex(cx + bw*0.12, cy - bh*0.42,
+               cx + bw*0.42, cy - bh*0.08,
+               cx + bw*0.42, cy + bh*0.2);
+  bezierVertex(cx + bw*0.42, cy + bh*0.45,
+               cx + bw*0.25, cy + bh*0.42,
+               cx,           cy + bh*0.42);
+  bezierVertex(cx - bw*0.25, cy + bh*0.42,
+               cx - bw*0.42, cy + bh*0.45,
+               cx - bw*0.42, cy + bh*0.2);
+  bezierVertex(cx - bw*0.42, cy - bh*0.08,
+               cx - bw*0.12, cy - bh*0.42,
+               cx,           cy - bh*0.42);
+  endShape(CLOSE);
+  pop();
+
+  // --- Hạt bơ (nâu oval) ---
+  push();
+  fill("#b5651d"); stroke("#8b4513"); strokeWeight(2.5*tl);
+  ellipse(cx, cy + bh*0.1, bw*0.4, bh*0.38);
+  // Highlight hạt
+  fill(255, 255, 255, 60); noStroke();
+  ellipse(cx - bw*0.06, cy + bh*0.02, bw*0.12, bh*0.1);
+  pop();
+
+  // --- Mắt cute (dùng circle — đã học) ---
+  push();
+  // Mắt trái
+  fill("#222"); noStroke();
+  circle(cx - 18*tl, cy - bh*0.05, 10*tl);
+  fill(255); circle(cx - 20*tl, cy - bh*0.07, 3.5*tl);
+
+  // Mắt phải
+  fill("#222"); noStroke();
+  circle(cx + 18*tl, cy - bh*0.05, 10*tl);
+  fill(255); circle(cx + 16*tl, cy - bh*0.07, 3.5*tl);
+  pop();
+
+  // --- Miệng cười nhỏ (arc — đã học) ---
+  push();
+  noFill(); stroke("#555"); strokeWeight(2*tl);
+  arc(cx, cy + bh*0.03, 14*tl, 9*tl, 0.2, PI - 0.2);
+  pop();
+
+  // --- Tay (2 đường cong ngắn — bezierVertex) ---
+  push();
+  noFill(); stroke("#222"); strokeWeight(2.5*tl);
+  // Tay trái
+  beginShape();
+  vertex(cx - bw*0.42, cy + bh*0.05);
+  bezierVertex(cx - bw*0.58, cy, cx - bw*0.62, cy - bh*0.12, cx - bw*0.55, cy - bh*0.18);
+  endShape();
+  // Tay phải
+  beginShape();
+  vertex(cx + bw*0.42, cy + bh*0.05);
+  bezierVertex(cx + bw*0.58, cy, cx + bw*0.62, cy - bh*0.12, cx + bw*0.55, cy - bh*0.18);
+  endShape();
+  pop();
+
+  // --- Chân (2 đường thẳng nhỏ — line — đã học) ---
+  push();
+  stroke("#222"); strokeWeight(2.5*tl); noFill();
+  line(cx - 18*tl, cy + bh*0.5, cx - 22*tl, cy + bh*0.65);
+  line(cx + 18*tl, cy + bh*0.5, cx + 22*tl, cy + bh*0.65);
+  pop();
+
   pop();
 }
 
