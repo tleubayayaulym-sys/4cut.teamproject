@@ -7,6 +7,7 @@ let currentScreen   = "start";
 let selectedFrame   = 0;
 let selectedFilter  = 0;
 let selectedFormat  = 0;
+let selectedSticker = 0;
 let selectedLayout  = 0;
 
 // 10 Frame colors — pastel palette
@@ -50,31 +51,42 @@ function draw() {
 // ============================================================
 // BACKGROUND — smooth ombre gradient
 // ============================================================
+// Cache nền để tránh vẽ lại mỗi frame
+let _bgBuffer = null;
+let _bgLastFrame = -999;
+
 function drawBG() {
-  // White + blue pastel blending ombre
-  let t = (sin(frameCount * 0.003) + 1) / 2;
-  let colTop = lerpColor(color(255, 255, 255), color(210, 235, 255), t);   // white → light blue
-  let colMid = lerpColor(color(220, 240, 255), color(255, 255, 255), t);   // sky → white
-  let colBot = lerpColor(color(240, 248, 255), color(200, 225, 255), t);   // white → soft blue
-  noStroke();
-  let strips = 60;
-  for (let i = 0; i < strips; i++) {
-    let ty = map(i, 0, strips, 0, 1);
-    let col = ty < 0.5
-      ? lerpColor(colTop, colMid, ty * 2)
-      : lerpColor(colMid, colBot, (ty-0.5) * 2);
-    fill(col);
-    rect(0, i * height/strips, width, height/strips + 1);
+  // Chỉ vẽ lại nền mỗi 6 frame — mượt mà hơn nhiều
+  if (!_bgBuffer || frameCount - _bgLastFrame >= 6) {
+    if (!_bgBuffer) _bgBuffer = createGraphics(width, height);
+    _bgLastFrame = frameCount;
+
+    let t = (sin(frameCount * 0.003) + 1) / 2;
+    let colTop = lerpColor(color(255,255,255), color(210,235,255), t);
+    let colMid = lerpColor(color(220,240,255), color(255,255,255), t);
+    let colBot = lerpColor(color(240,248,255), color(200,225,255), t);
+    _bgBuffer.noStroke();
+    let strips = 30; // 60→30: đủ mượt, nhanh gấp đôi
+    for (let i = 0; i < strips; i++) {
+      let ty = map(i, 0, strips, 0, 1);
+      let col = ty < 0.5
+        ? lerpColor(colTop, colMid, ty*2)
+        : lerpColor(colMid, colBot, (ty-0.5)*2);
+      _bgBuffer.fill(col);
+      _bgBuffer.rect(0, i*height/strips, width, height/strips+1);
+    }
   }
-  // Subtle blue-white dust
+  image(_bgBuffer, 0, 0);
+
+  // Dust particles — giảm xuống 8, tính mỗi frame nhưng nhẹ hơn
   push(); noStroke();
-  let dust = ["✦","◦","·","✧","◌","○"];
-  let dc   = [[180,210,255],[210,230,255],[255,255,255],[150,200,255],[200,220,255]];
-  for (let i = 0; i < 14; i++) {
-    let x   = (sin(frameCount*0.005+i*137.5)*0.46+0.5)*width;
-    let y   = (cos(frameCount*0.004+i*97.3)*0.46+0.5)*height;
-    let sz  = 6+sin(frameCount*0.012+i)*2;
-    let alp = map(sin(frameCount*0.018+i*0.7),-1,1,15,55);
+  let dust = ["✦","◦","·","✧"];
+  let dc   = [[180,210,255],[210,230,255],[255,255,255],[150,200,255]];
+  for (let i = 0; i < 8; i++) {
+    let x   = (sin(frameCount*0.004+i*137.5)*0.44+0.5)*width;
+    let y   = (cos(frameCount*0.003+i*97.3)*0.44+0.5)*height;
+    let sz  = 5+sin(frameCount*0.01+i)*1.5;
+    let alp = map(sin(frameCount*0.015+i*0.7),-1,1,10,45);
     let c   = dc[i%dc.length];
     fill(c[0],c[1],c[2],alp); textSize(sz); textAlign(CENTER,CENTER);
     text(dust[i%dust.length],x,y);
@@ -340,9 +352,12 @@ function touchStarted()  { handleButtons(); return false; }
 
 function handleButtons() {
   if (currentScreen === "start") {
-    currentScreen = "layout";
-    return;
-}
+    let cw=min(width*0.82,460), cy=height*0.08;
+    let y2=cy+84+70+108;
+    let btnW=min(min(cw,460)-40,240), btnX=width/2-btnW/2;
+    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>y2+122&&mouseY<y2+172)
+      currentScreen="layout";
+  }
 
   else if (currentScreen==="layout") {
     if(mouseX>16&&mouseX<98&&mouseY>12&&mouseY<44){currentScreen="start";return;}
@@ -405,4 +420,4 @@ function keyPressed() {
   return false;
 }
 
-function windowResized() { resizeCanvas(windowWidth,windowHeight); }
+function windowResized() { resizeCanvas(windowWidth,windowHeight); _bgBuffer=null; }
