@@ -286,15 +286,29 @@ fill(c);
 
   // --- Tim nhỏ trên má ---
   push();
-  fill("#ffb6c1", 200); noStroke();
-  veTim(maTrai.x + 5*tl, maTrai.y + 2*tl, 12*tl);
-  fill("#b2f0e8", 200);
-  veTim(maTrai.x + 22*tl, maTrai.y - 8*tl, 9*tl);
-  fill("#fff59d", 200);
-  veTim(maPhai.x - 5*tl, maPhai.y + 2*tl, 12*tl);
-  fill("#c8e6c9", 200);
-  veTim(maPhai.x - 22*tl, maPhai.y - 8*tl, 9*tl);
-  pop();
+noStroke();
+
+let c1 = color("#ffb6c1");
+c1.setAlpha(200);
+fill(c1);
+veTim(maTrai.x + 5*tl, maTrai.y + 2*tl, 12*tl);
+
+let c2 = color("#b2f0e8");
+c2.setAlpha(200);
+fill(c2);
+veTim(maTrai.x + 22*tl, maTrai.y - 8*tl, 9*tl);
+
+let c3 = color("#fff59d");
+c3.setAlpha(200);
+fill(c3);
+veTim(maPhai.x - 5*tl, maPhai.y + 2*tl, 12*tl);
+
+let c4 = color("#c8e6c9");
+c4.setAlpha(200);
+fill(c4);
+veTim(maPhai.x - 22*tl, maPhai.y - 8*tl, 9*tl);
+
+pop();
 
   pop();
 }
