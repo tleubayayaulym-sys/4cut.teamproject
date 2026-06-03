@@ -98,30 +98,62 @@ function drawBG() {
 // ============================================================
 function drawCard(x,y,w,h,r=20,alpha=215) {
   push(); noStroke();
-  fill(180,150,200,35); rect(x+4,y+5,w,h,r);
-  fill(255,255,255,alpha); rect(x,y,w,h,r);
-  noFill(); stroke(220,190,230,80); strokeWeight(1); rect(x,y,w,h,r);
+  // Layer 1: đổ bóng ngoài (soft shadow)
+  fill(180, 190, 220, 22); rect(x+6, y+8, w, h, r);
+  fill(180, 190, 220, 18); rect(x+4, y+5, w, h, r);
+  fill(180, 190, 220, 12); rect(x+2, y+3, w, h, r);
+  // Layer 2: nền trắng trong
+  fill(255, 255, 255, alpha);
+  rect(x, y, w, h, r);
+  // Layer 3: viền mỏng tinh tế
+  noFill(); stroke(200, 215, 240, 90); strokeWeight(1);
+  rect(x, y, w, h, r);
+  // Layer 4: highlight trên trái (glass effect)
+  noFill(); stroke(255, 255, 255, 160); strokeWeight(1.5);
+  arc(x+r, y+r, r*2, r*2, PI, PI*1.5);
+  line(x+r, y+0.75, x+w-r, y+0.75);
   pop();
 }
 
 function drawPinkBtn(x,y,w,h,label) {
   push(); noStroke();
-  fill(220,100,140,50); rect(x+3,y+5,w,h,h/2);
-  fill(255,105,135); rect(x,y,w,h,h/2);
-  fill(255,150,170,80); rect(x,y,w,h*0.5,h/2,h/2,0,0);
-  fill(255); textSize(min(h*0.38,18)); textAlign(CENTER,CENTER);
-  text(label,x+w/2,y+h/2);
+  // Đổ bóng đổ sắc nét
+  fill(210, 80, 120, 45); rect(x+4, y+6, w, h, h/2);
+  fill(220, 90, 130, 30); rect(x+2, y+3, w, h, h/2);
+  // Nền gradient hồng
+  fill(245, 80, 120); rect(x, y, w, h, h/2);
+  // Gradient sáng phía trên
+  fill(255, 130, 160, 90); rect(x+2, y+2, w-4, h*0.48, h/2, h/2, 0, 0);
+  // Viền trắng mỏng
+  noFill(); stroke(255,255,255,60); strokeWeight(1);
+  rect(x+1, y+1, w-2, h-2, h/2);
+  // Text với font đẹp
+  noStroke(); fill(255);
+  textFont('Outfit');
+  textSize(min(h*0.38, 18)); textStyle(BOLD);
+  textAlign(CENTER,CENTER);
+  text(label, x+w/2, y+h/2);
+  textStyle(NORMAL);
   pop();
 }
 
 function drawLightBtn(x,y,w,h,label) {
   push(); noStroke();
-  fill(180,150,210,40); rect(x+3,y+4,w,h,h/2);
-  fill(243,229,245); rect(x,y,w,h,h/2);
-  fill(255,255,255,100); rect(x+2,y+2,w-4,h*0.45,h/2,h/2,0,0);
-  noFill(); stroke(206,147,216,120); strokeWeight(1); rect(x,y,w,h,h/2);
-  noStroke(); fill(150,100,180); textSize(min(h*0.36,16));
-  textAlign(CENTER,CENTER); text(label,x+w/2,y+h/2);
+  // Shadow
+  fill(160, 140, 200, 30); rect(x+3, y+4, w, h, h/2);
+  fill(170, 150, 210, 20); rect(x+2, y+2, w, h, h/2);
+  // Nền
+  fill(248, 244, 255); rect(x, y, w, h, h/2);
+  // Highlight
+  fill(255, 255, 255, 120); rect(x+2, y+2, w-4, h*0.45, h/2, h/2, 0, 0);
+  // Viền
+  noFill(); stroke(190, 160, 230, 100); strokeWeight(1);
+  rect(x, y, w, h, h/2);
+  noStroke(); fill(130, 85, 175);
+  textFont('Outfit');
+  textSize(min(h*0.36, 16));
+  textAlign(CENTER,CENTER);
+  text(label, x+w/2, y+h/2);
   pop();
 }
 
