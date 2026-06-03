@@ -7,7 +7,6 @@ let currentScreen   = "start";
 let selectedFrame   = 0;
 let selectedFilter  = 0;
 let selectedFormat  = 0;
-let selectedSticker = 0;
 let selectedLayout  = 0;
 
 // 10 Frame colors — pastel palette
