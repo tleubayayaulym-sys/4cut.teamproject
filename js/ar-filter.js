@@ -541,6 +541,8 @@ function ktraCuChi() {
 }
 
 function veHuongDanTay(dangCham, camX, camY) {
+  // Ẩn khi đang capture sạch
+  if (typeof isCapturingClean !== "undefined" && isCapturingClean) return;
   push(); noStroke();
   if (gesIconTimer > 0) {
     textAlign(CENTER, CENTER);
