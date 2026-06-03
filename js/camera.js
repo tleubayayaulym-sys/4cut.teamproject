@@ -62,40 +62,25 @@ function drawCamera() {
 
   _boxX=camX; _boxY=camY; _boxW=camW; _boxH=camH;
 
-  // === Elegant camera frame ===
-  // Lớp bóng mềm bên ngoài (multi-layer shadow)
+  // Camera frame - soft glow + clean border
   let fc = color(frameColors[selectedFrame]);
   let fr = red(fc), fg = green(fc), fb = blue(fc);
+  // Glow mờ bên ngoài
   push(); noFill();
-  for (let g = 5; g >= 1; g--) {
-    let alpha = map(g, 1, 5, 60, 8);
-    stroke(fr, fg, fb, alpha);
-    strokeWeight(g * 5);
-    rect(camX, camY, camW, camH, 20);
-  }
+  stroke(fr, fg, fb, 30); strokeWeight(18); rect(camX, camY, camW, camH, 18);
+  stroke(fr, fg, fb, 20); strokeWeight(12); rect(camX, camY, camW, camH, 18);
+  stroke(fr, fg, fb, 12); strokeWeight(6);  rect(camX, camY, camW, camH, 18);
   pop();
-
-  // Bóng tối đổ xuống dưới phải
+  // Shadow nhẹ
   push(); noFill();
-  stroke(40, 50, 80, 35); strokeWeight(8);
-  rect(camX+4, camY+5, camW, camH, 20);
+  stroke(40, 50, 80, 18); strokeWeight(6); rect(camX+3, camY+4, camW, camH, 18);
   pop();
-
-  // Viền chính — tối bo tròn elegant
-  push(); stroke(35, 35, 50, 200); strokeWeight(3); noFill();
-  rect(camX, camY, camW, camH, 18);
-  pop();
-
-  // Viền màu frame mỏng bên trong
-  push(); stroke(fr, fg, fb, 140); strokeWeight(2); noFill();
-  rect(camX+4, camY+4, camW-8, camH-8, 14);
-  pop();
-
-  // Highlight góc trên trái (glass)
-  push(); stroke(255, 255, 255, 80); strokeWeight(1.5); noFill();
-  arc(camX+18, camY+18, 36, 36, PI, PI*1.5);
-  line(camX+18, camY+0.75, camX+camW*0.45, camY+0.75);
-  pop();
+  // Viền chính tối bo tròn
+  push(); stroke(30, 30, 45, 190); strokeWeight(3); noFill();
+  rect(camX, camY, camW, camH, 18); pop();
+  // Viền màu frame bên trong
+  push(); stroke(fr, fg, fb, 120); strokeWeight(2); noFill();
+  rect(camX+4, camY+4, camW-8, camH-8, 14); pop();
 
   // Video with flip
   push();
