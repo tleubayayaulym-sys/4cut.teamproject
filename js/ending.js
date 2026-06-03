@@ -1,80 +1,77 @@
 // ============================================================
-// ending.js
+// ending.js — Ending credit screen (English)
 // ============================================================
-
-function drawEndingScreen(){
+function drawEndingScreen() {
   drawBG();
   push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
 
-  let cw=min(width*0.88,520), cx=width/2-cw/2;
-  drawCard(cx,8,cw,height-16,24);
+  let cw = min(width*0.88, 520), cx = width/2 - cw/2;
+  drawCard(cx, 8, cw, height-16, 24);
 
-  // 헤더
-  push(); fill("#ffb6c1"); noStroke();
-  rect(cx,8,cw,68,24,24,0,0);
-  fill(255); textSize(min(cw*0.08,24));
-  text("📸 4CUT BOOTH",width/2,34);
-  fill(255,255,255,180); textSize(10);
-  text("Art & Technology  |  Team 13  |  2026",width/2,56);
+  // Header — blue theme
+  push(); fill("#a8d8f0"); noStroke();
+  rect(cx, 8, cw, 68, 24, 24, 0, 0);
+  fill(255,255,255,80); noStroke();
+  rect(cx, 8, cw, 34, 24, 24, 0, 0);
+  fill(255); textSize(min(cw*0.08, 24));
+  text("📸  4CUT BOOTH", width/2, 34);
+  fill(255,255,255,200); textSize(10);
+  text("Art & Technology  |  Team 13  |  2026", width/2, 56);
   pop();
 
-  push(); stroke("#f0e0ff"); strokeWeight(1.5); noFill();
-  line(cx+24,80,cx+cw-24,80); pop();
+  // Divider
+  push(); stroke("#d0eaf8"); strokeWeight(1.5); noFill();
+  line(cx+24, 80, cx+cw-24, 80); pop();
 
-  // 팀원
-  let members=[
-    {name:"틀레우바이 아야으름",role:"카메라 · UI · 전체 흐름",   col:"#ffb6c1"},
-    {name:"응웬 바오 담",       role:"AR 필터 · FaceMesh · Hands",col:"#b2f0e8"},
-    {name:"마이티투짱",         role:"결과 화면 · 프레임 · 저장", col:"#e1bee7"},
+  // Team members
+  let members = [
+    {name:"Tleubaiy Ayayulm",    role:"Camera · UI · Screen Flow",         col:"#b3d9ff"},
+    {name:"Nguyen Bao Dam",      role:"AR Filter · FaceMesh · Hand Pose",  col:"#b2f0e8"},
+    {name:"Mai Thi Tu Trang",    role:"Result Screen · Frame · Save",       col:"#d4b3ff"},
   ];
-  for(let i=0;i<members.length;i++){
-    push(); let my=height*0.22+i*68;
-    fill(members[i].col+"44");noStroke();rect(cx+16,my-18,cw-32,54,12);
-    fill(members[i].col);noStroke();circle(cx+38,my+9,26);
-    fill(255);textSize(12);textAlign(CENTER,CENTER);text(str(i+1),cx+38,my+9);
-    fill("#333");textSize(min(cw*0.032,16));textAlign(LEFT,CENTER);
-    text(members[i].name,cx+58,my-2);
-    fill("#999");textSize(10);text(members[i].role,cx+58,my+16);
+
+  for (let i=0; i<members.length; i++) {
+    push();
+    let my = height*0.22 + i*72;
+
+    fill(members[i].col+"55"); noStroke();
+    rect(cx+16, my-20, cw-32, 58, 12);
+
+    fill(members[i].col); noStroke();
+    circle(cx+38, my+9, 28);
+    fill(255); textSize(13); textAlign(CENTER,CENTER);
+    text(str(i+1), cx+38, my+9);
+
+    fill("#333"); textSize(min(cw*0.032,16)); textAlign(LEFT,CENTER);
+    text(members[i].name, cx+58, my-2);
+    fill("#888"); textSize(11);
+    text(members[i].role, cx+58, my+16);
     pop();
   }
 
-  // 기술
-  push();fill("#f3e5ff");noStroke();
-  rect(cx+16,height*0.58,cw-32,44,12);
-  fill("#c8b4f8");textSize(10);textAlign(CENTER,CENTER);
-  text("사용 기술",width/2,height*0.58+10);
-  fill("#777");textSize(9);
+  // Tech stack
+  push();
+  fill("#e8f4ff"); noStroke();
+  rect(cx+16, height*0.6, cw-32, 48, 12);
+  fill("#4a90d9"); textSize(11); textAlign(CENTER,CENTER);
+  text("Technologies Used", width/2, height*0.6+12);
+  fill("#555"); textSize(10);
   text("p5.js  ·  MediaPipe FaceMesh  ·  MediaPipe Hands  ·  GitHub Pages",
-       width/2,height*0.58+28);
+       width/2, height*0.6+32);
   pop();
-  
 
-  // Кнопка "처음으로" — отдельно внизу
-  let bw=min(cw-48,220),bx=width/2-bw/2;
- drawPinkBtn(bx,height*0.72,bw,48,"🏠  처음으로");
-
+  // Back home button
+  let bw = min(cw-48, 220), bx = width/2 - bw/2;
+  drawPinkBtn(bx, height*0.74, bw, 48, "🏠  Back to Start");
   pop();
 }
 
-function handleEndingButtons(){
-
-  let cw = min(width*0.88,520);
-
-  let bw = min(cw-48,220);
-  let bx = width/2 - bw/2;
-  let by = height*0.72;
-
-  if(
-    mouseX >= bx &&
-    mouseX <= bx + bw &&
-    mouseY >= by &&
-    mouseY <= by + 48
-  ){
-
-    allPhotos = [];
-    selectedPhotos = [];
-    capturedPhotos = [];
-
-    currentScreen = "start";
+function handleEndingButtons() {
+  let cw = min(width*0.88, 520);
+  let bw = min(cw-48, 220), bx = width/2 - bw/2;
+  let by = height*0.74;
+  if (mouseX>=bx && mouseX<=bx+bw && mouseY>=by && mouseY<=by+48) {
+    allPhotos=[]; selectedPhotos=[]; capturedPhotos=[];
+    currentScreen="start";
   }
 }
