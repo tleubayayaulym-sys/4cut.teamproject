@@ -351,11 +351,9 @@ function touchStarted()  { handleButtons(); return false; }
 
 function handleButtons() {
   if (currentScreen === "start") {
-    let cw=min(width*0.82,460), cy=height*0.08;
-    let y2=cy+84+70+108;
-    let btnW=min(min(cw,460)-40,240), btnX=width/2-btnW/2;
-    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>y2+122&&mouseY<y2+172)
-      currentScreen="layout";
+    // Bấm bất kỳ đâu trên màn start → chuyển layout
+    currentScreen = "layout";
+    return;
   }
 
   else if (currentScreen==="layout") {
