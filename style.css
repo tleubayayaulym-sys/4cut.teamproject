@@ -1,35 +1,26 @@
 /* ============================================================
-   style.css — 4CUT BOOTH
-   Pastel vintage aesthetic
+   style.css — 4CUT BOOTH — White + Blue pastel theme
    ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Playfair+Display:wght@400;700&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  /* Pastel gradient loang — vintage feel */
   background: linear-gradient(
     135deg,
-    #fce4ec 0%,
-    #f8bbd0 15%,
-    #fff9c4 35%,
-    #f3e5f5 55%,
-    #e8f5e9 75%,
-    #e3f2fd 100%
+    #ffffff 0%,
+    #e8f4ff 30%,
+    #ffffff 55%,
+    #dceeff 80%,
+    #f0f8ff 100%
   );
   background-size: 400% 400%;
-  animation: bgShift 18s ease infinite;
+  animation: bgShift 20s ease infinite;
   font-family: 'Nunito', sans-serif;
   overflow: hidden;
   min-height: 100vh;
 }
 
-/* Gradient chuyển động chậm — loang màu tự nhiên */
 @keyframes bgShift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -38,9 +29,7 @@ body {
 
 canvas {
   display: block;
-  /* Grain texture nhẹ — tạo cảm giác vintage */
-  filter: contrast(1.02) saturate(0.96);
+  filter: contrast(1.01) saturate(0.97);
 }
 
-/* Scrollbar ẩn */
 ::-webkit-scrollbar { display: none; }
