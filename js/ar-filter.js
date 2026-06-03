@@ -269,7 +269,9 @@ function veFilterTim(camX, camY) {
     let ty = mui.y + t.oy * tl - dy;
 
     let do_mo = map(sin(frameCount * 0.04 + t.pha), -1, 1, 120, 220);
-    fill(mauTimList[t.mau % mauTimList.length], do_mo);
+    let c = color(mauTimList[t.mau % mauTimList.length]);
+c.setAlpha(do_mo);
+fill(c);
     noStroke();
     veTim(tx, ty, t.kich * tl);
   }
