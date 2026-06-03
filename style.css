@@ -1,22 +1,15 @@
 /* ============================================================
-   style.css — 4CUT BOOTH — White + Blue pastel theme
+   style.css — 4CUT BOOTH — Elegant UI
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Playfair+Display:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #e8f4ff 30%,
-    #ffffff 55%,
-    #dceeff 80%,
-    #f0f8ff 100%
-  );
+  background: linear-gradient(160deg, #f0f7ff 0%, #ffffff 40%, #e8f2ff 70%, #f5f0ff 100%);
   background-size: 400% 400%;
-  animation: bgShift 20s ease infinite;
-  font-family: 'Nunito', sans-serif;
+  animation: bgShift 22s ease infinite;
+  font-family: 'Outfit', sans-serif;
   overflow: hidden;
   min-height: 100vh;
 }
@@ -29,7 +22,8 @@ body {
 
 canvas {
   display: block;
-  filter: contrast(1.01) saturate(0.97);
+  /* Subtle depth */
+  filter: contrast(1.005) saturate(1.02);
 }
 
 ::-webkit-scrollbar { display: none; }
