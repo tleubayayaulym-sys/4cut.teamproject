@@ -396,8 +396,15 @@ function handleButtons() {
       if(mouseX>bx&&mouseX<bx+tBox&&mouseY>by&&mouseY<by+tBox){selectedFormat=i;return;}
     }
     let btnW=min(cw-40,280),btnX=width/2-btnW/2;
-    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>height-82&&mouseY<height-32)
-      currentScreen="camera";
+
+console.log("mouse:", mouseX, mouseY);
+
+if(mouseX>btnX&&mouseX<btnX+btnW&&
+   mouseY>height-82&&mouseY<height-32)
+{
+  console.log("BUTTON HIT");
+  currentScreen="camera";
+}
   }
 
   else if(currentScreen==="camera")  { handleCameraButtons(); }
