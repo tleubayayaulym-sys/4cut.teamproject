@@ -246,7 +246,7 @@ function getPanelPositions(panW) {
 
   // Sticker
   pos.stickerY = sy;
-  sy += ceil(stickerSets.length/2)*(pillH+pillRowGap) + 22;
+  sy += ceil(stickerThemeNames.length/2)*(pillH+pillRowGap) + 22;
 
   // Color tone label + buttons
   pos.toneLabelY = sy + 10;
@@ -302,7 +302,7 @@ function drawResultScreen() {
   pop();
 
   // Sticker theme — cache buffer để tránh vẽ lại bezier mỗi frame
-  drawFrameStickerCached(stripX, stripY, stripW, stripH, selectedSticker);
+  if (frameCount % 2 === 0 || selectedSticker > 3) drawFrameSticker(stripX, stripY, stripW, stripH, selectedSticker);
 
   // Shadow
   fill(180,150,200,40); noStroke(); rect(stripX+5,stripY+5,stripW,stripH,14);
