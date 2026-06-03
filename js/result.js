@@ -148,7 +148,7 @@ function drawResultScreen(){
   push();rectMode(CORNER);noStroke();textAlign(CENTER,CENTER);
 
   let L=getLayoutConfig();
-  let panW=min(width*0.38,340), panX=width-panW-0;
+  let panW=min(width*0.45,420), panX=width-panW;
   let photoAreaW=panX;
 
   // === LEFT: Photo Strip ===
@@ -331,7 +331,7 @@ function drawResultScreen(){
 // ============================================================
 function handleResultButtons(){
   let L=getLayoutConfig();
-  let panW=min(width*0.38,340),panX=width-panW;
+  let panW=min(width*0.45,420),panX=width-panW;
   let photoAreaW=panX;
   let pad=14,gap=5,bot=36,availH=height-60;
   let photoH,stripW;
@@ -341,35 +341,40 @@ function handleResultButtons(){
   let stripH=L.cols===4?pad*2+photoH+bot:L.cols===2?pad*2+photoH*ceil(L.count/2)+gap*(ceil(L.count/2)-1)+bot:pad*2+photoH*L.count+gap*(L.count-1)+bot;
   let stripX=photoAreaW/2-stripW/2,stripY=max((height-stripH)/2,40);
 
-  let ry=56,rx=panX+20,rw=panW-40;
-  let pw2=(rw-10)/2,ph2=38,pg=10;
+  let ry=20, rx=panX+20, rw=panW-40;
+  let pw2=(rw-10)/2, ph2=38, pg=10;
 
-  // Frame colour
+  ry+=36; // title
+  // Frame colour pills
   for(let i=0;i<frameColors.length;i++){
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg),by=ry+row*(ph2+8);
+    let bx=rx+col*(pw2+pg), by=ry+row*(ph2+8);
     if(mouseX>bx&&mouseX<bx+pw2&&mouseY>by&&mouseY<by+ph2){selectedFrame=i;return;}
   }
-  ry+=ceil(frameColors.length/2)*(ph2+8)+16+14+14;
+  ry+=ceil(frameColors.length/2)*(ph2+8)+16; // same as draw
+  ry+=14; // divider+gap
+  ry+=22; // sticker label
 
-  // Stickers
+  // Sticker pills
   for(let i=0;i<stickerThemeNames.length;i++){
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg),by=ry+row*(ph2+8);
+    let bx=rx+col*(pw2+pg), by=ry+row*(ph2+8);
     if(mouseX>bx&&mouseX<bx+pw2&&mouseY>by&&mouseY<by+ph2){selectedSticker=i;return;}
   }
-  ry+=ceil(stickerThemeNames.length/2)*(ph2+8)+14+14+14;
+  ry+=ceil(stickerThemeNames.length/2)*(ph2+8)+14; // same as draw
+  ry+=14; // divider+gap
+  ry+=22; // tone label
 
   // Color tone
-  let tw=(rw-pg*2)/3,th=36;
+  let tw=(rw-pg*2)/3, th=36;
   for(let i=0;i<toneNames2.length;i++){
     let col=i%3,row=floor(i/3);
-    let bx=rx+col*(tw+pg),by=ry+row*(th+8);
+    let bx=rx+col*(tw+pg), by=ry+row*(th+8);
     if(mouseX>bx&&mouseX<bx+tw&&mouseY>by&&mouseY<by+th){selectedFormat=i;return;}
   }
   ry+=ceil(toneNames2.length/3)*(th+8)+18;
 
-  // Save
+  // Save button
   if(mouseX>rx&&mouseX<rx+rw&&mouseY>ry&&mouseY<ry+50&&!isCapturing){saveResultCanvas();return;}
   // Retake
   if(mouseX>rx&&mouseX<rx+rw&&mouseY>ry+62&&mouseY<ry+102){
