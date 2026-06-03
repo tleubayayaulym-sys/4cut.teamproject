@@ -228,6 +228,38 @@ function calcPhotoPositions(stripX, stripY, stripW, photoH, pad, gap, L) {
 }
 
 // ============================================================
+
+// ============================================================
+// Helper: calculate consistent panel positions for draw + click
+// ============================================================
+function getPanelPositions(panW) {
+  let pillW=(panW-30)/2, pillH=36, pillGap=8, pillRowGap=8;
+  let toneBtnW=(panW-30)/3-4, toneBtnH=32;
+  let pos = {};
+  let sy = 82;
+
+  // Frame color
+  pos.frameY = sy;
+  sy += ceil(frameColors.length/2)*(pillH+pillRowGap) + 22;
+
+  // Sticker
+  pos.stickerY = sy;
+  sy += ceil(stickerSets.length/2)*(pillH+pillRowGap) + 22;
+
+  // Color tone label + buttons
+  pos.toneLabelY = sy + 10;
+  pos.toneY      = sy + 22;
+  sy += 22 + ceil(6/3)*(toneBtnH+6) + 14;
+
+  // Buttons
+  pos.saveBtnY   = sy + 10;
+  pos.retakeBtnY = sy + 62;
+
+  pos.pillW=pillW; pos.pillH=pillH; pos.pillGap=pillGap; pos.pillRowGap=pillRowGap;
+  pos.toneBtnW=toneBtnW; pos.toneBtnH=toneBtnH;
+  return pos;
+}
+
 function drawResultScreen() {
   drawBG();
   push(); rectMode(CORNER); noStroke(); textAlign(CENTER,CENTER);
@@ -236,7 +268,7 @@ function drawResultScreen() {
   let divX   = width * 0.62;
   let margin = 20;
   let availH = height - 80;
-  let pad=8, gap=5, bot=32;
+  let pad=16, gap=6, bot=40;
   let photoH, stripW;
 
   if (L.cols===4){
@@ -391,16 +423,18 @@ function drawResultScreen() {
 function handleResultButtons() {
   let L=getLayoutConfig();
   let divX=width*0.62, panX=divX+10, panW=width-panX-10;
+  let P = getPanelPositions(panW);
   let pillW=(panW-30)/2, pillH=36, pillGap=8, pillRowGap=8;
-  let scrollY=82;
-
-  // Frame color
+  // Mirror drawResultScreen exactly
+  let scrollY=60;
+  scrollY+=22; // frame label
+  // frame pills
   for(let i=0;i<frameColors.length;i++){
     let col=i%2,row=floor(i/2);
     let bx=panX+10+col*(pillW+pillGap), by=scrollY+row*(pillH+pillRowGap);
     if(mouseX>bx&&mouseX<bx+pillW&&mouseY>by&&mouseY<by+pillH){ selectedFrame=i; return; }
   }
-  scrollY+=ceil(frameColors.length/2)*(pillH+pillRowGap)+22;
+  scrollY+=ceil(frameColors.length/2)*(pillH+pillRowGap)+12+10+22; // +12 pills, +10 divider, +22 label
 
   // Sticker theme
   for(let i=0;i<stickerThemeNames.length;i++){
@@ -408,20 +442,19 @@ function handleResultButtons() {
     let bx=panX+10+col*(pillW+pillGap), by=scrollY+row*(pillH+pillRowGap);
     if(mouseX>bx&&mouseX<bx+pillW&&mouseY>by&&mouseY<by+pillH){ selectedSticker=i; return; }
   }
-  scrollY+=ceil(stickerThemeNames.length/2)*(pillH+pillRowGap)+22;
+  scrollY+=ceil(stickerThemeNames.length/2)*(pillH+pillRowGap)+12+10+22; // +12 pills, +10 divider, +22 label
 
   // Color tone
   let toneBtnW=(panW-30)/3-4, toneBtnH=32;
-  let toneStartY=scrollY+22;
   for(let i=0;i<toneNames2.length;i++){
     let col=i%3,row=floor(i/3);
-    let bx=panX+10+col*(toneBtnW+6), by=toneStartY+row*(toneBtnH+6);
+    let bx=panX+10+col*(toneBtnW+6), by=scrollY+row*(toneBtnH+6);
     if(mouseX>bx&&mouseX<bx+toneBtnW&&mouseY>by&&mouseY<by+toneBtnH){ selectedFormat=i; return; }
   }
-  scrollY+=22+ceil(toneNames2.length/3)*(toneBtnH+6)+24;
+  scrollY+=ceil(toneNames2.length/3)*(toneBtnH+6)+14+10; // +14, +10 divider
 
-  // Save / Retake — với khoảng cách an toàn
-  if(mouseX>panX+10&&mouseX<panX+panW-10&&mouseY>scrollY+4&&mouseY<scrollY+40){
+  // Buttons
+  if(mouseX>panX+10&&mouseX<panX+panW-10&&mouseY>scrollY&&mouseY<scrollY+44){
     saveResultCanvas(); return;
   }
   if(mouseX>panX+10&&mouseX<panX+panW-10&&mouseY>scrollY+52&&mouseY<scrollY+88){
