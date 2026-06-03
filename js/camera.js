@@ -16,6 +16,7 @@ let isCapturing    = false;
 let cameraError    = false;
 let flipCamera     = true;
 let countdownTime  = 3; // 3, 5, or 10 seconds
+let isCapturingClean = false; // khi true: chỉ vẽ video+filter
 
 let _boxX=0, _boxY=0, _boxW=400, _boxH=300;
 const MAX_PHOTOS = 8;
@@ -100,107 +101,104 @@ function drawCamera() {
   drawARFilter(camX+camW/2, camY+camH/2, selectedFilter, camW, camH);
   drawFaceStatus(width, height);
 
-  // LIVE badge
-  push(); fill(255,77,109,200); noStroke();
-  rect(camX+10, camY+10, 58, 24, 12);
-  fill(255); textSize(11); text("● LIVE", camX+39, camY+22); pop();
+  // === UI chỉ hiện khi không capture sạch ===
+  if (!isCapturingClean) {
+    // LIVE badge
+    push(); fill(255,77,109,200); noStroke();
+    rect(camX+10, camY+10, 58, 24, 12);
+    fill(255); textSize(11); text("● LIVE", camX+39, camY+22); pop();
 
-  // Flip button
-  push();
-  fill(flipCamera ? color(255,77,109,200) : color(0,0,0,130));
-  noStroke(); rect(camX+10, camY+42, 76, 24, 12);
-  fill(255); textSize(10);
-  text(flipCamera?"🔄 Mirror":"🔄 Normal", camX+48, camY+54); pop();
-
-  // Shot count badge
-  push(); fill(0,0,0,130); noStroke();
-  rect(camX+camW-82, camY+10, 72, 24, 12);
-  fill(255); textSize(11);
-  text("📷 "+allPhotos.length+"/"+MAX_PHOTOS, camX+camW-46, camY+22); pop();
-
-  // Gesture hint
-  push(); fill(0,0,0,110); noStroke();
-  rect(camX+camW-188, camY+camH-36, 178, 26, 13);
-  fill(255); textSize(10); textAlign(LEFT,CENTER);
-  text("👌 Pinch fingers = shoot", camX+camW-182, camY+camH-23); pop();
-
-  // Filter buttons (right side) — includes None option
-  let fBtnSize = min(width*0.058, 38);
-  let fBtnX    = camX+camW+14;
-  for (let i=0; i<filterEmoji.length; i++) {
-    push(); let by=camY+i*(fBtnSize+7);
-    fill(0,0,0,12); noStroke(); rect(fBtnX+2,by+2,fBtnSize,fBtnSize,9);
-    if(selectedFilter===i){ fill("#ff4d6d"); noStroke(); }
-    else{ fill("#fff"); stroke("#eee"); strokeWeight(1.5); }
-    rect(fBtnX,by,fBtnSize,fBtnSize,9);
-    noStroke(); fill(selectedFilter===i?"#fff":"#555");
-    textSize(fBtnSize*0.45);
-    text(filterEmoji[i], fBtnX+fBtnSize/2, by+fBtnSize/2); pop();
-  }
-
-  // --- TIMER SELECTION (3s / 5s / 10s) ---
-  let timerY = camY + camH + 14;
-  push(); fill("#888"); noStroke(); textSize(11); textAlign(CENTER,CENTER);
-  text("Timer:", camX+30, timerY+16); pop();
-  let times = [3, 5, 10];
-  for (let i=0; i<times.length; i++) {
+    // Flip button
     push();
-    let tx = camX + 60 + i*52, ty = timerY;
-    if(countdownTime===times[i]){
-      fill("#ff4d6d"); noStroke();
-    } else {
-      fill(255,255,255,180); stroke("#ddd"); strokeWeight(1.5);
+    fill(flipCamera ? color(255,77,109,200) : color(0,0,0,130));
+    noStroke(); rect(camX+10, camY+42, 76, 24, 12);
+    fill(255); textSize(10);
+    text(flipCamera?"🔄 Mirror":"🔄 Normal", camX+48, camY+54); pop();
+
+    // Shot count badge
+    push(); fill(0,0,0,130); noStroke();
+    rect(camX+camW-82, camY+10, 72, 24, 12);
+    fill(255); textSize(11);
+    text("📷 "+allPhotos.length+"/"+MAX_PHOTOS, camX+camW-46, camY+22); pop();
+
+    // Gesture hint
+    push(); fill(0,0,0,110); noStroke();
+    rect(camX+camW-188, camY+camH-36, 178, 26, 13);
+    fill(255); textSize(10); textAlign(LEFT,CENTER);
+    text("👌 Pinch fingers = shoot", camX+camW-182, camY+camH-23); pop();
+
+    // Filter buttons
+    let fBtnSize = min(width*0.058, 38);
+    let fBtnX    = camX+camW+14;
+    for (let i=0; i<filterEmoji.length; i++) {
+      push(); let by=camY+i*(fBtnSize+7);
+      fill(0,0,0,12); noStroke(); rect(fBtnX+2,by+2,fBtnSize,fBtnSize,9);
+      if(selectedFilter===i){ fill("#ff4d6d"); noStroke(); }
+      else{ fill("#fff"); stroke("#eee"); strokeWeight(1.5); }
+      rect(fBtnX,by,fBtnSize,fBtnSize,9);
+      noStroke(); fill(selectedFilter===i?"#fff":"#555");
+      textSize(fBtnSize*0.45);
+      text(filterEmoji[i], fBtnX+fBtnSize/2, by+fBtnSize/2); pop();
     }
-    rect(tx, ty, 44, 30, 15);
-    noStroke(); fill(countdownTime===times[i]?255:"#555");
-    textSize(12); textAlign(CENTER,CENTER);
-    text(times[i]+"s", tx+22, ty+15);
-    pop();
-  }
 
-  // Photo previews
-  let prevSize  = min(width*0.072, 48);
-  let prevGap   = 5;
-  let prevTotal = prevSize*MAX_PHOTOS+prevGap*(MAX_PHOTOS-1);
-  let prevStart = width/2-prevTotal/2;
-  let prevY     = timerY + 40;
-
-  for (let i=0; i<MAX_PHOTOS; i++) {
-    push(); let px=prevStart+i*(prevSize+prevGap);
-    fill(0,0,0,12); noStroke(); rect(px+2,prevY+2,prevSize,prevSize,7);
-    if (allPhotos[i]) {
-      imageMode(CORNER); image(allPhotos[i],px,prevY,prevSize,prevSize);
-      stroke("#ff4d6d"); strokeWeight(2); noFill(); rect(px,prevY,prevSize,prevSize,7);
-      fill("#ff4d6d"); noStroke(); circle(px+prevSize-7,prevY+7,14);
-      fill(255); textSize(8); textAlign(CENTER,CENTER); text(str(i+1),px+prevSize-7,prevY+7);
-    } else {
-      fill(i===allPhotos.length&&isCapturing?"#ff4d6d":"#f3e5ff");
-      stroke("#c8b4f8"); strokeWeight(1.5); rect(px,prevY,prevSize,prevSize,7);
-      noStroke(); fill(i===allPhotos.length&&isCapturing?255:"#c8b4f8");
-      textSize(9); textAlign(CENTER,CENTER); text(str(i+1),px+prevSize/2,prevY+prevSize/2);
+    // Timer selection
+    let timerY = camY + camH + 14;
+    push(); fill("#888"); noStroke(); textSize(11); textAlign(CENTER,CENTER);
+    text("Timer:", camX+30, timerY+16); pop();
+    let times = [3, 5, 10];
+    for (let i=0; i<times.length; i++) {
+      push();
+      let tx = camX+60+i*52, ty = timerY;
+      if(countdownTime===times[i]){ fill("#ff4d6d"); noStroke(); }
+      else{ fill(255,255,255,180); stroke("#ddd"); strokeWeight(1.5); }
+      rect(tx, ty, 44, 30, 15);
+      noStroke(); fill(countdownTime===times[i]?255:"#555");
+      textSize(12); textAlign(CENTER,CENTER);
+      text(times[i]+"s", tx+22, ty+15);
+      pop();
     }
-    pop();
-  }
 
-  // Shoot button
-  let btnY = height-68;
-  if (isCapturing||allPhotos.length>=MAX_PHOTOS) {
-    push(); fill("#f0f0f0"); noStroke(); rect(width/2-116,btnY,232,48,24);
-    fill("#ccc"); textSize(15); textAlign(CENTER,CENTER);
-    text(allPhotos.length>=MAX_PHOTOS?"Max 8 shots ✓":"Shooting...",width/2,btnY+24); pop();
-  } else {
-    drawPinkBtn(width/2-116, btnY, 232, 48, "📷  Shoot");
-  }
+    // Photo previews
+    let prevSize  = min(width*0.072, 48);
+    let prevGap   = 5;
+    let prevTotal = prevSize*MAX_PHOTOS+prevGap*(MAX_PHOTOS-1);
+    let prevStart = width/2-prevTotal/2;
+    let prevY     = timerY + 40;
+    for (let i=0; i<MAX_PHOTOS; i++) {
+      push(); let px=prevStart+i*(prevSize+prevGap);
+      fill(0,0,0,12); noStroke(); rect(px+2,prevY+2,prevSize,prevSize,7);
+      if (allPhotos[i]) {
+        imageMode(CORNER); image(allPhotos[i],px,prevY,prevSize,prevSize);
+        stroke("#ff4d6d"); strokeWeight(2); noFill(); rect(px,prevY,prevSize,prevSize,7);
+        fill("#ff4d6d"); noStroke(); circle(px+prevSize-7,prevY+7,14);
+        fill(255); textSize(8); textAlign(CENTER,CENTER); text(str(i+1),px+prevSize-7,prevY+7);
+      } else {
+        fill(i===allPhotos.length&&isCapturing?"#ff4d6d":"#f3e5ff");
+        stroke("#c8b4f8"); strokeWeight(1.5); rect(px,prevY,prevSize,prevSize,7);
+        noStroke(); fill(i===allPhotos.length&&isCapturing?255:"#c8b4f8");
+        textSize(9); textAlign(CENTER,CENTER); text(str(i+1),px+prevSize/2,prevY+prevSize/2);
+      }
+      pop();
+    }
 
-  if (allPhotos.length>0) drawLightBtn(width/2+122, btnY, 116, 48, "Select →");
-  if (recordedVideoURL) {
-    push(); fill(80,180,120,200); noStroke();
-    rect(width/2-58,btnY-54,116,38,19);
-    fill(255); textSize(12); textAlign(CENTER,CENTER);
-    text("🎥 Save Video",width/2,btnY-35); pop();
-  }
-
-  drawLightBtn(16, 12, 82, 32, "← Back");
+    // Shoot button
+    let btnY = height-68;
+    if (isCapturing||allPhotos.length>=MAX_PHOTOS) {
+      push(); fill("#f0f0f0"); noStroke(); rect(width/2-116,btnY,232,48,24);
+      fill("#ccc"); textSize(15); textAlign(CENTER,CENTER);
+      text(allPhotos.length>=MAX_PHOTOS?"Max 8 shots ✓":"Shooting...",width/2,btnY+24); pop();
+    } else {
+      drawPinkBtn(width/2-116, btnY, 232, 48, "📷  Shoot");
+    }
+    if (allPhotos.length>0) drawLightBtn(width/2+122, btnY, 116, 48, "Select →");
+    if (recordedVideoURL) {
+      push(); fill(80,180,120,200); noStroke();
+      rect(width/2-58,btnY-54,116,38,19);
+      fill(255); textSize(12); textAlign(CENTER,CENTER);
+      text("🎥 Save Video",width/2,btnY-35); pop();
+    }
+    drawLightBtn(16, 12, 82, 32, "← Back");
+  } // end if(!isCapturingClean)
 
   // Countdown overlay
   if (countdown>0) {
@@ -299,8 +297,11 @@ function takeSinglePhoto() {
     countdown--;
     if(countdown<=0){
       clearInterval(timer); countdown=0;
-      setTimeout(()=>{
+      // Bật chế độ clean capture: ẩn UI
+        isCapturingClean = true;
+        setTimeout(()=>{
         let img=get(_boxX,_boxY,_boxW,_boxH);
+        isCapturingClean = false;
         allPhotos.push(img);
         flashEffect();
         isCapturing=false;
