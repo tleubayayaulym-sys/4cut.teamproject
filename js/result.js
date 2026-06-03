@@ -116,19 +116,21 @@ function drawFrameSticker(stripX, stripY, stripW, stripH, theme) {
     drawCuteAvo(stripX + stripW - 2, stripY + stripH + 8, 0.055);
     drawCuteAvo(stripX + stripW/2,   stripY - 12,         0.065);
   } else if (theme === 2) {
-    // Sleepy Avo
+    if (frameCount % 2 === 0) {
     drawSleepyAvo(stripX + 2,          stripY - 8,          0.055);
     drawSleepyAvo(stripX + stripW - 2, stripY - 8,          0.055);
     drawSleepyAvo(stripX + 2,          stripY + stripH + 8, 0.055);
     drawSleepyAvo(stripX + stripW - 2, stripY + stripH + 8, 0.055);
     drawSleepyAvo(stripX + stripW/2,   stripY - 10,         0.065);
+    }
   } else if (theme === 3) {
-    // Cool Avo
+    if (frameCount % 2 === 0) {
     drawCoolAvo(stripX + 2,          stripY - 8,          0.055);
     drawCoolAvo(stripX + stripW - 2, stripY - 8,          0.055);
     drawCoolAvo(stripX + 2,          stripY + stripH + 8, 0.055);
     drawCoolAvo(stripX + stripW - 2, stripY + stripH + 8, 0.055);
     drawCoolAvo(stripX + stripW/2,   stripY - 12,         0.065);
+    }
   } else if (theme === 4) {
     // Love — emoji xung quanh frame
     let loveList = [
@@ -299,8 +301,8 @@ function drawResultScreen() {
   text("Layout: "+L.name+" ("+L.count+" photos)", stripX+stripW/2, stripY-5);
   pop();
 
-  // Sticker theme dưới frame (vẽ trước strip)
-  drawFrameSticker(stripX, stripY, stripW, stripH, selectedSticker);
+  // Sticker theme — cache buffer để tránh vẽ lại bezier mỗi frame
+  drawFrameStickerCached(stripX, stripY, stripW, stripH, selectedSticker);
 
   // Shadow
   fill(180,150,200,40); noStroke(); rect(stripX+5,stripY+5,stripW,stripH,14);
