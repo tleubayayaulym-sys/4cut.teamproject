@@ -68,48 +68,78 @@ function drawCoolAvo(x,y,s){
   bezier(-115,20,-165,-10,-160,60,-175,80);bezier(115,10,170,-10,165,50,180,55);
   line(-45,180,-60,230);line(45,180,65,230);pop();
 }
-function drawFrameSticker(sx,sy,sw,sh,theme){
-  if(theme===0) return;
+function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
+  if (theme === 0) return;
+  
   push();
-  if(theme===1){
-    drawCuteAvo(sx+2,sy-10,0.055);drawCuteAvo(sx+sw-2,sy-10,0.055);
-    drawCuteAvo(sx+2,sy+sh+8,0.055);drawCuteAvo(sx+sw-2,sy+sh+8,0.055);
-    drawCuteAvo(sx+sw/2,sy-12,0.065);
-  }else if(theme===2){
-    drawSleepyAvo(sx+2,sy-8,0.055);drawSleepyAvo(sx+sw-2,sy-8,0.055);
-    drawSleepyAvo(sx+2,sy+sh+8,0.055);drawSleepyAvo(sx+sw-2,sy+sh+8,0.055);
-    drawSleepyAvo(sx+sw/2,sy-10,0.065);
-  }else if(theme===3){
-    drawCoolAvo(sx+2,sy-8,0.055);drawCoolAvo(sx+sw-2,sy-8,0.055);
-    drawCoolAvo(sx+2,sy+sh+8,0.055);drawCoolAvo(sx+sw-2,sy+sh+8,0.055);
-    drawCoolAvo(sx+sw/2,sy-12,0.065);
-  }else{
-    let sets={
-      4:[{x:0.05,y:0.05,s:"💕",sz:16},{x:0.93,y:0.05,s:"💗",sz:16},{x:0.05,y:0.93,s:"🌸",sz:16},{x:0.93,y:0.93,s:"💕",sz:16},{x:0.5,y:0.03,s:"✿",sz:13}],
-      5:[{x:0.05,y:0.05,s:"🪐",sz:18},{x:0.92,y:0.05,s:"⭐",sz:16},{x:0.05,y:0.93,s:"🌙",sz:17},{x:0.92,y:0.93,s:"🚀",sz:16},{x:0.5,y:0.03,s:"✦",sz:13}],
-      6:[{x:0.05,y:0.05,s:"🌿",sz:17},{x:0.92,y:0.05,s:"🌻",sz:17},{x:0.05,y:0.93,s:"🌸",sz:16},{x:0.92,y:0.93,s:"🍀",sz:16}],
-      7:[{x:0.05,y:0.05,s:"🎵",sz:16},{x:0.92,y:0.05,s:"🎶",sz:18},{x:0.05,y:0.93,s:"🎸",sz:16},{x:0.92,y:0.93,s:"🎤",sz:16}],
-      8:[{x:0.05,y:0.05,s:"🐱",sz:18},{x:0.92,y:0.05,s:"🐶",sz:18},{x:0.05,y:0.93,s:"🐰",sz:17},{x:0.92,y:0.93,s:"🦊",sz:17}],
-      9:[{x:0.05,y:0.05,s:"🎀",sz:18},{x:0.92,y:0.05,s:"🪞",sz:16},{x:0.05,y:0.93,s:"🦋",sz:17},{x:0.92,y:0.93,s:"✨",sz:16}],
+  if (theme === 1) {
+    if (pgCanvas) {
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("🥑", sx + 22, sy + 22); pgCanvas.text("🥑", sx + sw - 22, sy + 22);
+      pgCanvas.text("🥑", sx + 22, sy + sh - 22); pgCanvas.text("🥑", sx + sw - 22, sy + sh - 22);
+    } else {
+      drawCuteAvo(sx + 2, sy - 10, 0.055); drawCuteAvo(sx + sw - 2, sy - 10, 0.055);
+      drawCuteAvo(sx + 2, sy + sh + 8, 0.055); drawCuteAvo(sx + sw - 2, sy + sh + 8, 0.055);
+      drawCuteAvo(sx + sw / 2, sy - 12, 0.065);
+    }
+  } else if (theme === 2) {
+    if (pgCanvas) {
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("😴", sx + 22, sy + 22); pgCanvas.text("😴", sx + sw - 22, sy + 22);
+      pgCanvas.text("😴", sx + 22, sy + sh - 22); pgCanvas.text("😴", sx + sw - 22, sy + sh - 22);
+    } else {
+      drawSleepyAvo(sx + 2, sy - 8, 0.055); drawSleepyAvo(sx + sw - 2, sy - 8, 0.055);
+      drawSleepyAvo(sx + 2, sy + sh + 8, 0.055); drawSleepyAvo(sx + sw - 2, sy + sh + 8, 0.055);
+      drawSleepyAvo(sx + sw / 2, sy - 10, 0.065);
+    }
+  } else if (theme === 3) {
+    if (pgCanvas) {
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("😎", sx + 22, sy + 22); pgCanvas.text("😎", sx + sw - 22, sy + 22);
+      pgCanvas.text("😎", sx + 22, sy + sh - 22); pgCanvas.text("😎", sx + sw - 22, sy + sh - 22);
+    } else {
+      drawCoolAvo(sx + 2, sy - 8, 0.055); drawCoolAvo(sx + sw - 2, sy - 10, 0.055);
+      drawCoolAvo(sx + 2, sy + sh + 8, 0.055); drawCoolAvo(sx + sw - 2, sy + sh + 8, 0.055);
+      drawCoolAvo(sx + sw / 2, sy - 12, 0.065);
+    }
+  } else {
+    let sets = {
+      4: [{ x: 0.05, y: 0.05, s: "💕", sz: 16 }, { x: 0.93, y: 0.05, s: "💗", sz: 16 }, { x: 0.05, y: 0.93, s: "🌸", sz: 16 }, { x: 0.93, y: 0.93, s: "💕", sz: 16 }, { x: 0.5, y: 0.03, s: "✿", sz: 13 }],
+      5: [{ x: 0.05, y: 0.05, s: "🪐", sz: 18 }, { x: 0.92, y: 0.05, s: "⭐", sz: 16 }, { x: 0.05, y: 0.93, s: "🌙", sz: 17 }, { x: 0.92, y: 0.93, s: "🚀", sz: 16 }, { x: 0.5, y: 0.03, s: "✦", sz: 13 }],
+      6: [{ x: 0.05, y: 0.05, s: "🌿", sz: 17 }, { x: 0.92, y: 0.05, s: "🌻", sz: 17 }, { x: 0.05, y: 0.93, s: "🌸", sz: 16 }, { x: 0.92, y: 0.93, s: "🍀", sz: 16 }],
+      7: [{ x: 0.05, y: 0.05, s: "🎵", sz: 16 }, { x: 0.92, y: 0.05, s: "🎶", sz: 18 }, { x: 0.05, y: 0.93, s: "🎸", sz: 16 }, { x: 0.92, y: 0.93, s: "🎤", sz: 16 }],
+      8: [{ x: 0.05, y: 0.05, s: "🐱", sz: 18 }, { x: 0.92, y: 0.05, s: "🐶", sz: 18 }, { x: 0.05, y: 0.93, s: "🐰", sz: 17 }, { x: 0.92, y: 0.93, s: "🦊", sz: 17 }],
+      9: [{ x: 0.05, y: 0.05, s: "🎀", sz: 18 }, { x: 0.92, y: 0.05, s: "🪞", sz: 16 }, { x: 0.05, y: 0.93, s: "🦋", sz: 17 }, { x: 0.92, y: 0.93, s: "✨", sz: 16 }],
     };
-    let list=sets[theme]||[];
-    
-    let ctx = (typeof pgSave !== "undefined") ? pgSave : this;
-    
-    ctx.fill(0); 
-    ctx.strokeWeight(0);
-    ctx.noStroke();
-    ctx.textAlign(CENTER,CENTER);
-    
-    for(let i=0;i<list.length;i++){
-      let e=list[i];
-      let nhip=1+sin(frameCount*0.04+i)*0.08;
-      ctx.textSize(e.sz*nhip);
-      ctx.text(e.s,sx+sw*e.x,sy+sh*e.y);
+    let list = sets[theme] || [];
+
+    if (pgCanvas) {
+      pgCanvas.fill(0);
+      pgCanvas.strokeWeight(0);
+      pgCanvas.noStroke();
+      pgCanvas.textAlign(CENTER, CENTER);
+    } else {
+      fill(0);
+      strokeWeight(0);
+      noStroke();
+      textAlign(CENTER, CENTER);
+    }
+
+    for (let i = 0; i < list.length; i++) {
+      let e = list[i];
+      if (pgCanvas) {
+        pgCanvas.textSize(e.sz);
+        pgCanvas.text(e.s, sx + sw * e.x, sy + sh * e.y);
+      } else {
+        let nhip = 1 + sin(frameCount * 0.04 + i) * 0.08;
+        textSize(e.sz * nhip);
+        text(e.s, sx + sw * e.x, sy + sh * e.y);
+      }
     }
   }
   pop();
 }
+
 // ============================================================
 // Photo filter
 // ============================================================
