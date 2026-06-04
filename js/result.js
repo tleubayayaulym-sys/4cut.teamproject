@@ -273,10 +273,9 @@ function drawResultScreen(){
   let ds=d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
   text(ds,stripX+stripW/2,stripY+stripH-14);pop();
 
-  // Разделитель панели настроек от фото
+
   push();stroke(230);strokeWeight(1);noFill();line(panX,0,panX,height);pop();
 
-  // Рассчитываем и жестко фиксируем точные новые координаты
   let C=calcPanelCoords();
   
   _res_rx=C.rx; _res_rw=C.rw;
@@ -349,7 +348,7 @@ function drawResultScreen(){
     push();
     let col=i%3,row=floor(i/3);
     let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+6);
-    let isSel=(selectedFormat===i); // Проверьте, используется ли selectedFormat или selectedTone
+    let isSel=(selectedFormat===i); 
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,tw,th,th/2);
     fill(isSel?"#ffe0f0":255);
     stroke(isSel?"#ff4d6d":210);strokeWeight(isSel?2:1);
@@ -408,13 +407,21 @@ function handleResultButtons(){
     let col=i%3, row=floor(i/3);
     let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+6);
     if(mouseX>bx && mouseX<bx+tw && mouseY>by && mouseY<by+th){
-      selectedFormat=i; return; // Фильтр переключается
+      selectedFormat=i; return;
     }
   }
 
-  // Клик по кнопке Save Photo
+  // Клик по кнопке Save Photo 🌟
   if(mouseX>rx && mouseX<rx+rw && mouseY>_res_ry_save && mouseY<_res_ry_save+50){
-    saveStripAction(); // Или ваша функция сохранения, например, currentScreen="saved"
+    if(typeof saveStripAction === "function") {
+      saveStripAction();
+    } else if(typeof savePhoto === "function") {
+      savePhoto();
+    } else if(typeof downloadStrip === "function") {
+      downloadStrip();
+    } else {
+      currentScreen = "saved"; 
+    }
     return;
   }
 
