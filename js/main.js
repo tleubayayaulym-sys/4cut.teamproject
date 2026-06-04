@@ -140,46 +140,58 @@ function drawStartScreen() {
   drawBG();
   push(); rectMode(CORNER); noStroke();
 
-  let cw = min(width*0.82, 460);
-  let cx = width/2 - cw/2;
-  let cy = height*0.08;
+  let cw    = min(width*0.82, 460);
+  let cx    = width/2 - cw/2;
+  let cardX = cx+20, cardW = cw-40;
+
+  // Tính tổng chiều cao content để căn giữa
+  let hHeader = 72;
+  let hGap1   = 12;
+  let hTeam   = 58;
+  let hGap2   = 12;
+  let hHow    = 108;
+  let hGap3   = 16;
+  let hBtn    = 50;
+  let hHint   = 28;
+  let totalH  = hHeader+hGap1+hTeam+hGap2+hHow+hGap3+hBtn+hHint;
+  let cy      = height/2 - totalH/2; // căn giữa dọc
 
   // Header banner
-  drawCard(cx, cy, cw, 72, 20, 220);
-  push(); fill("#ffb6c1"); noStroke(); rect(cx,cy,cw,72,20,20,0,0); pop();
+  let hy = cy;
+  drawCard(cx, hy, cw, hHeader, 20, 220);
+  push(); fill("#ffb6c1"); noStroke(); rect(cx,hy,cw,hHeader,20,20,0,0); pop();
   fill(255); textSize(min(cw*0.1,36));
-  text("📸  4CUT BOOTH", width/2, cy+28);
+  text("📸  4CUT BOOTH", width/2, hy+28);
   fill(255,255,255,200); textSize(11);
-  text("Insta-style Web Photo Booth", width/2, cy+56);
+  text("Insta-style Web Photo Booth", width/2, hy+56);
 
   // Team card
-  let cardX = cx+20, cardW = cw-40;
-  let y1 = cy+84;
-  drawCard(cardX, y1, cardW, 58, 14, 170);
+  let y1 = hy+hHeader+hGap1;
+  drawCard(cardX, y1, cardW, hTeam, 14, 170);
   fill("#c8b4f8"); textSize(11); textAlign(CENTER,CENTER);
   text("💝  TEAM 13", width/2, y1+16);
   fill("#444"); textSize(13);
   text("틀레우바이 아야으름  ·  응웬 바오 담  ·  마이티투짱", width/2, y1+38);
 
   // How to use card
-  let y2 = y1+70;
-  drawCard(cardX, y2, cardW, 108, 14, 170);
+  let y2 = y1+hTeam+hGap2;
+  drawCard(cardX, y2, cardW, hHow, 14, 170);
   fill("#ff4d6d"); textSize(11);
   text("📖  HOW TO USE", width/2, y2+16);
   fill("#555"); textSize(12);
-  text("① Choose your layout", width/2, y2+34);
-  text("② Pick AR filter & color tone", width/2, y2+52);
-  text("③ Strike a pose! Take up to 8 shots", width/2, y2+70);
+  text("① Choose your layout",                   width/2, y2+34);
+  text("② Pick AR filter & color tone",           width/2, y2+52);
+  text("③ Strike a pose! Take up to 8 shots",    width/2, y2+70);
   text("④ Pick your best 4, decorate & save 🎉", width/2, y2+88);
 
   // START button
   let btnW = min(cardW, 240);
   let btnX = width/2 - btnW/2;
-  let btnY = y2 + 122;
-  drawPinkBtn(btnX, btnY, btnW, 50, "▶  START");
+  let btnY = y2+hHow+hGap3;
+  drawPinkBtn(btnX, btnY, btnW, hBtn, "▶  START");
 
   fill("#c8b4f8"); textSize(11);
-  text("Press Space or tap to start", width/2, btnY+66);
+  text("Press Space or tap to start", width/2, btnY+hBtn+14);
   pop();
 }
 
