@@ -309,13 +309,7 @@ function veFilterTim(camX, camY) {
     push();
     translate(tx, ty);
     scale(tl * 0.55);
-    if (typeof selectedFormat !== 'undefined' && selectedFormat !== null) {
-  try {
-    fill(255, 255, 255, 0); 
-  } catch(e) {
-    fill(255, 255, 255, 0);
-  }
-}
+    fill(mauTimList[t.mau % mauTimList.length], alf); noStroke();
     beginShape();
     vertex(0, 20); bezierVertex(-28, 0, -18, -25, 0, -12);
     bezierVertex(18, -25, 28, 0, 0, 20);
@@ -780,12 +774,13 @@ function veFilterBo(camX, camY) {
 
   // Chân bơ nằm ở y = +240*s tính từ anchor
   // → anchor = shoulderY - 240*s để chân chạm đúng vai
-  let shoulderY = chin.y + fh * 1.1;
+  // Vai: xuống 0.9× fh, nhưng không vượt quá đáy camera
+  let maxY     = camY + _camH * 0.92;
+  let shoulderY = min(chin.y + fh * 0.9, maxY);
 
-  // Vai trái/phải ra xa 1.2× chiều rộng mặt
-  let vaiTrX = faceCX - fw * 1.2;
+  let vaiTrX = faceCX - fw * 1.15;
   let vaiTrY = shoulderY - 240*s;
-  let vaiPhX = faceCX + fw * 1.2;
+  let vaiPhX = faceCX + fw * 1.15;
   let vaiPhY = shoulderY - 240*s;
 
   drawCuteAvoAR(vaiTrX, vaiTrY, s, 0);
