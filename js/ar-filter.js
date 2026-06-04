@@ -783,7 +783,7 @@ function veFilterBo(camX, camY) {
   // → anchor = shoulderY - 240*s để chân chạm đúng vai
   // Vai: xuống 0.9× fh, nhưng không vượt quá đáy camera
   let maxY     = camY + _camH * 0.92;
-  let shoulderY = min(chin.y + fh * 0.9, maxY);
+  let shoulderY = min(chin.y + fh * 0.5, maxY);
 
   let vaiTrX = faceCX - fw * 1.15;
   let vaiTrY = shoulderY - 240*s;
