@@ -456,7 +456,7 @@ function handleResultButtons(){
   }
     // Клик по кнопке Save Photo 
   let click_save = _res_ry_save + 6;
-  if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
+ if(mouseX > rx && mouseX < rx + rw && mouseY > _res_ry_save && mouseY < _res_ry_save + 50){
 
     currentScreen = "saved";
 
@@ -466,21 +466,24 @@ function handleResultButtons(){
     if (typeof saveStrip === "function") { saveStrip(); return; }
 
     let L = getLayoutConfig();
-    let panW = min(width*0.45,420), panX = width-panW;
-    let pad = 14, gap = 5, bot = 36, availH = height-60;
+    let panW = min(width * 0.45, 420), panX = width - panW;
+    let pad = 14, gap = 5, bot = 36, availH = height - 60;
     
     let photoH;
-    if(L.cols===4){ photoH = ((panX)-60-pad*2-gap*3)/4 * 0.75; }
-    else if(L.cols===2){ photoH = min(((panX)-60-pad*2-gap)/2, availH*0.48/0.75) * 0.75; }
-    else { photoH = ((availH-pad*2-gap*(L.rows-1)-bot)/L.rows) * 0.75; }
+    if(L.cols === 4){ photoH = ((panX) - 60 - pad * 2 - gap * 3) / 4 * 0.75; }
+    else if(L.cols === 2){ photoH = min(((panX) - 60 - pad * 2 - gap) / 2, availH * 0.48 / 0.75) * 0.75; }
+    else { photoH = ((availH - pad * 2 - gap * (L.rows - 1) - bot) / L.rows) * 0.75; }
     
-    let stripW = L.cols===4 ? pad*2 + ((panX)-60-pad*2-gap*3)/4 * 4 + gap*3 :
-                 L.cols===2 ? pad*2 + min(((panX)-60-pad*2-gap)/2, availH*0.48/0.75) * 2 + gap :
-                 pad*2 + min(photoH/0.75,((panX)-60-pad*2));
+    let stripW = L.cols === 4 ? pad * 2 + ((panX) - 60 - pad * 2 - gap * 3) / 4 * 4 + gap * 3 :
+                 L.cols === 2 ? pad*2 + min(((panX) - 60 - pad * 2 - gap) / 2, availH * 0.48 / 0.75) * 2 + gap :
+                 pad * 2 + min(photoH / 0.75, ((panX) - 60 - pad * 2));
                  
-    let stripH = L.cols===4 ? pad*2+photoH+bot :
-                 L.cols===2 ? pad*2+photoH*ceil(L.count/2)+gap*(ceil(L.count/2)-1)+bot :
-                 pad*2+photoH*L.count+gap*(L.count-1)+bot;
+    let stripH = L.cols === 4 ? pad * 2 + photoH + bot :
+                 L.cols === 2 ? pad * 2 + photoH * ceil(L.count / 2) + gap * (ceil(L.count / 2) - 1) + bot :
+                 pad * 2 + photoH * L.count + gap * (L.count - 1) + bot;
+                 
+    let stripX = (panX) / 2 - stripW / 2;
+    let stripY = max((height - stripH) / 2, 40);
 
     let pgSave = createGraphics(stripW, stripH);
     pgSave.rectMode(CORNER);
@@ -490,8 +493,8 @@ function handleResultButtons(){
     pgSave.strokeWeight(3);
     pgSave.rect(0, 0, stripW, stripH, 12);
     
-       let positions = calcPhotoPositions(0, 0, stripW, photoH, pad, gap, L);
-    for(let i=0; i<L.count; i++){
+    let positions = calcPhotoPositions(0, 0, stripW, photoH, pad, gap, L);
+    for(let i = 0; i < L.count; i++){
       let {px, py, pw, ph} = positions[i];
       if(capturedPhotos[i]){
         pgSave.imageMode(CORNER);
@@ -504,22 +507,20 @@ function handleResultButtons(){
         pgSave.fill(230); pgSave.noStroke(); pgSave.rect(px, py, pw, ph, 5);
       }
     }
-
-    pgSave.push();
-    drawFrameSticker(0, 0, stripW, stripH, selectedSticker); 
-    pgSave.pop();
-
     
     pgSave.push(); pgSave.noStroke(); pgSave.fill(120); pgSave.textSize(9); pgSave.textAlign(CENTER, CENTER);
     let d = new Date();
-    let ds = d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
-    pgSave.text(ds, stripW/2, stripH-14); pgSave.pop();
+    let ds = d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
+    pgSave.text(ds, stripW / 2, stripH - 14); pgSave.pop();
+
+    drawFrameSticker(0, 0, stripW, stripH, selectedSticker, pgSave);
 
     pgSave.save("photobooth-strip.png");
     pgSave.remove(); 
     
     return;
   }
+
 
   // Клик по кнопке Retake
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save+58 && mouseY<click_save+58+40){
