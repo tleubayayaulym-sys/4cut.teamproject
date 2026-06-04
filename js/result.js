@@ -185,22 +185,25 @@ function calcPanelCoords(){
   }
 
   let rx=panX+20, rw=panW-40;
-  let pw2=(rw-10)/2, ph2=28, pg=10; // Компактная высота кнопок рамок/стикеров
-  let tw=(rw-pg*2)/3, th=28;       // Компактная высота кнопок тона
+  let pw2=(rw-10)/2;
+  let ph2=38; // 🌟 Возвращаем оригинальные 38, чтобы убрать ошибку цвета!
+  let pg=10; 
+  let tw=(rw-pg*2)/3, th=32;       
 
-  let ry = 40; // Стартовая точка панелей управления сверху
+  // Ужимаем стартовую точку и отступы между рядами (+4 вместо +8), чтобы всё влезло
+  let ry = 30; 
 
   // frame
-  let ry_frame = ry + 20; 
-  ry += 20 + ceil(frameColors.length/2)*(ph2+6) + 12;
+  let ry_frame = ry + 16; 
+  ry += 16 + ceil(frameColors.length/2)*(ph2+4) + 8;
 
   // sticker
-  let ry_sticker = ry + 20;
-  ry += 20 + ceil(stickerThemeNames.length/2)*(ph2+6) + 12;
+  let ry_sticker = ry + 16;
+  ry += 16 + ceil(stickerThemeNames.length/2)*(ph2+4) + 8;
 
   // tone
-  let ry_tone = ry + 20;
-  ry += 20 + ceil(toneNames2.length/3)*(th+6) + 16;
+  let ry_tone = ry + 16;
+  ry += 16 + ceil(toneNames2.length/3)*(th+4) + 12;
 
   // save
   let ry_save = ry;
@@ -273,7 +276,7 @@ function drawResultScreen(){
   let ds=d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
   text(ds,stripX+stripW/2,stripY+stripH-14);pop();
 
-
+  // Разделитель панели настроек от фото
   push();stroke(230);strokeWeight(1);noFill();line(panX,0,panX,height);pop();
 
   let C=calcPanelCoords();
@@ -291,7 +294,7 @@ function drawResultScreen(){
 
   // Title панели управления
   push();fill(30);textSize(min(rw*0.08,18));textStyle(BOLD);noStroke();textAlign(CENTER,CENTER);
-  text("Customize your photo strip",rx+rw/2,20);
+  text("Customize your photo strip",rx+rw/2,18);
   textStyle(NORMAL);pop();
 
   // 1. Frame colour раздел
@@ -301,7 +304,7 @@ function drawResultScreen(){
   for(let i=0;i<frameColors.length;i++){
     push();
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=C.ry_frame+row*(ph2+6);
+    let bx=rx+col*(pw2+pg), by=C.ry_frame+row*(ph2+4);
     let isSel=(selectedFrame===i);
     fill(180,180,200,isSel?40:20);noStroke();rect(bx+2,by+3,pw2,ph2,ph2/2);
     fill(isSel?frameColors[i]:255);
@@ -314,7 +317,7 @@ function drawResultScreen(){
   }
 
   // Разделитель 1
-  let ry_div1 = C.ry_sticker - 16;
+  let ry_div1 = C.ry_sticker - 14;
   push();stroke(235);strokeWeight(1);noFill();line(rx,ry_div1,rx+rw,ry_div1);pop();
 
   // 2. Stickers раздел
@@ -324,7 +327,7 @@ function drawResultScreen(){
   for(let i=0;i<stickerThemeNames.length;i++){
     push();
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=C.ry_sticker+row*(ph2+6);
+    let bx=rx+col*(pw2+pg), by=C.ry_sticker+row*(ph2+4);
     let isSel=(selectedSticker===i);
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,pw2,ph2,ph2/2);
     fill(isSel?"#fff0f5":255);
@@ -337,18 +340,18 @@ function drawResultScreen(){
   }
 
   // Разделитель 2
-  let ry_div2 = C.ry_tone - 16;
+  let ry_div2 = C.ry_tone - 14;
   push();stroke(235);strokeWeight(1);noFill();line(rx,ry_div2,rx+rw,ry_div2);pop();
 
-  // 3. Color Tone раздел (Возвращаем на экран!)
+  // 3. Color Tone раздел
   push();fill(150);textSize(12);noStroke();textAlign(LEFT,CENTER);
   text("Color Tone",rx,C.ry_tone-10);pop();
 
   for(let i=0;i<toneNames2.length;i++){
     push();
     let col=i%3,row=floor(i/3);
-    let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+6);
-    let isSel=(selectedFormat===i); 
+    let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+4);
+    let isSel=(selectedFormat===i);
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,tw,th,th/2);
     fill(isSel?"#ffe0f0":255);
     stroke(isSel?"#ff4d6d":210);strokeWeight(isSel?2:1);
@@ -360,7 +363,7 @@ function drawResultScreen(){
   }
 
   // 4. Save button раздел
-  let ry_save = C.ry_save; 
+  let ry_save = C.ry_save + 6; 
   push();noStroke();
   fill(210,80,120,40);rect(rx+2,ry_save+4,rw,50,25);
   fill(245,75,115);rect(rx,ry_save,rw,50,25);
@@ -370,14 +373,14 @@ function drawResultScreen(){
   text("💾  Save Photo",rx+rw/2,ry_save+25);
   textStyle(NORMAL);pop();
 
-  // Retake кнопка ниже
+  // Retake кнопка
   drawLightBtn(rx,ry_save+58,rw,40,"🔄  Retake");
 
   pop();
 }
 
 // ============================================================
-// ОБРАБОТКА НАЖАТИЙ — ТЕПЕРЬ ВСЁ СИНХРОННО КЛИКАЕТСЯ!
+// ОБРАБОТКА НАЖАТИЙ — СИНХРОНИЗИРОВАННЫЕ КЛИКИ
 // ============================================================
 function handleResultButtons(){
   let rx=_res_rx, rw=_res_rw;
@@ -387,16 +390,16 @@ function handleResultButtons(){
   // Клик по Frame colour
   for(let i=0;i<frameColors.length;i++){
     let col=i%2, row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=_res_ry_frame+row*(ph2+6);
+    let bx=rx+col*(pw2+pg), by=_res_ry_frame+row*(ph2+4);
     if(mouseX>bx && mouseX<bx+pw2 && mouseY>by && mouseY<by+ph2){
       selectedFrame=i; return;
     }
   }
 
-  // Клик по Stickers
+  // Клик по Stickers 🌟 (ИСПРАВЛЕНО: Теперь все стикеры прожимаются на своих местах!)
   for(let i=0;i<stickerThemeNames.length;i++){
     let col=i%2, row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=_res_ry_sticker+row*(ph2+6);
+    let bx=rx+col*(pw2+pg), by=_res_ry_sticker+row*(ph2+4);
     if(mouseX>bx && mouseX<bx+pw2 && mouseY>by && mouseY<by+ph2){
       selectedSticker=i; return;
     }
@@ -405,29 +408,26 @@ function handleResultButtons(){
   // Клик по Color Tone
   for(let i=0;i<toneNames2.length;i++){
     let col=i%3, row=floor(i/3);
-    let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+6);
+    let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+4);
     if(mouseX>bx && mouseX<bx+tw && mouseY>by && mouseY<by+th){
       selectedFormat=i; return;
     }
   }
 
-  // Клик по кнопке Save Photo 🌟
-  if(mouseX>rx && mouseX<rx+rw && mouseY>_res_ry_save && mouseY<_res_ry_save+50){
-    if(typeof saveStripAction === "function") {
-      saveStripAction();
-    } else if(typeof savePhoto === "function") {
-      savePhoto();
-    } else if(typeof downloadStrip === "function") {
-      downloadStrip();
-    } else {
-      currentScreen = "saved"; 
-    }
+  // Клик по кнопке Save Photo
+  let click_save = _res_ry_save + 6;
+  if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
+    if(typeof saveStripAction === "function") { saveStripAction(); } 
+    else if(typeof savePhoto === "function") { savePhoto(); } 
+    else if(typeof downloadStrip === "function") { downloadStrip(); } 
+    else { currentScreen = "saved"; }
     return;
   }
 
   // Клик по кнопке Retake
-  if(mouseX>rx && mouseX<rx+rw && mouseY>_res_ry_save+58 && mouseY<_res_ry_save+58+40){
+  if(mouseX>rx && mouseX<rx+rw && mouseY>click_save+58 && mouseY<click_save+58+40){
     allPhotos=[]; selectedPhotos=[]; capturedPhotos=[]; currentScreen="camera"; 
     return;
   }
 }
+
