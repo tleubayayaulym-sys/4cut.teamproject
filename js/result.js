@@ -94,15 +94,21 @@ function drawFrameSticker(sx,sy,sw,sh,theme){
       9:[{x:0.05,y:0.05,s:"🎀",sz:18},{x:0.92,y:0.05,s:"🪞",sz:16},{x:0.05,y:0.93,s:"🦋",sz:17},{x:0.92,y:0.93,s:"✨",sz:16}],
     };
     let list=sets[theme]||[];
-    noStroke();textAlign(CENTER,CENTER);
+    
+    fill(0); 
+    strokeWeight(0);
+    noStroke();
+    textAlign(CENTER,CENTER);
+    
     for(let i=0;i<list.length;i++){
-      let e=list[i],nhip=1+sin(frameCount*0.04+i)*0.08;
-      textSize(e.sz*nhip);text(e.s,sx+sw*e.x,sy+sh*e.y);
+      let e=list[i];
+      let nhip=1+sin(frameCount*0.04+i)*0.08;
+      textSize(e.sz*nhip);
+      text(e.s,sx+sw*e.x,sy+sh*e.y);
     }
   }
   pop();
 }
-
 // ============================================================
 // Photo filter
 // ============================================================
@@ -419,19 +425,17 @@ function handleResultButtons(){
     }
   }
 
-  // Клик по кнопке Save Photo 
+   // Клик по кнопке Save Photo 
   let click_save = _res_ry_save + 6;
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
-    try {
-      saveCanvas("photobooth", "png");
-      currentScreen = "saved"; 
-    } catch(e) {
-      if(typeof saveStripAction === "function") { saveStripAction(); } 
-      else if(typeof savePhoto === "function") { savePhoto(); } 
-      else { currentScreen = "saved"; }
-    }
+    if(typeof saveStripAction === "function") { saveStripAction(); } 
+    else if(typeof savePhoto === "function") { savePhoto(); } 
+    else if(typeof downloadStrip === "function") { downloadStrip(); }
+    else if(typeof saveStrip === "function") { saveStrip(); }
+    else { saveCanvas("photobooth", "png"); currentScreen = "saved"; }
     return;
   }
+
 
   // Клик по кнопке Retake
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save+58 && mouseY<click_save+58+40){
