@@ -299,7 +299,7 @@ function veFilterTim(camX, camY) {
   fill(255, 150); ellipse(-6, -8, 8, 5);
   pop();
 
-// === 3. Tim nhỏ bay lên xung quanh đầu (mảng danhSachTim) ===
+  // === 3. Tim nhỏ bay lên xung quanh đầu (mảng danhSachTim) ===
   for (let i = 0; i < danhSachTim.length; i++) {
     let t   = danhSachTim[i];
     let dy  = (frameCount * t.toc * 0.4) % (_camH * 0.8);
@@ -309,20 +309,13 @@ function veFilterTim(camX, camY) {
     push();
     translate(tx, ty);
     scale(tl * 0.55);
-    
-    let cBase = mauTimList[t.mau % mauTimList.length] || "#ff4d6d";
-    let cWithAlpha = color(cBase);
-    cWithAlpha.setAlpha(alf);
-    fill(cWithAlpha); 
-    
-    noStroke();
+    fill(mauTimList[t.mau % mauTimList.length], alf); noStroke();
     beginShape();
     vertex(0, 20); bezierVertex(-28, 0, -18, -25, 0, -12);
     bezierVertex(18, -25, 28, 0, 0, 20);
     endShape(CLOSE);
     pop();
   }
-
 
   // === 4. Blush má mềm 2 lớp (ellipse — đã học) ===
   push(); noStroke();
@@ -503,30 +496,77 @@ function veFilterMeoKawaii(camX, camY) {
 // ============================================================
 function veFilterKinhTron(camX, camY) {
   push();
-  let mTO = lm(33,  camX, camY);
-  let mTT = lm(133, camX, camY);
-  let mPT = lm(362, camX, camY);
-  let mPO = lm(263, camX, camY);
+  // Landmarks mắt
+  let mTO = lm(33,  camX, camY); // góc trong mắt trái
+  let mTT = lm(133, camX, camY); // góc ngoài mắt trái
+  let mPT = lm(362, camX, camY); // góc trong mắt phải
+  let mPO = lm(263, camX, camY); // góc ngoài mắt phải
+  let mTD = lm(159, camX, camY); // trên mắt trái
+  let mTU = lm(145, camX, camY); // dưới mắt trái
+  let mPD = lm(386, camX, camY); // trên mắt phải
+  let mPU = lm(374, camX, camY); // dưới mắt phải
   let tl  = getFaceWidth(camX, camY) / 180;
 
-  // Tròng kính to hơn (0.65 → 0.85)
-  let r = dist(mTO.x, mTO.y, mTT.x, mTT.y) * 0.85;
-  let tamTrai = { x: (mTO.x+mTT.x)/2, y: (mTO.y+mTT.y)/2 };
-  let tamPhai = { x: (mPO.x+mPT.x)/2, y: (mPO.y+mPT.y)/2 };
+  // Tâm và kích thước mỗi tròng
+  let tTrai = { x:(mTO.x+mTT.x)/2, y:(mTD.y+mTU.y)/2 };
+  let tPhai = { x:(mPT.x+mPO.x)/2, y:(mPD.y+mPU.y)/2 };
+  let rW    = dist(mTO.x,mTO.y,mTT.x,mTT.y) * 0.98; // ngang — to hơn
+  let rH    = rW * 0.82; // dọc hơi ít hơn → hình hơi oval
 
-  // Kính tròn
+  // Màu gọng — nâu kim loại
+  let frameCol  = color(60, 40, 30);
+  let frameCol2 = color(90, 65, 45);
+
+  // === Tròng kính — lens tint rất nhẹ ===
   push();
-  noFill(); stroke("#333"); strokeWeight(3.5*tl);
-  ellipse(tamTrai.x, tamTrai.y, r*2, r*2);
-  ellipse(tamPhai.x, tamPhai.y, r*2, r*2);
-  stroke("#333"); strokeWeight(2.5*tl);
-  line(tamTrai.x+r, tamTrai.y, tamPhai.x-r, tamPhai.y);
-  line(tamTrai.x-r, tamTrai.y, tamTrai.x-r-22*tl, tamTrai.y-6*tl);
-  line(tamPhai.x+r, tamPhai.y, tamPhai.x+r+22*tl, tamPhai.y-6*tl);
-  // Phản chiếu
-  stroke(255,255,255,100); strokeWeight(2*tl);
-  arc(tamTrai.x-r*0.3, tamTrai.y-r*0.3, r*0.6, r*0.5, PI, TWO_PI);
-  arc(tamPhai.x-r*0.3, tamPhai.y-r*0.3, r*0.6, r*0.5, PI, TWO_PI);
+  fill(180, 200, 230, 22); // tint xanh cực nhạt
+  noStroke();
+  ellipse(tTrai.x, tTrai.y, rW*2, rH*2);
+  ellipse(tPhai.x, tPhai.y, rW*2, rH*2);
+  pop();
+
+  // === Gọng kính — 2 lớp để có độ dày kim loại ===
+  push();
+  noFill();
+  // Lớp ngoài đậm hơn
+  stroke(frameCol); strokeWeight(2.8*tl);
+  ellipse(tTrai.x, tTrai.y, rW*2,   rH*2);
+  ellipse(tPhai.x, tPhai.y, rW*2,   rH*2);
+  // Lớp trong highlight kim loại
+  stroke(frameCol2); strokeWeight(1.2*tl);
+  ellipse(tTrai.x, tTrai.y, rW*1.9, rH*1.9);
+  ellipse(tPhai.x, tPhai.y, rW*1.9, rH*1.9);
+  pop();
+
+  // === Cầu mũi ngắn nối 2 tròng ===
+  push();
+  noFill(); stroke(frameCol); strokeWeight(1.8*tl);
+  let nx1 = tTrai.x + rW*0.92;
+  let nx2 = tPhai.x - rW*0.92;
+  let ny  = (tTrai.y + tPhai.y) / 2 + rH*0.05;
+  // Cong nhẹ xuống giữa như cầu mũi thật
+  beginShape();
+  vertex(nx1, ny);
+  bezierVertex((nx1+nx2)/2, ny + 4*tl, (nx1+nx2)/2, ny + 4*tl, nx2, ny);
+  endShape();
+  pop();
+
+  // === Highlight lens — phản ánh sáng thực tế ===
+  push();
+  noStroke();
+  // Vệt sáng chéo trên tròng trái
+  fill(255, 255, 255, 55);
+  push(); translate(tTrai.x, tTrai.y); rotate(-0.4);
+  ellipse(-rW*0.22, -rH*0.28, rW*0.38, rH*0.18);
+  pop();
+  // Tròng phải
+  push(); translate(tPhai.x, tPhai.y); rotate(-0.4);
+  ellipse(-rW*0.22, -rH*0.28, rW*0.38, rH*0.18);
+  pop();
+  // Điểm sáng nhỏ
+  fill(255, 255, 255, 80);
+  circle(tTrai.x - rW*0.3, tTrai.y - rH*0.35, 4*tl);
+  circle(tPhai.x - rW*0.3, tPhai.y - rH*0.35, 4*tl);
   pop();
 
   pop();
@@ -783,7 +823,7 @@ function veFilterBo(camX, camY) {
   // → anchor = shoulderY - 240*s để chân chạm đúng vai
   // Vai: xuống 0.9× fh, nhưng không vượt quá đáy camera
   let maxY     = camY + _camH * 0.92;
-  let shoulderY = min(chin.y + fh * 0.5, maxY);
+  let shoulderY = min(chin.y + fh * 0.9, maxY);
 
   let vaiTrX = faceCX - fw * 1.15;
   let vaiTrY = shoulderY - 240*s;
