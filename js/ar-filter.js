@@ -299,7 +299,7 @@ function veFilterTim(camX, camY) {
   fill(255, 150); ellipse(-6, -8, 8, 5);
   pop();
 
-  // === 3. Tim nhỏ bay lên xung quanh đầu (mảng danhSachTim) ===
+// === 3. Tim nhỏ bay lên xung quanh đầu (mảng danhSachTim) ===
   for (let i = 0; i < danhSachTim.length; i++) {
     let t   = danhSachTim[i];
     let dy  = (frameCount * t.toc * 0.4) % (_camH * 0.8);
@@ -309,13 +309,20 @@ function veFilterTim(camX, camY) {
     push();
     translate(tx, ty);
     scale(tl * 0.55);
-    fill(mauTimList[t.mau % mauTimList.length], alf); noStroke();
+    
+    let cBase = mauTimList[t.mau % mauTimList.length] || "#ff4d6d";
+    let cWithAlpha = color(cBase);
+    cWithAlpha.setAlpha(alf);
+    fill(cWithAlpha); 
+    
+    noStroke();
     beginShape();
     vertex(0, 20); bezierVertex(-28, 0, -18, -25, 0, -12);
     bezierVertex(18, -25, 28, 0, 0, 20);
     endShape(CLOSE);
     pop();
   }
+
 
   // === 4. Blush má mềm 2 lớp (ellipse — đã học) ===
   push(); noStroke();
