@@ -32,6 +32,10 @@ let layouts = [
 // ============================================================
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  // Giảm xuống 30fps — mắt người không phân biệt 30 vs 60fps với camera
+  frameRate(30);
+  // Tắt pixel doubling trên màn Retina — tiết kiệm 50% render
+  pixelDensity(1);
   textAlign(CENTER, CENTER);
   setupCamera();
 }
@@ -396,15 +400,8 @@ function handleButtons() {
       if(mouseX>bx&&mouseX<bx+tBox&&mouseY>by&&mouseY<by+tBox){selectedFormat=i;return;}
     }
     let btnW=min(cw-40,280),btnX=width/2-btnW/2;
-
-console.log("mouse:", mouseX, mouseY);
-
-if(mouseX>btnX&&mouseX<btnX+btnW&&
-   mouseY>height-82&&mouseY<height-32)
-{
-  console.log("BUTTON HIT");
-  currentScreen="camera";
-}
+    if(mouseX>btnX&&mouseX<btnX+btnW&&mouseY>height-82&&mouseY<height-32)
+      currentScreen="camera";
   }
 
   else if(currentScreen==="camera")  { handleCameraButtons(); }
