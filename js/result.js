@@ -368,7 +368,7 @@ function drawResultScreen(){
   }
 
   // Save button
-  let ry_save=C.ry_save;
+  let ry_save = C.ry_save - 40; 
   push();noStroke();
   fill(210,80,120,40);rect(rx+2,ry_save+4,rw,50,25);
   fill(245,75,115);rect(rx,ry_save,rw,50,25);
@@ -419,8 +419,7 @@ function handleResultButtons(){
   }
 
   // Save
-  if(mouseX>rx&&mouseX<rx+rw&&
-     mouseY>_res_ry_save&&mouseY<_res_ry_save+50){
+  if (mouseY > C.ry_save - 40 && mouseY < (C.ry_save - 40) + 50){
     saveResultCanvas(); return;
   }
 
