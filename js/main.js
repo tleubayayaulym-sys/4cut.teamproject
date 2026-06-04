@@ -184,17 +184,16 @@ function drawStartScreen() {
   text("③ Strike a pose! Take up to 8 shots",    width/2, y2+70);
   text("④ Pick your best 4, decorate & save 🎉", width/2, y2+88);
 
-  // START button
+   // START button 
   let btnW = min(cardW, 240);
   let btnX = width/2 - btnW/2;
-  let btnY = y2+hHow+hGap3;
+  let btnY = y2+hHow+hGap3 - 35;
   drawPinkBtn(btnX, btnY, btnW, hBtn, "▶  START");
 
   fill("#c8b4f8"); textSize(11);
   text("Press Space or tap to start", width/2, btnY+hBtn+14);
   pop();
 }
-
 // ============================================================
 // SCREEN 2: LAYOUT SELECTION
 // ============================================================
@@ -372,10 +371,20 @@ function touchStarted()  { handleButtons(); return false; }
 
 function handleButtons() {
   if (currentScreen === "start") {
-    // Bấm bất kỳ đâu trên màn start → chuyển layout
-    currentScreen = "layout";
+    let cw     = min(width*0.82, 460);
+    let cx     = width/2 - cw/2;
+    let cardX  = cx+20, cardW = cw-40;
+    let y1     = (height/2 - 424/2) + 72 + 12; 
+    let y2     = y1 + 58 + 12;
+    let btnY   = y2 + 108 + 16 - 35;
+    let btnW   = min(cardW, 240), btnX = width/2 - btnW/2;
+
+    if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + 50) {
+      currentScreen = "layout";
+    }
     return;
   }
+
 
   else if (currentScreen==="layout") {
     if(mouseX>16&&mouseX<98&&mouseY>12&&mouseY<44){currentScreen="start";return;}
