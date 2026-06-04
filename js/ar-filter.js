@@ -765,17 +765,20 @@ function veFilterBo(camX, camY) {
 
   // Ước tính vị trí vai từ FaceMesh
   // Vai = dưới cằm + ra ngoài 2 bên theo chiều rộng mặt
-  let vaiTrX = maTrai.x - 30*tl;
-  let vaiTrY = chin.y   + 60*tl;
-  let vaiPhX = maPhai.x + 30*tl;
-  let vaiPhY = chin.y   + 60*tl;
+  // Scale nhỏ hơn — bơ không che mặt
+  let s = tl * 0.28;
 
-  let s = tl * 0.52; // scale bơ theo kích thước mặt
+  // Vai = ra ngoài xa + xuống dưới cằm đủ để thấy "đứng trên vai"
+  // Avo body cao ~400*s tính từ đỉnh → đặt điểm neo ở phần thân giữa
+  let vaiTrX = maTrai.x - 55*tl;
+  let vaiTrY = chin.y   + 95*tl;
+  let vaiPhX = maPhai.x + 55*tl;
+  let vaiPhY = chin.y   + 95*tl;
 
-  // Cute avo đứng vai trái — phase=0
+  // Cute avo vai trái — phase=0
   drawCuteAvoAR(vaiTrX, vaiTrY, s, 0);
 
-  // Cool avo đứng vai phải — phase=PI (lệch pha để không đồng bộ)
+  // Cool avo vai phải — phase=PI
   drawCoolAvoAR(vaiPhX, vaiPhY, s, PI);
 
   pop();
