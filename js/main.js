@@ -236,12 +236,13 @@ function drawLayoutScreen() {
       for (let c = 0; c < L.cols; c++) {
         fill(200,180,220,120); noStroke();
         rect(preX+c*gW+2, preY+r*gH+2, gW-4, gH-4, 3);
-        // Little person silhouette
+        // Person silhouette — scale theo chiều nhỏ hơn của cell
+        let cellMin = min(gW-4, gH-4);
         fill(180,160,200,150); noStroke();
         let fx = preX+c*gW+gW/2, fy = preY+r*gH+gH*0.38;
-        circle(fx, fy, gH*0.28);
+        circle(fx, fy, cellMin*0.28);
         fill(180,160,200,120);
-        rect(fx-gH*0.15, fy+gH*0.15, gH*0.3, gH*0.32, 2);
+        rect(fx-cellMin*0.15, fy+cellMin*0.15, cellMin*0.3, cellMin*0.32, 2);
       }
     }
 
