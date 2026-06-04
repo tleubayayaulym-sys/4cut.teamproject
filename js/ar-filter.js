@@ -499,34 +499,31 @@ function veFilterMeoKawaii(camX, camY) {
 // ============================================================
 function veFilterKinhTron(camX, camY) {
   push();
-  // Получаем точки углов глаз
-  let mTO = lm(33,  camX, camY); // внутренний угол левого глаза
-  let mTT = lm(133, camX, camY); // внешний угол левого глаза
-  let mPT = lm(362, camX, camY); // внутренний угол правого глаза
-  let mPO = lm(263, camX, camY); // внешний угол правого глаза
-  let tl  = getFaceWidth(camX, camY) / 180;
 
-  let cx1 = (mTO.x + mTT.x) / 2;
-  let cy1 = (mTO.y + mTT.y) / 2;
-  let cx2 = (mPT.x + mPO.x) / 2;
-  let cy2 = (mPT.y + mPO.y) / 2;
+  let mui    = lm(1,   camX, camY); 
+  let maeTrai = lm(234, camX, camY); 
+  let maePhai = lm(454, camX, camY); 
+  let tl     = getFaceWidth(camX, camY) / 180;
 
-  if (typeof flipCamera !== "undefined" && flipCamera) {
-    let tempX = cx1; let tempY = cy1;
-    cx1 = cx2; cy1 = cy2;
-    cx2 = tempX; cy2 = tempY;
-  }
+  let angle = atan2(maePhai.y - maeTrai.y, maePhai.x - maeTrai.x);
 
-  let r = dist(mTO.x, mTO.y, mTT.x, mTT.y) * 0.72;
+  let glassesX = mui.x;
+  let glassesY = mui.y - 22 * tl; 
+
+  translate(glassesX, glassesY);
+  rotate(angle);
+
+  let eyeDistance = 34 * tl; 
+  let r = 26 * tl;          
 
   stroke(0);
-  strokeWeight(2 * tl);
+  strokeWeight(2.5 * tl);
   noFill(); 
-  
-  circle(cx1, cy1, r * 2);
-  circle(cx2, cy2, r * 2);
 
-  line(mTO.x, mTO.y, mPT.x, mPT.y);
+  circle(-eyeDistance, 0, r * 2); // Левый глаз
+  circle(eyeDistance, 0, r * 2);  // Правый глаз
+
+  line(-eyeDistance + r, 0, eyeDistance - r, 0);
 
   pop();
 }
