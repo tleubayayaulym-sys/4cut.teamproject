@@ -244,7 +244,10 @@ function drawResultScreen(){
   text("Layout: "+L.name+" ("+L.count+" photos)",stripX+stripW/2,stripY-8);
   pop();
 
+  // 🌟 Фикс отрисовки стикеров: принудительно сбрасываем матрицу трансформаций перед отрисовкой
+  push();
   drawFrameSticker(stripX,stripY,stripW,stripH,selectedSticker);
+  pop();
 
   push();noStroke();
   fill(150,150,180,20);rect(stripX+8,stripY+10,stripW,stripH,16);
@@ -349,7 +352,6 @@ function drawResultScreen(){
     let col=i%3,row=floor(i/3);
     let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+4);
     
-    // 🌟 СИНХРОНИЗАЦИЯ ФИЛЬТРА: Проверяем оба варианта системного названия переменной
     let isSel = (typeof selectedFormat !== "undefined" && selectedFormat === i) || 
                 (typeof selectedTone !== "undefined" && selectedTone === i);
                 
@@ -381,7 +383,7 @@ function drawResultScreen(){
 }
 
 // ============================================================
-// ОБРАБОТКА НАЖАТИЙ — СИНХРОНИЗИРОВАННЫЕ КЛИКИ И СОХРАНЕНИЕ
+// ОБРАБОТКА НАЖАТИЙ — ПРИНУДИТЕЛЬНОЕ СКАЧИВАНИЕ ФАЙЛА
 // ============================================================
 function handleResultButtons(){
   let rx=_res_rx, rw=_res_rw;
@@ -417,14 +419,17 @@ function handleResultButtons(){
     }
   }
 
-  // Клик по кнопке Save Photo 🌟
+  // Клик по кнопке Save Photo 
   let click_save = _res_ry_save + 6;
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
-    if(typeof saveStripAction === "function") { saveStripAction(); } 
-    else if(typeof savePhoto === "function") { savePhoto(); } 
-    else if(typeof downloadStrip === "function") { downloadStrip(); } 
-    else if(typeof saveStrip === "function") { saveStrip(); }
-    else { currentScreen = "saved"; }
+    try {
+      saveCanvas("photobooth", "png");
+      currentScreen = "saved"; 
+    } catch(e) {
+      if(typeof saveStripAction === "function") { saveStripAction(); } 
+      else if(typeof savePhoto === "function") { savePhoto(); } 
+      else { currentScreen = "saved"; }
+    }
     return;
   }
 
