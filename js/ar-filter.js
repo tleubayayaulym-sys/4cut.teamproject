@@ -496,78 +496,35 @@ function veFilterMeoKawaii(camX, camY) {
 // ============================================================
 function veFilterKinhTron(camX, camY) {
   push();
-  // Landmarks mắt
+  // Lấy tâm 2 mắt từ FaceMesh
   let mTO = lm(33,  camX, camY); // góc trong mắt trái
   let mTT = lm(133, camX, camY); // góc ngoài mắt trái
   let mPT = lm(362, camX, camY); // góc trong mắt phải
   let mPO = lm(263, camX, camY); // góc ngoài mắt phải
-  let mTD = lm(159, camX, camY); // trên mắt trái
-  let mTU = lm(145, camX, camY); // dưới mắt trái
-  let mPD = lm(386, camX, camY); // trên mắt phải
-  let mPU = lm(374, camX, camY); // dưới mắt phải
   let tl  = getFaceWidth(camX, camY) / 180;
 
-  // Tâm và kích thước mỗi tròng
-  let tTrai = { x:(mTO.x+mTT.x)/2, y:(mTD.y+mTU.y)/2 };
-  let tPhai = { x:(mPT.x+mPO.x)/2, y:(mPD.y+mPU.y)/2 };
-  let rW    = dist(mTO.x,mTO.y,mTT.x,mTT.y) * 0.98; // ngang — to hơn
-  let rH    = rW * 0.82; // dọc hơi ít hơn → hình hơi oval
+  // Tâm mỗi mắt
+  let cx1 = (mTO.x + mTT.x) / 2;
+  let cy1 = (mTO.y + mTT.y) / 2;
+  let cx2 = (mPT.x + mPO.x) / 2;
+  let cy2 = (mPT.y + mPO.y) / 2;
 
-  // Màu gọng — nâu kim loại
-  let frameCol  = color(60, 40, 30);
-  let frameCol2 = color(90, 65, 45);
+  // Bán kính = nửa khoảng cách 2 góc mắt
+  let r = dist(mTO.x, mTO.y, mTT.x, mTT.y) * 0.72;
 
-  // === Tròng kính — lens tint rất nhẹ ===
-  push();
-  fill(180, 200, 230, 22); // tint xanh cực nhạt
-  noStroke();
-  ellipse(tTrai.x, tTrai.y, rW*2, rH*2);
-  ellipse(tPhai.x, tPhai.y, rW*2, rH*2);
-  pop();
-
-  // === Gọng kính — 2 lớp để có độ dày kim loại ===
-  push();
+  stroke(0);
+  strokeWeight(2 * tl);
   noFill();
-  // Lớp ngoài đậm hơn
-  stroke(frameCol); strokeWeight(2.8*tl);
-  ellipse(tTrai.x, tTrai.y, rW*2,   rH*2);
-  ellipse(tPhai.x, tPhai.y, rW*2,   rH*2);
-  // Lớp trong highlight kim loại
-  stroke(frameCol2); strokeWeight(1.2*tl);
-  ellipse(tTrai.x, tTrai.y, rW*1.9, rH*1.9);
-  ellipse(tPhai.x, tPhai.y, rW*1.9, rH*1.9);
-  pop();
 
-  // === Cầu mũi ngắn nối 2 tròng ===
-  push();
-  noFill(); stroke(frameCol); strokeWeight(1.8*tl);
-  let nx1 = tTrai.x + rW*0.92;
-  let nx2 = tPhai.x - rW*0.92;
-  let ny  = (tTrai.y + tPhai.y) / 2 + rH*0.05;
-  // Cong nhẹ xuống giữa như cầu mũi thật
-  beginShape();
-  vertex(nx1, ny);
-  bezierVertex((nx1+nx2)/2, ny + 4*tl, (nx1+nx2)/2, ny + 4*tl, nx2, ny);
-  endShape();
-  pop();
+  // 2 tròng tròn
+  circle(cx1, cy1, r * 2);
+  circle(cx2, cy2, r * 2);
 
-  // === Highlight lens — phản ánh sáng thực tế ===
-  push();
-  noStroke();
-  // Vệt sáng chéo trên tròng trái
-  fill(255, 255, 255, 55);
-  push(); translate(tTrai.x, tTrai.y); rotate(-0.4);
-  ellipse(-rW*0.22, -rH*0.28, rW*0.38, rH*0.18);
-  pop();
-  // Tròng phải
-  push(); translate(tPhai.x, tPhai.y); rotate(-0.4);
-  ellipse(-rW*0.22, -rH*0.28, rW*0.38, rH*0.18);
-  pop();
-  // Điểm sáng nhỏ
-  fill(255, 255, 255, 80);
-  circle(tTrai.x - rW*0.3, tTrai.y - rH*0.35, 4*tl);
-  circle(tPhai.x - rW*0.3, tPhai.y - rH*0.35, 4*tl);
-  pop();
+  // Đường nối ngắn giữa 2 tròng
+  let bx1 = cx1 + r;
+  let bx2 = cx2 - r;
+  let by  = (cy1 + cy2) / 2;
+  line(bx1, by, bx2, by);
 
   pop();
 }
