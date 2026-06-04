@@ -425,16 +425,43 @@ function handleResultButtons(){
     }
   }
 
-   // Клик по кнопке Save Photo 
+     // Клик по кнопке Save Photo 
   let click_save = _res_ry_save + 6;
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
+    
     if(typeof saveStripAction === "function") { saveStripAction(); } 
     else if(typeof savePhoto === "function") { savePhoto(); } 
     else if(typeof downloadStrip === "function") { downloadStrip(); }
     else if(typeof saveStrip === "function") { saveStrip(); }
-    else { saveCanvas("photobooth", "png"); currentScreen = "saved"; }
+    else {
+      let L = getLayoutConfig();
+      let panW = min(width*0.45,420), panX = width-panW;
+      let pad = 14, gap = 5, bot = 36, availH = height-60;
+      
+      let photoH;
+      if(L.cols===4){ photoH = ((panX)-60-pad*2-gap*3)/4 * 0.75; }
+      else if(L.cols===2){ photoH = min(((panX)-60-pad*2-gap)/2, availH*0.48/0.75) * 0.75; }
+      else { photoH = ((availH-pad*2-gap*(L.rows-1)-bot)/L.rows) * 0.75; }
+      
+      let stripW = L.cols===4 ? pad*2 + ((panX)-60-pad*2-gap*3)/4 * 4 + gap*3 :
+                   L.cols===2 ? pad*2 + min(((panX)-60-pad*2-gap)/2, availH*0.48/0.75) * 2 + gap :
+                   pad*2 + min(photoH/0.75,((panX)-60-pad*2));
+                   
+      let stripH = L.cols===4 ? pad*2+photoH+bot :
+                   L.cols===2 ? pad*2+photoH*ceil(L.count/2)+gap*(ceil(L.count/2)-1)+bot :
+                   pad*2+photoH*L.count+gap*(L.count-1)+bot;
+                   
+      let stripX = (panX)/2 - stripW/2;
+      let stripY = max((height-stripH)/2, 40);
+
+      let photoStripShot = get(stripX - 4, stripY - 4, stripW + 8, stripH + 8);
+      photoStripShot.save("photobooth-strip", "png");
+      
+      currentScreen = "saved"; 
+    }
     return;
   }
+
 
 
   // Клик по кнопке Retake
