@@ -279,9 +279,6 @@ function veFilterTim(camX, camY) {
   // Highlight trắng
   fill(255, 180); noStroke();
   ellipse(-12, -14, 15, 10);
-  // Bong bóng nhỏ phía dưới
-  fill("#ffe9ef"); stroke("#d7a0aa"); strokeWeight(1.5);
-  circle(-28, 35, 14);
   pop();
 
   // === 2. Tim vừa bên trái đầu ===
