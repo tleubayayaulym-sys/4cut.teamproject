@@ -96,9 +96,14 @@ function drawCamera() {
   }
   pop();
 
-  // AR filter
+  // AR filter — clip vào đúng khung camera
+  drawingContext.save();
+  drawingContext.beginPath();
+  drawingContext.rect(camX, camY, camW, camH);
+  drawingContext.clip();
   drawARFilter(camX+camW/2, camY+camH/2, selectedFilter, camW, camH);
   drawFaceStatus(width, height);
+  drawingContext.restore();
 
   // === UI chỉ hiện khi không capture sạch ===
   if (!isCapturingClean) {
