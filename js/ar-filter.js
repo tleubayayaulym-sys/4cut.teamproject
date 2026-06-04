@@ -279,6 +279,9 @@ function veFilterTim(camX, camY) {
   // Highlight trắng
   fill(255, 180); noStroke();
   ellipse(-12, -14, 15, 10);
+  // Bong bóng nhỏ phía dưới
+  fill("#ffe9ef"); stroke("#d7a0aa"); strokeWeight(1.5);
+  circle(-28, 35, 14);
   pop();
 
   // === 2. Tim vừa bên trái đầu ===
@@ -642,126 +645,142 @@ function veHuongDanTay(dangCham, camX, camY) {
 
 
 // ============================================================
-// 🥑 Filter quả bơ cute
-// Kỹ thuật: ellipse, beginShape/bezierVertex, arc, for loop
+// 🥑 Filter quả bơ — đứng trên vai, tay chân chuyển động
+// Kỹ thuật: translate/scale, bezier animation với sin(frameCount)
 // ============================================================
+
+function avocadoBodyAR(s) {
+  // Vỏ ngoài
+  fill("#253d20"); stroke(0); strokeWeight(max(2, 7*s));
+  beginShape();
+  vertex(45*s,-165*s); bezierVertex(130*s,-120*s,145*s,20*s,110*s,115*s);
+  bezierVertex(65*s,210*s,-70*s,200*s,-115*s,120*s);
+  bezierVertex(-170*s,25*s,-125*s,-120*s,-40*s,-175*s);
+  bezierVertex(0,-200*s,35*s,-190*s,45*s,-165*s);
+  endShape(CLOSE);
+  // Da xanh
+  fill("#2d7a2f"); stroke(0); strokeWeight(max(2,7*s));
+  beginShape();
+  vertex(-20*s,-185*s); bezierVertex(70*s,-185*s,125*s,-95*s,115*s,40*s);
+  bezierVertex(105*s,165*s,20*s,220*s,-70*s,185*s);
+  bezierVertex(-150*s,150*s,-160*s,35*s,-125*s,-70*s);
+  bezierVertex(-95*s,-155*s,-60*s,-185*s,-20*s,-185*s);
+  endShape(CLOSE);
+  // Thịt
+  fill("#dff59b"); noStroke();
+  beginShape();
+  vertex(-20*s,-155*s); bezierVertex(50*s,-160*s,92*s,-88*s,90*s,35*s);
+  bezierVertex(88*s,130*s,18*s,178*s,-55*s,150*s);
+  bezierVertex(-120*s,125*s,-128*s,38*s,-100*s,-48*s);
+  bezierVertex(-78*s,-118*s,-52*s,-150*s,-20*s,-155*s);
+  endShape(CLOSE);
+}
+
+function avoSeedAR(s, c1, c2) {
+  fill(c1||"#9f5b18"); stroke(0); strokeWeight(max(1.5,5*s));
+  ellipse(0,55*s,105*s,135*s);
+  fill(c2||"#d28a35"); noStroke();
+  ellipse(-10*s,25*s,52*s,55*s);
+}
+
+// Cute avo — tay vẫy theo sin(frameCount)
+function drawCuteAvoAR(x, y, s, phase) {
+  push(); translate(x, y);
+  avocadoBodyAR(s);
+  avoSeedAR(s);
+  // Mắt
+  fill(0); noStroke();
+  ellipse(-38*s,-75*s,26*s,34*s); ellipse(38*s,-75*s,26*s,34*s);
+  fill(255); ellipse(-46*s,-84*s,8*s,8*s); ellipse(30*s,-84*s,8*s,8*s);
+  // Miệng
+  noFill(); stroke(0); strokeWeight(max(1,4*s));
+  arc(0,-65*s,25*s,25*s,0,PI);
+  // Tay vẫy — điểm cuối dao động theo sin
+  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
+  let wave = sin(frameCount*0.1 + phase) * 20*s;
+  bezier(-120*s,20*s, -170*s,-5*s, -155*s,55*s, -165*s,75*s+wave);
+  bezier(115*s,-20*s,  160*s,-40*s, 145*s,10*s,  165*s,30*s-wave);
+  // Chân đung đưa nhẹ
+  let legSwing = sin(frameCount*0.08 + phase) * 8*s;
+  line(-38*s,180*s, -55*s+legSwing, 240*s);
+  line(38*s, 180*s,  55*s-legSwing, 240*s);
+  pop();
+}
+
+// Sleepy avo — thở nhẹ (lên xuống)
+function drawSleepyAvoAR(x, y, s, phase) {
+  let breathe = sin(frameCount*0.06 + phase) * 3*s;
+  push(); translate(x, y+breathe);
+  avocadoBodyAR(s*0.95);
+  avoSeedAR(s*0.95, "#4b351b","#b28a62");
+  stroke(0); strokeWeight(max(1,4*s));
+  // Mắt nhắm
+  line(-45*s,-80*s,-18*s,-70*s); line(18*s,-70*s,45*s,-80*s);
+  noFill(); arc(0,-58*s,32*s,32*s,0,PI);
+  // Blush
+  noStroke(); fill("#ff9ab0");
+  ellipse(-58*s,-55*s,20*s,10*s); ellipse(58*s,-55*s,20*s,10*s);
+  // Tay cũng vẫy nhẹ khi ngủ
+  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
+  let wave = sin(frameCount*0.05+phase)*10*s;
+  bezier(-110*s,25*s,-155*s,0,-145*s,60*s,-158*s,80*s+wave);
+  bezier(110*s,15*s, 155*s,-5*s, 150*s,55*s, 165*s,75*s-wave);
+  line(-38*s,180*s,-55*s,240*s); line(38*s,180*s,55*s,240*s);
+  pop();
+}
+
+// Cool avo — đầu gật gật
+function drawCoolAvoAR(x, y, s, phase) {
+  let nod = sin(frameCount*0.07+phase)*0.04;
+  push(); translate(x, y);
+  // Thân
+  avocadoBodyAR(s*1.05);
+  avoSeedAR(s*1.05,"#7b3f16","#b97735");
+  push(); rotate(nod);
+  // Lá
+  fill("#118c3a"); stroke(0); strokeWeight(max(1.5,5*s));
+  line(0,-185*s,15*s,-230*s); ellipse(-30*s,-215*s,70*s,35*s);
+  // Kính mát
+  fill("#111"); noStroke(); rectMode(CENTER);
+  rect(-45*s,-85*s,58*s,28*s,5); rect(45*s,-85*s,58*s,28*s,5);
+  stroke("#111"); strokeWeight(max(1.5,5*s)); line(-15*s,-85*s,15*s,-85*s);
+  // Miệng
+  stroke(0); strokeWeight(max(1,4*s)); line(-15*s,-45*s,20*s,-45*s);
+  pop();
+  // Tay vẫy cool
+  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
+  let wave = sin(frameCount*0.1+phase)*18*s;
+  bezier(-115*s,20*s,-165*s,-10*s,-160*s,60*s,-175*s,80*s+wave);
+  bezier(115*s,10*s, 170*s,-10*s, 165*s,50*s, 180*s,55*s-wave);
+  line(-45*s,180*s,-60*s,230*s); line(45*s,180*s,65*s,230*s);
+  pop();
+}
+
 function veFilterBo(camX, camY) {
   push();
-  let dinh   = lm(10,  camX, camY);
-  let mui    = lm(1,   camX, camY);
+  let chin   = lm(152, camX, camY); // cằm
+  let maTrai = lm(234, camX, camY); // má trái = gần vai trái
+  let maPhai = lm(454, camX, camY); // má phải = gần vai phải
   let tl     = getFaceWidth(camX, camY) / 180;
 
-  let cx = dinh.x;
-  // Quả bơ ngồi trên đầu
-  let cy = dinh.y - 30*tl;
-  let bw = 110 * tl; // chiều rộng quả bơ
-  let bh = 145 * tl; // chiều cao quả bơ
+  // Ước tính vị trí vai từ FaceMesh
+  // Vai = dưới cằm + ra ngoài 2 bên theo chiều rộng mặt
+  let vaiTrX = maTrai.x - 30*tl;
+  let vaiTrY = chin.y   + 60*tl;
+  let vaiPhX = maPhai.x + 30*tl;
+  let vaiPhY = chin.y   + 60*tl;
 
-  // --- Vỏ ngoài (xanh đậm) ---
-  push();
-  fill("#2d5a1b"); stroke("#1a3a0a"); strokeWeight(3*tl);
-  beginShape();
-  // Hình quả bơ — đỉnh nhọn trên, tròn dưới
-  vertex(cx, cy - bh*0.5);
-  bezierVertex(cx + bw*0.15, cy - bh*0.5,
-               cx + bw*0.5,  cy - bh*0.1,
-               cx + bw*0.5,  cy + bh*0.25);
-  bezierVertex(cx + bw*0.5,  cy + bh*0.55,
-               cx + bw*0.3,  cy + bh*0.5,
-               cx,           cy + bh*0.5);
-  bezierVertex(cx - bw*0.3,  cy + bh*0.5,
-               cx - bw*0.5,  cy + bh*0.55,
-               cx - bw*0.5,  cy + bh*0.25);
-  bezierVertex(cx - bw*0.5,  cy - bh*0.1,
-               cx - bw*0.15, cy - bh*0.5,
-               cx,           cy - bh*0.5);
-  endShape(CLOSE);
+  let s = tl * 0.52; // scale bơ theo kích thước mặt
 
-  // Vệt tối bên phải (texture vỏ)
-  fill("#1a3a0a"); noStroke();
-  beginShape();
-  vertex(cx + bw*0.28, cy - bh*0.3);
-  bezierVertex(cx + bw*0.48, cy - bh*0.05,
-               cx + bw*0.48, cy + bh*0.2,
-               cx + bw*0.38, cy + bh*0.42);
-  bezierVertex(cx + bw*0.5,  cy + bh*0.3,
-               cx + bw*0.5,  cy - bh*0.1,
-               cx + bw*0.28, cy - bh*0.3);
-  endShape(CLOSE);
-  pop();
+  // Cute avo đứng vai trái — phase=0
+  drawCuteAvoAR(vaiTrX, vaiTrY, s, 0);
 
-  // --- Thịt xanh nhạt bên trong ---
-  push();
-  fill("#c8e8a0"); stroke("#2d5a1b"); strokeWeight(2.5*tl);
-  beginShape();
-  vertex(cx, cy - bh*0.42);
-  bezierVertex(cx + bw*0.12, cy - bh*0.42,
-               cx + bw*0.42, cy - bh*0.08,
-               cx + bw*0.42, cy + bh*0.2);
-  bezierVertex(cx + bw*0.42, cy + bh*0.45,
-               cx + bw*0.25, cy + bh*0.42,
-               cx,           cy + bh*0.42);
-  bezierVertex(cx - bw*0.25, cy + bh*0.42,
-               cx - bw*0.42, cy + bh*0.45,
-               cx - bw*0.42, cy + bh*0.2);
-  bezierVertex(cx - bw*0.42, cy - bh*0.08,
-               cx - bw*0.12, cy - bh*0.42,
-               cx,           cy - bh*0.42);
-  endShape(CLOSE);
-  pop();
-
-  // --- Hạt bơ (nâu oval) ---
-  push();
-  fill("#b5651d"); stroke("#8b4513"); strokeWeight(2.5*tl);
-  ellipse(cx, cy + bh*0.1, bw*0.4, bh*0.38);
-  // Highlight hạt
-  fill(255, 255, 255, 60); noStroke();
-  ellipse(cx - bw*0.06, cy + bh*0.02, bw*0.12, bh*0.1);
-  pop();
-
-  // --- Mắt cute (dùng circle — đã học) ---
-  push();
-  // Mắt trái
-  fill("#222"); noStroke();
-  circle(cx - 18*tl, cy - bh*0.05, 10*tl);
-  fill(255); circle(cx - 20*tl, cy - bh*0.07, 3.5*tl);
-
-  // Mắt phải
-  fill("#222"); noStroke();
-  circle(cx + 18*tl, cy - bh*0.05, 10*tl);
-  fill(255); circle(cx + 16*tl, cy - bh*0.07, 3.5*tl);
-  pop();
-
-  // --- Miệng cười nhỏ (arc — đã học) ---
-  push();
-  noFill(); stroke("#555"); strokeWeight(2*tl);
-  arc(cx, cy + bh*0.03, 14*tl, 9*tl, 0.2, PI - 0.2);
-  pop();
-
-  // --- Tay (2 đường cong ngắn — bezierVertex) ---
-  push();
-  noFill(); stroke("#222"); strokeWeight(2.5*tl);
-  // Tay trái
-  beginShape();
-  vertex(cx - bw*0.42, cy + bh*0.05);
-  bezierVertex(cx - bw*0.58, cy, cx - bw*0.62, cy - bh*0.12, cx - bw*0.55, cy - bh*0.18);
-  endShape();
-  // Tay phải
-  beginShape();
-  vertex(cx + bw*0.42, cy + bh*0.05);
-  bezierVertex(cx + bw*0.58, cy, cx + bw*0.62, cy - bh*0.12, cx + bw*0.55, cy - bh*0.18);
-  endShape();
-  pop();
-
-  // --- Chân (2 đường thẳng nhỏ — line — đã học) ---
-  push();
-  stroke("#222"); strokeWeight(2.5*tl); noFill();
-  line(cx - 18*tl, cy + bh*0.5, cx - 22*tl, cy + bh*0.65);
-  line(cx + 18*tl, cy + bh*0.5, cx + 22*tl, cy + bh*0.65);
-  pop();
+  // Cool avo đứng vai phải — phase=PI (lệch pha để không đồng bộ)
+  drawCoolAvoAR(vaiPhX, vaiPhY, s, PI);
 
   pop();
 }
+
 
 function updateParticles() {}
 
