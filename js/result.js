@@ -411,7 +411,7 @@ function handleResultButtons(){
   for(let i=0;i<stickerThemeNames.length;i++){
     let col=i%2, row=floor(i/2);
     let bx=rx+col*(pw2+pg), by=_res_ry_sticker+row*(ph2+8);
-    if(mouseX>bx&&mouseX<bx+pw2&&mouseY>by&&mouseY<by+ph2){
+    if (mouseY > C.ry_sticker - 30 && mouseY < (C.ry_sticker - 30) + 40){
       selectedSticker=i; return;
     }
   }
@@ -420,7 +420,7 @@ function handleResultButtons(){
   for(let i=0;i<toneNames2.length;i++){
     let col=i%3, row=floor(i/3);
     let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+8);
-    if(mouseX>bx&&mouseX<bx+tw&&mouseY>by&&mouseY<by+th){
+    if (mouseY > C.ry_tone - 35 && mouseY < (C.ry_tone - 35) + 40){
       selectedFormat=i; return;
     }
   }
