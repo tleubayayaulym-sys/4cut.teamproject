@@ -68,15 +68,22 @@ function drawCoolAvo(x,y,s){
   bezier(-115,20,-165,-10,-160,60,-175,80);bezier(115,10,170,-10,165,50,180,55);
   line(-45,180,-60,230);line(45,180,65,230);pop();
 }
+
 function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
   if (theme === 0) return;
   
-  push();
+  // Если рисуем на холсте сохранения, используем его, иначе стандартный экран
+  let ctx = pgCanvas ? pgCanvas : {
+    push: push, pop: pop, textSize: textSize, textAlign: textAlign, 
+    text: text, fill: fill, stroke: stroke, strokeWeight: strokeWeight, noStroke: noStroke
+  };
+
+  ctx.push();
   if (theme === 1) {
     if (pgCanvas) {
-      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
-      pgCanvas.text("🥑", sx + 22, sy + 22); pgCanvas.text("🥑", sx + sw - 22, sy + 22);
-      pgCanvas.text("🥑", sx + 22, sy + sh - 22); pgCanvas.text("🥑", sx + sw - 22, sy + sh - 22);
+      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
+      ctx.text("🥑", sx + 22, sy + 22); ctx.text("🥑", sx + sw - 22, sy + 22);
+      ctx.text("🥑", sx + 22, sy + sh - 22); ctx.text("🥑", sx + sw - 22, sy + sh - 22);
     } else {
       drawCuteAvo(sx + 2, sy - 10, 0.055); drawCuteAvo(sx + sw - 2, sy - 10, 0.055);
       drawCuteAvo(sx + 2, sy + sh + 8, 0.055); drawCuteAvo(sx + sw - 2, sy + sh + 8, 0.055);
@@ -84,9 +91,9 @@ function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
     }
   } else if (theme === 2) {
     if (pgCanvas) {
-      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
-      pgCanvas.text("😴", sx + 22, sy + 22); pgCanvas.text("😴", sx + sw - 22, sy + 22);
-      pgCanvas.text("😴", sx + 22, sy + sh - 22); pgCanvas.text("😴", sx + sw - 22, sy + sh - 22);
+      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
+      ctx.text("😴", sx + 22, sy + 22); ctx.text("😴", sx + sw - 22, sy + 22);
+      ctx.text("😴", sx + 22, sy + sh - 22); ctx.text("😴", sx + sw - 22, sy + sh - 22);
     } else {
       drawSleepyAvo(sx + 2, sy - 8, 0.055); drawSleepyAvo(sx + sw - 2, sy - 8, 0.055);
       drawSleepyAvo(sx + 2, sy + sh + 8, 0.055); drawSleepyAvo(sx + sw - 2, sy + sh + 8, 0.055);
@@ -94,9 +101,9 @@ function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
     }
   } else if (theme === 3) {
     if (pgCanvas) {
-      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
-      pgCanvas.text("😎", sx + 22, sy + 22); pgCanvas.text("😎", sx + sw - 22, sy + 22);
-      pgCanvas.text("😎", sx + 22, sy + sh - 22); pgCanvas.text("😎", sx + sw - 22, sy + sh - 22);
+      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
+      ctx.text("😎", sx + 22, sy + 22); ctx.text("😎", sx + sw - 22, sy + 22);
+      ctx.text("😎", sx + 22, sy + sh - 22); ctx.text("😎", sx + sw - 22, sy + sh - 22);
     } else {
       drawCoolAvo(sx + 2, sy - 8, 0.055); drawCoolAvo(sx + sw - 2, sy - 10, 0.055);
       drawCoolAvo(sx + 2, sy + sh + 8, 0.055); drawCoolAvo(sx + sw - 2, sy + sh + 8, 0.055);
@@ -113,31 +120,25 @@ function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
     };
     let list = sets[theme] || [];
 
-    if (pgCanvas) {
-      pgCanvas.fill(0);
-      pgCanvas.strokeWeight(0);
-      pgCanvas.noStroke();
-      pgCanvas.textAlign(CENTER, CENTER);
-    } else {
-      fill(0);
-      strokeWeight(0);
-      noStroke();
-      textAlign(CENTER, CENTER);
-    }
+    // 🌟 ФИКС: Используем белый цвет fill(255), чтобы p5.js отображал цветные эмодзи-стикеры!
+    ctx.fill(255);
+    ctx.strokeWeight(0);
+    ctx.noStroke();
+    ctx.textAlign(CENTER, CENTER);
 
     for (let i = 0; i < list.length; i++) {
       let e = list[i];
       if (pgCanvas) {
-        pgCanvas.textSize(e.sz);
-        pgCanvas.text(e.s, sx + sw * e.x, sy + sh * e.y);
+        ctx.textSize(e.sz);
+        ctx.text(e.s, sx + sw * e.x, sy + sh * e.y);
       } else {
         let nhip = 1 + sin(frameCount * 0.04 + i) * 0.08;
-        textSize(e.sz * nhip);
-        text(e.s, sx + sw * e.x, sy + sh * e.y);
+        ctx.textSize(e.sz * nhip);
+        ctx.text(e.s, sx + sw * e.x, sy + sh * e.y);
       }
     }
   }
-  pop();
+  ctx.pop();
 }
 
 // ============================================================
