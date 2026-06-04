@@ -185,12 +185,9 @@ function calcPanelCoords(){
   }
 
   let rx=panX+20, rw=panW-40;
-  let pw2=(rw-10)/2;
-  let ph2=38; // 🌟 Возвращаем оригинальные 38, чтобы убрать ошибку цвета!
-  let pg=10; 
+  let pw2=(rw-10)/2, ph2=38, pg=10; 
   let tw=(rw-pg*2)/3, th=32;       
 
-  // Ужимаем стартовую точку и отступы между рядами (+4 вместо +8), чтобы всё влезло
   let ry = 30; 
 
   // frame
@@ -351,7 +348,11 @@ function drawResultScreen(){
     push();
     let col=i%3,row=floor(i/3);
     let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+4);
-    let isSel=(selectedFormat===i);
+    
+    // 🌟 СИНХРОНИЗАЦИЯ ФИЛЬТРА: Проверяем оба варианта системного названия переменной
+    let isSel = (typeof selectedFormat !== "undefined" && selectedFormat === i) || 
+                (typeof selectedTone !== "undefined" && selectedTone === i);
+                
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,tw,th,th/2);
     fill(isSel?"#ffe0f0":255);
     stroke(isSel?"#ff4d6d":210);strokeWeight(isSel?2:1);
@@ -380,7 +381,7 @@ function drawResultScreen(){
 }
 
 // ============================================================
-// ОБРАБОТКА НАЖАТИЙ — СИНХРОНИЗИРОВАННЫЕ КЛИКИ
+// ОБРАБОТКА НАЖАТИЙ — СИНХРОНИЗИРОВАННЫЕ КЛИКИ И СОХРАНЕНИЕ
 // ============================================================
 function handleResultButtons(){
   let rx=_res_rx, rw=_res_rw;
@@ -396,7 +397,7 @@ function handleResultButtons(){
     }
   }
 
-  // Клик по Stickers 🌟 (ИСПРАВЛЕНО: Теперь все стикеры прожимаются на своих местах!)
+  // Клик по Stickers
   for(let i=0;i<stickerThemeNames.length;i++){
     let col=i%2, row=floor(i/2);
     let bx=rx+col*(pw2+pg), by=_res_ry_sticker+row*(ph2+4);
@@ -410,16 +411,19 @@ function handleResultButtons(){
     let col=i%3, row=floor(i/3);
     let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+4);
     if(mouseX>bx && mouseX<bx+tw && mouseY>by && mouseY<by+th){
-      selectedFormat=i; return;
+      if(typeof selectedFormat !== "undefined") selectedFormat=i;
+      if(typeof selectedTone !== "undefined") selectedTone=i;
+      return;
     }
   }
 
-  // Клик по кнопке Save Photo
+  // Клик по кнопке Save Photo 🌟
   let click_save = _res_ry_save + 6;
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
     if(typeof saveStripAction === "function") { saveStripAction(); } 
     else if(typeof savePhoto === "function") { savePhoto(); } 
     else if(typeof downloadStrip === "function") { downloadStrip(); } 
+    else if(typeof saveStrip === "function") { saveStrip(); }
     else { currentScreen = "saved"; }
     return;
   }
@@ -430,4 +434,3 @@ function handleResultButtons(){
     return;
   }
 }
-
