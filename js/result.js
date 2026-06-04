@@ -251,7 +251,7 @@ function calcPanelCoords(){
 }
 
 // ============================================================
-// RESULT SCREEN — ОТРИСОВКА ИНТЕРФЕЙСА
+// RESULT SCREEN — ИСПРАВЛЕННЫЙ ПОРЯДОК СЛОЕВ
 // ============================================================
 function drawResultScreen(){
   background(250,248,255);
@@ -279,27 +279,25 @@ function drawResultScreen(){
   let stripX=photoAreaW/2-stripW/2;
   let stripY=max((height-stripH)/2,40);
 
-  // Title фотографии
+  // Title
   push();fill(100);textSize(14);noStroke();
   text("Photo Strip Preview",stripX+stripW/2,stripY-22);
   fill("#b366ff");textSize(11);
   text("Layout: "+L.name+" ("+L.count+" photos)",stripX+stripW/2,stripY-8);
   pop();
 
-  // 🌟 Фикс отрисовки стикеров: принудительно сбрасываем матрицу трансформаций перед отрисовкой
-  push();
-  drawFrameSticker(stripX,stripY,stripW,stripH,selectedSticker);
-  pop();
-
+  // Тень под фотолентой
   push();noStroke();
   fill(150,150,180,20);rect(stripX+8,stripY+10,stripW,stripH,16);
   fill(150,150,180,15);rect(stripX+5,stripY+6,stripW,stripH,16);
   pop();
 
+  // 1. СНАЧАЛА РИСУЕМ РАМКУ 
   fill(frameColors[selectedFrame]);
   stroke(frameDark[selectedFrame]);strokeWeight(3);
   rect(stripX,stripY,stripW,stripH,12);
 
+  // 2. ЗАТЕМ НАКЛАДЫВАЕМ ФОТОГРАФИИ 
   let positions=calcPhotoPositions(stripX,stripY,stripW,photoH,pad,gap,L);
   for(let i=0;i<L.count;i++){
     let{px,py,pw,ph}=positions[i];
@@ -318,35 +316,42 @@ function drawResultScreen(){
   let ds=d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
   text(ds,stripX+stripW/2,stripY+stripH-14);pop();
 
-  // Разделитель панели настроек от фото
+  push();
+  drawFrameSticker(stripX, stripY, stripW, stripH, selectedSticker);
+  pop();
+
+  // Разделитель панели
   push();stroke(230);strokeWeight(1);noFill();line(panX,0,panX,height);pop();
 
+  // Получаем чистые скорректированные координаты
   let C=calcPanelCoords();
   
   _res_rx=C.rx; _res_rw=C.rw;
   _res_pw2=C.pw2; _res_ph2=C.ph2; _res_pg=C.pg;
   _res_tw=C.tw; _res_th=C.th;
-  _res_ry_frame=C.ry_frame;
-  _res_ry_sticker=C.ry_sticker;
-  _res_ry_tone=C.ry_tone;
-  _res_ry_save=C.ry_save;
+  
+  _res_ry_frame   = C.ry_frame;
+  _res_ry_sticker = C.ry_sticker - 30; 
+  _res_ry_tone    = C.ry_tone - 55;    
+  _res_ry_save    = C.ry_save - 80;    
 
-  let rx=C.rx, rw=C.rw, pw2=C.pw2, ph2=C.ph2, pg=C.pg;
-  let tw=C.tw, th=C.th;
+  let rx=_res_rx, rw=_res_rw, pw2=_res_pw2, ph2=_res_ph2, pg=_res_pg;
+  let tw=_res_tw, th=_res_th;
 
-  // Title панели управления
+  // Title панели
   push();fill(30);textSize(min(rw*0.08,18));textStyle(BOLD);noStroke();textAlign(CENTER,CENTER);
-  text("Customize your photo strip",rx+rw/2,18);
+  text("Customize your photo strip",rx+rw/2,20+14);
   textStyle(NORMAL);pop();
 
-  // 1. Frame colour раздел
+  // Frame colour label
   push();fill(150);textSize(12);noStroke();textAlign(LEFT,CENTER);
-  text("Frame colour",rx,C.ry_frame-10);pop();
+  text("Frame colour",rx,_res_ry_frame-14);pop();
 
+  // Frame pills
   for(let i=0;i<frameColors.length;i++){
     push();
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=C.ry_frame+row*(ph2+4);
+    let bx=rx+col*(pw2+pg), by=_res_ry_frame+row*(ph2+8);
     let isSel=(selectedFrame===i);
     fill(180,180,200,isSel?40:20);noStroke();rect(bx+2,by+3,pw2,ph2,ph2/2);
     fill(isSel?frameColors[i]:255);
@@ -358,45 +363,44 @@ function drawResultScreen(){
     textStyle(NORMAL);pop();
   }
 
-  // Разделитель 1
-  let ry_div1 = C.ry_sticker - 14;
+  // Divider
+  let ry_div1=_res_ry_frame+ceil(frameColors.length/2)*(ph2+8)+4;
   push();stroke(235);strokeWeight(1);noFill();line(rx,ry_div1,rx+rw,ry_div1);pop();
 
-  // 2. Stickers раздел
+  // Sticker label
   push();fill(150);textSize(12);noStroke();textAlign(LEFT,CENTER);
-  text("Stickers",rx,C.ry_sticker-10);pop();
+  text("Stickers",rx,_res_ry_sticker-14);pop();
 
+  // Sticker pills
   for(let i=0;i<stickerThemeNames.length;i++){
     push();
     let col=i%2,row=floor(i/2);
-    let bx=rx+col*(pw2+pg), by=C.ry_sticker+row*(ph2+4);
+    let bx=rx+col*(pw2+pg), by=_res_ry_sticker+row*(ph2+8);
     let isSel=(selectedSticker===i);
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,pw2,ph2,ph2/2);
     fill(isSel?"#fff0f5":255);
     stroke(isSel?"#ff4d6d":210);strokeWeight(isSel?2:1);
     rect(bx,by,pw2,ph2,ph2/2);
-    noStroke();textSize(12);textStyle(isSel?BOLD:NORMAL);textAlign(CENTER,CENTER);
+    noStroke();textSize(13);textStyle(isSel?BOLD:NORMAL);textAlign(CENTER,CENTER);
     fill(isSel?"#ff4d6d":60);
     text(stickerThemeIcons[i]+" "+stickerThemeNames[i],bx+pw2/2,by+ph2/2);
     textStyle(NORMAL);pop();
   }
 
-  // Разделитель 2
-  let ry_div2 = C.ry_tone - 14;
+  // Divider 2
+  let ry_div2=_res_ry_sticker+ceil(stickerThemeNames.length/2)*(ph2+8)+4;
   push();stroke(235);strokeWeight(1);noFill();line(rx,ry_div2,rx+rw,ry_div2);pop();
 
-  // 3. Color Tone раздел
+  // Tone label
   push();fill(150);textSize(12);noStroke();textAlign(LEFT,CENTER);
-  text("Color Tone",rx,C.ry_tone-10);pop();
+  text("Color Tone",rx,_res_ry_tone-14);pop();
 
+  // Tone pills
   for(let i=0;i<toneNames2.length;i++){
     push();
     let col=i%3,row=floor(i/3);
-    let bx=rx+col*(tw+pg), by=C.ry_tone+row*(th+4);
-    
-    let isSel = (typeof selectedFormat !== "undefined" && selectedFormat === i) || 
-                (typeof selectedTone !== "undefined" && selectedTone === i);
-                
+    let bx=rx+col*(tw+pg), by=_res_ry_tone+row*(th+8);
+    let isSel=(selectedFormat===i);
     fill(180,180,200,isSel?40:15);noStroke();rect(bx+2,by+3,tw,th,th/2);
     fill(isSel?"#ffe0f0":255);
     stroke(isSel?"#ff4d6d":210);strokeWeight(isSel?2:1);
@@ -407,8 +411,8 @@ function drawResultScreen(){
     textStyle(NORMAL);pop();
   }
 
-  // 4. Save button раздел
-  let ry_save = C.ry_save + 6; 
+  // Save button
+  let ry_save = _res_ry_save; 
   push();noStroke();
   fill(210,80,120,40);rect(rx+2,ry_save+4,rw,50,25);
   fill(245,75,115);rect(rx,ry_save,rw,50,25);
@@ -418,12 +422,11 @@ function drawResultScreen(){
   text("💾  Save Photo",rx+rw/2,ry_save+25);
   textStyle(NORMAL);pop();
 
-  // Retake кнопка
-  drawLightBtn(rx,ry_save+58,rw,40,"🔄  Retake");
+  // Retake
+  drawLightBtn(rx,ry_save+62,rw,40,"🔄  Retake");
 
   pop();
 }
-
 // ============================================================
 // ОБРАБОТКА НАЖАТИЙ — ПРИНУДИТЕЛЬНОЕ СКАЧИВАНИЕ ФАЙЛА
 // ============================================================
