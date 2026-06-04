@@ -122,22 +122,22 @@ function drawARFilter(camX, camY, loaiFilter, camW, camH) {
   if (camW) _camW = camW;
   if (camH) _camH = camH;
 
-  // loaiFilter: 0=None, 1=Love, 2=Glasses, 3=Frog, 4=Avocado
   if (loaiFilter > 0) {
     if (faceLandmarks) {
-      if      (loaiFilter === 1) veFilterTim(camX, camY);
-      else if (loaiFilter === 2) veFilterKinhTron(camX, camY);
-      else if (loaiFilter === 3) veFilterEch(camX, camY);
-      else if (loaiFilter === 4) veFilterBo(camX, camY);
+      if      (loaiFilter === 1) veFilterTim(camX, camY);       // 1: Сердечки
+      else if (loaiFilter === 2) veFilterKinhTron(camX, camY);  // 2: Винтажные очки (БЕЗ черной полосы!)
+      else if (loaiFilter === 3) veFilterEch(camX, camY);       // 3: Лягушка
+      else if (loaiFilter === 4) veFilterBo(camX, camY);        // 4: Авокадо
+      else if (loaiFilter === 5) veFilterMeoKawaii(camX, camY); // 5: 🐱 КОШКА РАБОТАЕТ ТЕПЕРЬ ТУТ!
     } else {
-      if      (loaiFilter === 1) veFilterCoDinh(camX, camY - _camH*0.06, 1);
-      else if (loaiFilter === 2) veFilterCoDinh(camX, camY - _camH*0.06, 3);
-      else if (loaiFilter === 3) veFilterCoDinh(camX, camY - _camH*0.06, 4);
+      if      (loaiFilter === 1) veFilterCoDinh(camX, camY - _camH*0.06, 1); // Сердечки статичные
+      else if (loaiFilter === 2) veFilterCoDinh(camX, camY - _camH*0.06, 3); // Очки статичные
+      else if (loaiFilter === 3) veFilterCoDinh(camX, camY - _camH*0.06, 4); // Лягушка статичная
       else if (loaiFilter === 4) veFilterBo(camX, camY);
+      else if (loaiFilter === 5) veFilterCoDinh(camX, camY - _camH*0.06, 2); // 🐱 Кошка статичная (Пункт 2 в veFilterCoDinh)
     }
   }
 
-  // Cử chỉ tay
   let dangCham = ktraCuChi();
   if (gesTouchedPrev && !dangCham) {
     gesIconTimer = 60;
@@ -149,7 +149,6 @@ function drawARFilter(camX, camY, loaiFilter, camW, camH) {
   gesTouchedPrev = dangCham;
   veHuongDanTay(dangCham, camX, camY);
 }
-
 // ============================================================
 // 🎀 Filter 0: Ribbon
 // Nơ hồng lớn trên đầu + tia sáng kim cương xung quanh
