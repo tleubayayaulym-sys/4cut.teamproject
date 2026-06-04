@@ -68,48 +68,45 @@ function drawCoolAvo(x,y,s){
   bezier(-115,20,-165,-10,-160,60,-175,80);bezier(115,10,170,-10,165,50,180,55);
   line(-45,180,-60,230);line(45,180,65,230);pop();
 }
-
 function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
   if (theme === 0) return;
   
-  // Если рисуем на холсте сохранения, используем его, иначе стандартный экран
-  let ctx = pgCanvas ? pgCanvas : {
-    push: push, pop: pop, textSize: textSize, textAlign: textAlign, 
-    text: text, fill: fill, stroke: stroke, strokeWeight: strokeWeight, noStroke: noStroke
-  };
-
-  ctx.push();
+  push();
+  
+  // 1. АВОКАДО СТИКЕРЫ (Тема 1, 2, 3)
   if (theme === 1) {
     if (pgCanvas) {
-      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
-      ctx.text("🥑", sx + 22, sy + 22); ctx.text("🥑", sx + sw - 22, sy + 22);
-      ctx.text("🥑", sx + 22, sy + sh - 22); ctx.text("🥑", sx + sw - 22, sy + sh - 22);
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("🥑", sx + 22, sy + 22); pgCanvas.text("🥑", sx + sw - 22, sy + 22);
+      pgCanvas.text("🥑", sx + 22, sy + sh - 22); pgCanvas.text("🥑", sx + sw - 22, sy + sh - 22);
     } else {
       drawCuteAvo(sx + 2, sy - 10, 0.055); drawCuteAvo(sx + sw - 2, sy - 10, 0.055);
       drawCuteAvo(sx + 2, sy + sh + 8, 0.055); drawCuteAvo(sx + sw - 2, sy + sh + 8, 0.055);
-      drawCuteAvo(sx + sw / 2, sy - 12, 0.065);
+      drawCuteAvo(sx + sw/2, sy - 12, 0.065);
     }
   } else if (theme === 2) {
     if (pgCanvas) {
-      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
-      ctx.text("😴", sx + 22, sy + 22); ctx.text("😴", sx + sw - 22, sy + 22);
-      ctx.text("😴", sx + 22, sy + sh - 22); ctx.text("😴", sx + sw - 22, sy + sh - 22);
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("😴", sx + 22, sy + 22); pgCanvas.text("😴", sx + sw - 22, sy + 22);
+      pgCanvas.text("😴", sx + 22, sy + sh - 22); pgCanvas.text("😴", sx + sw - 22, sy + sh - 22);
     } else {
       drawSleepyAvo(sx + 2, sy - 8, 0.055); drawSleepyAvo(sx + sw - 2, sy - 8, 0.055);
       drawSleepyAvo(sx + 2, sy + sh + 8, 0.055); drawSleepyAvo(sx + sw - 2, sy + sh + 8, 0.055);
-      drawSleepyAvo(sx + sw / 2, sy - 10, 0.065);
+      drawSleepyAvo(sx + sw/2, sy - 10, 0.065);
     }
   } else if (theme === 3) {
     if (pgCanvas) {
-      ctx.textSize(24); ctx.textAlign(CENTER, CENTER); ctx.fill(255); ctx.noStroke();
-      ctx.text("😎", sx + 22, sy + 22); ctx.text("😎", sx + sw - 22, sy + 22);
-      ctx.text("😎", sx + 22, sy + sh - 22); ctx.text("😎", sx + sw - 22, sy + sh - 22);
+      pgCanvas.textSize(24); pgCanvas.textAlign(CENTER, CENTER);
+      pgCanvas.text("😎", sx + 22, sy + 22); pgCanvas.text("😎", sx + sw - 22, sy + 22);
+      pgCanvas.text("😎", sx + 22, sy + sh - 22); pgCanvas.text("😎", sx + sw - 22, sy + sh - 22);
     } else {
       drawCoolAvo(sx + 2, sy - 8, 0.055); drawCoolAvo(sx + sw - 2, sy - 10, 0.055);
       drawCoolAvo(sx + 2, sy + sh + 8, 0.055); drawCoolAvo(sx + sw - 2, sy + sh + 8, 0.055);
-      drawCoolAvo(sx + sw / 2, sy - 12, 0.065);
+      drawCoolAvo(sx + sw/2, sy - 12, 0.065);
     }
-  } else {
+  } 
+  // 2. ВСЕ ОСТАЛЬНЫЕ ЭМОДЗИ СТИКЕРЫ (Тема 4, 5, 6, 7, 8, 9)
+  else {
     let sets = {
       4: [{ x: 0.05, y: 0.05, s: "💕", sz: 16 }, { x: 0.93, y: 0.05, s: "💗", sz: 16 }, { x: 0.05, y: 0.93, s: "🌸", sz: 16 }, { x: 0.93, y: 0.93, s: "💕", sz: 16 }, { x: 0.5, y: 0.03, s: "✿", sz: 13 }],
       5: [{ x: 0.05, y: 0.05, s: "🪐", sz: 18 }, { x: 0.92, y: 0.05, s: "⭐", sz: 16 }, { x: 0.05, y: 0.93, s: "🌙", sz: 17 }, { x: 0.92, y: 0.93, s: "🚀", sz: 16 }, { x: 0.5, y: 0.03, s: "✦", sz: 13 }],
@@ -120,27 +117,34 @@ function drawFrameSticker(sx, sy, sw, sh, theme, pgCanvas) {
     };
     let list = sets[theme] || [];
 
-    // 🌟 ФИКС: Используем белый цвет fill(255), чтобы p5.js отображал цветные эмодзи-стикеры!
-    ctx.fill(255);
-    ctx.strokeWeight(0);
-    ctx.noStroke();
-    ctx.textAlign(CENTER, CENTER);
-
-    for (let i = 0; i < list.length; i++) {
-      let e = list[i];
-      if (pgCanvas) {
-        ctx.textSize(e.sz);
-        ctx.text(e.s, sx + sw * e.x, sy + sh * e.y);
-      } else {
-        let nhip = 1 + sin(frameCount * 0.04 + i) * 0.08;
-        ctx.textSize(e.sz * nhip);
-        ctx.text(e.s, sx + sw * e.x, sy + sh * e.y);
+    if (pgCanvas) {
+      pgCanvas.fill(0);
+      pgCanvas.strokeWeight(0);
+      pgCanvas.noStroke();
+      pgCanvas.textAlign(CENTER, CENTER);
+      
+      for (let i = 0; i < list.length; i++) {
+        let e = list[i];
+        pgCanvas.textSize(e.sz);
+        pgCanvas.text(e.s, sx + sw * e.x, sy + sh * e.y);
+      }
+    } else {
+      fill(0);
+      strokeWeight(0);
+      noStroke();
+      textAlign(CENTER, CENTER);
+      
+      for (let i = 0; i < list.length; i++) {
+        let e = list[i];
+        let nhip = 1 + sin(frameCount * 0.04 + i) * 0.08; 
+        textSize(e.sz * nhip);
+        text(e.s, sx + sw * e.x, sy + sh * e.y);
       }
     }
   }
-  ctx.pop();
+  
+  pop();
 }
-
 // ============================================================
 // Photo filter
 // ============================================================
