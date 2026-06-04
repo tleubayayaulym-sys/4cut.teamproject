@@ -255,60 +255,89 @@ function veTim(x, y, s) {
 
 function veFilterTim(camX, camY) {
   push();
-  let mui    = lm(1,   camX, camY);
-  let maTrai = lm(234, camX, camY);
-  let maPhai = lm(454, camX, camY);
+  let dinh   = lm(10,  camX, camY); // đỉnh đầu
+  let mui    = lm(1,   camX, camY); // mũi
+  let maTrai = lm(234, camX, camY); // má trái
+  let maPhai = lm(454, camX, camY); // má phải
   let tl     = getFaceWidth(camX, camY) / 180;
 
-  // --- Tim bay xung quanh mặt (dùng mảng + frameCount) ---
-  for (let i = 0; i < danhSachTim.length; i++) {
-    let t = danhSachTim[i];
-    // Y bay lên theo thời gian, reset khi ra ngoài
-    let dy = (frameCount * t.toc * 0.5) % (_camH * 0.9);
-    let tx = mui.x + t.ox * tl;
-    let ty = mui.y + t.oy * tl - dy;
-
-    let do_mo = map(sin(frameCount * 0.04 + t.pha), -1, 1, 120, 220);
-    let c = color(mauTimList[t.mau % mauTimList.length]);
-c.setAlpha(do_mo);
-fill(c);
-    noStroke();
-    veTim(tx, ty, t.kich * tl);
-  }
-
-  // --- Blush má hồng pastel ---
+  // === 1. Tim lớn bám gần đỉnh đầu (floating) ===
+  // Tim chính — to, hồng pastel, lắc nhẹ
+  let nhip = sin(frameCount * 0.05) * 0.06; // lắc
+  let mainTimX = dinh.x + 55*tl;
+  let mainTimY = dinh.y - 30*tl + sin(frameCount*0.03)*8*tl;
   push();
-  noStroke();
-  fill(255, 182, 193, 120);
-  ellipse(maTrai.x + 8*tl, maTrai.y + 8*tl, 40*tl, 22*tl);
-  ellipse(maPhai.x - 8*tl, maPhai.y + 8*tl, 40*tl, 22*tl);
+  fill(255, 182, 193, 230); noStroke();
+  push(); translate(mainTimX, mainTimY); rotate(nhip);
+  veTim(0, 0, 52*tl);
+  pop();
+  // Highlight trắng trên tim lớn
+  fill(255, 255, 255, 140); noStroke();
+  circle(mainTimX - 12*tl, mainTimY - 18*tl, 10*tl);
+  circle(mainTimX - 5*tl,  mainTimY - 22*tl, 5*tl);
   pop();
 
-  // --- Tim nhỏ trên má ---
+  // Tim vừa bên trái đầu
+  let tim2X = dinh.x - 45*tl;
+  let tim2Y = dinh.y - 20*tl + sin(frameCount*0.04 + 1.0)*6*tl;
   push();
-noStroke();
+  fill(255, 160, 180, 200); noStroke();
+  veTim(tim2X, tim2Y, 30*tl);
+  fill(255,255,255,100); circle(tim2X-7*tl, tim2Y-10*tl, 6*tl);
+  pop();
 
-let c1 = color("#ffb6c1");
-c1.setAlpha(200);
-fill(c1);
-veTim(maTrai.x + 5*tl, maTrai.y + 2*tl, 12*tl);
+  // Tim nhỏ phía trên — bay lên theo frameCount
+  for (let i = 0; i < danhSachTim.length; i++) {
+    let t = danhSachTim[i];
+    let dy = (frameCount * t.toc * 0.4) % (_camH * 0.85);
+    let tx = dinh.x + t.ox * tl * 0.8;
+    let ty = dinh.y + t.oy * tl - dy - 20*tl;
+    let do_mo = map(sin(frameCount * 0.04 + t.pha), -1, 1, 100, 200);
+    fill(mauTimList[t.mau % mauTimList.length], do_mo);
+    noStroke();
+    veTim(tx, ty, t.kich * tl * 0.85);
+  }
 
-let c2 = color("#b2f0e8");
-c2.setAlpha(200);
-fill(c2);
-veTim(maTrai.x + 22*tl, maTrai.y - 8*tl, 9*tl);
+  // === 2. Blush má — mềm mại, nhiều lớp ===
+  push(); noStroke();
+  // Lớp ngoài mờ hơn
+  fill(255, 150, 170, 50);
+  ellipse(maTrai.x + 5*tl, maTrai.y + 10*tl, 55*tl, 30*tl);
+  ellipse(maPhai.x - 5*tl, maPhai.y + 10*tl, 55*tl, 30*tl);
+  // Lớp trong đậm hơn
+  fill(255, 130, 155, 90);
+  ellipse(maTrai.x + 5*tl, maTrai.y + 10*tl, 36*tl, 20*tl);
+  ellipse(maPhai.x - 5*tl, maPhai.y + 10*tl, 36*tl, 20*tl);
+  pop();
 
-let c3 = color("#fff59d");
-c3.setAlpha(200);
-fill(c3);
-veTim(maPhai.x - 5*tl, maPhai.y + 2*tl, 12*tl);
-
-let c4 = color("#c8e6c9");
-c4.setAlpha(200);
-fill(c4);
-veTim(maPhai.x - 22*tl, maPhai.y - 8*tl, 9*tl);
-
-pop();
+  // === 3. Sparkle lấp lánh (for loop + sin/cos — đã học) ===
+  // Tia sáng 4 cánh xung quanh mặt
+  let sparklePos = [
+    {x: dinh.x - 80*tl, y: dinh.y + 10*tl},
+    {x: dinh.x + 80*tl, y: dinh.y + 15*tl},
+    {x: dinh.x - 30*tl, y: dinh.y - 60*tl},
+    {x: dinh.x + 40*tl, y: dinh.y - 55*tl},
+    {x: maTrai.x - 20*tl, y: maTrai.y - 10*tl},
+    {x: maPhai.x + 20*tl, y: maPhai.y - 10*tl},
+  ];
+  for (let i = 0; i < sparklePos.length; i++) {
+    let sang = map(sin(frameCount * 0.08 + i * 1.1), -1, 1, 80, 240);
+    let sz   = (2.5 + sin(frameCount * 0.06 + i) * 1.2) * tl;
+    push();
+    fill(255, 220, 230, sang); noStroke();
+    translate(sparklePos[i].x, sparklePos[i].y);
+    // Kim cương 4 cánh
+    beginShape();
+    vertex(0, -sz*3.5); vertex(sz*0.8, 0);
+    vertex(0,  sz*3.5); vertex(-sz*0.8, 0);
+    endShape(CLOSE);
+    // Tia ngang
+    beginShape();
+    vertex(-sz*3.5, 0); vertex(0, sz*0.8);
+    vertex(sz*3.5, 0);  vertex(0, -sz*0.8);
+    endShape(CLOSE);
+    pop();
+  }
 
   pop();
 }
