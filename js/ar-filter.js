@@ -649,141 +649,191 @@ function veHuongDanTay(dangCham, camX, camY) {
 // Kỹ thuật: translate/scale, bezier animation với sin(frameCount)
 // ============================================================
 
+// ============================================================
+// 🥑 Filter quả bơ — đứng trên 2 bên vai, tay chân chuyển động
+// ============================================================
+
 function avocadoBodyAR(s) {
-  // Vỏ ngoài
-  fill("#253d20"); stroke(0); strokeWeight(max(2, 7*s));
+  fill("#253d20");
+  stroke(0);
+  strokeWeight(max(2, 7 * s));
   beginShape();
-  vertex(45*s,-165*s); bezierVertex(130*s,-120*s,145*s,20*s,110*s,115*s);
-  bezierVertex(65*s,210*s,-70*s,200*s,-115*s,120*s);
-  bezierVertex(-170*s,25*s,-125*s,-120*s,-40*s,-175*s);
-  bezierVertex(0,-200*s,35*s,-190*s,45*s,-165*s);
+  vertex(45*s, -165*s);
+  bezierVertex(130*s, -120*s, 145*s, 20*s, 110*s, 115*s);
+  bezierVertex(65*s, 210*s, -70*s, 200*s, -115*s, 120*s);
+  bezierVertex(-170*s, 25*s, -125*s, -120*s, -40*s, -175*s);
+  bezierVertex(0, -200*s, 35*s, -190*s, 45*s, -165*s);
   endShape(CLOSE);
-  // Da xanh
-  fill("#2d7a2f"); stroke(0); strokeWeight(max(2,7*s));
+
+  fill("#2d7a2f");
+  stroke(0);
+  strokeWeight(max(2, 7 * s));
   beginShape();
-  vertex(-20*s,-185*s); bezierVertex(70*s,-185*s,125*s,-95*s,115*s,40*s);
-  bezierVertex(105*s,165*s,20*s,220*s,-70*s,185*s);
-  bezierVertex(-150*s,150*s,-160*s,35*s,-125*s,-70*s);
-  bezierVertex(-95*s,-155*s,-60*s,-185*s,-20*s,-185*s);
+  vertex(-20*s, -185*s);
+  bezierVertex(70*s, -185*s, 125*s, -95*s, 115*s, 40*s);
+  bezierVertex(105*s, 165*s, 20*s, 220*s, -70*s, 185*s);
+  bezierVertex(-150*s, 150*s, -160*s, 35*s, -125*s, -70*s);
+  bezierVertex(-95*s, -155*s, -60*s, -185*s, -20*s, -185*s);
   endShape(CLOSE);
-  // Thịt
-  fill("#dff59b"); noStroke();
+
+  fill("#dff59b");
+  noStroke();
   beginShape();
-  vertex(-20*s,-155*s); bezierVertex(50*s,-160*s,92*s,-88*s,90*s,35*s);
-  bezierVertex(88*s,130*s,18*s,178*s,-55*s,150*s);
-  bezierVertex(-120*s,125*s,-128*s,38*s,-100*s,-48*s);
-  bezierVertex(-78*s,-118*s,-52*s,-150*s,-20*s,-155*s);
+  vertex(-20*s, -155*s);
+  bezierVertex(50*s, -160*s, 92*s, -88*s, 90*s, 35*s);
+  bezierVertex(88*s, 130*s, 18*s, 178*s, -55*s, 150*s);
+  bezierVertex(-120*s, 125*s, -128*s, 38*s, -100*s, -48*s);
+  bezierVertex(-78*s, -118*s, -52*s, -150*s, -20*s, -155*s);
   endShape(CLOSE);
 }
 
 function avoSeedAR(s, c1, c2) {
-  fill(c1||"#9f5b18"); stroke(0); strokeWeight(max(1.5,5*s));
-  ellipse(0,55*s,105*s,135*s);
-  fill(c2||"#d28a35"); noStroke();
-  ellipse(-10*s,25*s,52*s,55*s);
+  fill(c1 || "#9f5b18");
+  stroke(0);
+  strokeWeight(max(1.5, 5 * s));
+  ellipse(0, 55*s, 105*s, 135*s);
+
+  fill(c2 || "#d28a35");
+  noStroke();
+  ellipse(-10*s, 25*s, 52*s, 55*s);
 }
 
-// Cute avo — tay vẫy theo sin(frameCount)
 function drawCuteAvoAR(x, y, s, phase) {
-  push(); translate(x, y);
+  push();
+  translate(x, y);
+
+  // body bounce
+  let bounce = sin(frameCount * 0.08 + phase) * 4 * s;
+  translate(0, bounce);
+
   avocadoBodyAR(s);
   avoSeedAR(s);
-  // Mắt
-  fill(0); noStroke();
-  ellipse(-38*s,-75*s,26*s,34*s); ellipse(38*s,-75*s,26*s,34*s);
-  fill(255); ellipse(-46*s,-84*s,8*s,8*s); ellipse(30*s,-84*s,8*s,8*s);
-  // Miệng
-  noFill(); stroke(0); strokeWeight(max(1,4*s));
-  arc(0,-65*s,25*s,25*s,0,PI);
-  // Tay vẫy — điểm cuối dao động theo sin
-  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
-  let wave = sin(frameCount*0.1 + phase) * 20*s;
-  bezier(-120*s,20*s, -170*s,-5*s, -155*s,55*s, -165*s,75*s+wave);
-  bezier(115*s,-20*s,  160*s,-40*s, 145*s,10*s,  165*s,30*s-wave);
-  // Chân đung đưa nhẹ
-  let legSwing = sin(frameCount*0.08 + phase) * 8*s;
-  line(-38*s,180*s, -55*s+legSwing, 240*s);
-  line(38*s, 180*s,  55*s-legSwing, 240*s);
+
+  fill(0);
+  noStroke();
+  ellipse(-38*s, -75*s, 26*s, 34*s);
+  ellipse(38*s, -75*s, 26*s, 34*s);
+
+  fill(255);
+  ellipse(-46*s, -84*s, 8*s, 8*s);
+  ellipse(30*s, -84*s, 8*s, 8*s);
+
+  noFill();
+  stroke(0);
+  strokeWeight(max(1, 4*s));
+  arc(0, -65*s, 25*s, 25*s, 0, PI);
+
+  // arms waving
+  stroke(0);
+  strokeWeight(max(1.5, 5*s));
+  noFill();
+
+  let wave = sin(frameCount * 0.12 + phase) * 28 * s;
+
+  bezier(
+    -115*s, 25*s,
+    -155*s, 0,
+    -165*s, 55*s + wave,
+    -180*s, 75*s + wave
+  );
+
+  bezier(
+    115*s, 10*s,
+    155*s, -5*s,
+    160*s, 45*s - wave,
+    178*s, 55*s - wave
+  );
+
+  // legs swinging
+  let leg = sin(frameCount * 0.14 + phase) * 14 * s;
+  line(-38*s, 180*s, -55*s + leg, 240*s);
+  line(38*s, 180*s, 55*s - leg, 240*s);
+
   pop();
 }
 
-// Sleepy avo — thở nhẹ (lên xuống)
-function drawSleepyAvoAR(x, y, s, phase) {
-  let breathe = sin(frameCount*0.06 + phase) * 3*s;
-  push(); translate(x, y+breathe);
-  avocadoBodyAR(s*0.95);
-  avoSeedAR(s*0.95, "#4b351b","#b28a62");
-  stroke(0); strokeWeight(max(1,4*s));
-  // Mắt nhắm
-  line(-45*s,-80*s,-18*s,-70*s); line(18*s,-70*s,45*s,-80*s);
-  noFill(); arc(0,-58*s,32*s,32*s,0,PI);
-  // Blush
-  noStroke(); fill("#ff9ab0");
-  ellipse(-58*s,-55*s,20*s,10*s); ellipse(58*s,-55*s,20*s,10*s);
-  // Tay cũng vẫy nhẹ khi ngủ
-  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
-  let wave = sin(frameCount*0.05+phase)*10*s;
-  bezier(-110*s,25*s,-155*s,0,-145*s,60*s,-158*s,80*s+wave);
-  bezier(110*s,15*s, 155*s,-5*s, 150*s,55*s, 165*s,75*s-wave);
-  line(-38*s,180*s,-55*s,240*s); line(38*s,180*s,55*s,240*s);
-  pop();
-}
-
-// Cool avo — đầu gật gật
 function drawCoolAvoAR(x, y, s, phase) {
-  let nod = sin(frameCount*0.07+phase)*0.04;
-  push(); translate(x, y);
-  // Thân
-  avocadoBodyAR(s*1.05);
-  avoSeedAR(s*1.05,"#7b3f16","#b97735");
-  push(); rotate(nod);
-  // Lá
-  fill("#118c3a"); stroke(0); strokeWeight(max(1.5,5*s));
-  line(0,-185*s,15*s,-230*s); ellipse(-30*s,-215*s,70*s,35*s);
-  // Kính mát
-  fill("#111"); noStroke(); rectMode(CENTER);
-  rect(-45*s,-85*s,58*s,28*s,5); rect(45*s,-85*s,58*s,28*s,5);
-  stroke("#111"); strokeWeight(max(1.5,5*s)); line(-15*s,-85*s,15*s,-85*s);
-  // Miệng
-  stroke(0); strokeWeight(max(1,4*s)); line(-15*s,-45*s,20*s,-45*s);
-  pop();
-  // Tay vẫy cool
-  stroke(0); strokeWeight(max(1.5,5*s)); noFill();
-  let wave = sin(frameCount*0.1+phase)*18*s;
-  bezier(-115*s,20*s,-165*s,-10*s,-160*s,60*s,-175*s,80*s+wave);
-  bezier(115*s,10*s, 170*s,-10*s, 165*s,50*s, 180*s,55*s-wave);
-  line(-45*s,180*s,-60*s,230*s); line(45*s,180*s,65*s,230*s);
+  push();
+  translate(x, y);
+
+  let bounce = sin(frameCount * 0.08 + phase) * 4 * s;
+  translate(0, bounce);
+
+  avocadoBodyAR(s * 1.02);
+  avoSeedAR(s * 1.02, "#7b3f16", "#b97735");
+
+  // leaf
+  fill("#118c3a");
+  stroke(0);
+  strokeWeight(max(1.5, 5*s));
+  line(0, -185*s, 15*s, -230*s);
+  ellipse(-30*s, -215*s, 70*s, 35*s);
+
+  // sunglasses
+  fill("#111");
+  noStroke();
+  rectMode(CENTER);
+  rect(-45*s, -85*s, 58*s, 28*s, 5);
+  rect(45*s, -85*s, 58*s, 28*s, 5);
+
+  stroke("#111");
+  strokeWeight(max(1.5, 5*s));
+  line(-15*s, -85*s, 15*s, -85*s);
+
+  stroke(0);
+  strokeWeight(max(1, 4*s));
+  line(-15*s, -45*s, 20*s, -45*s);
+
+  // arms moving
+  stroke(0);
+  strokeWeight(max(1.5, 5*s));
+  noFill();
+
+  let wave = sin(frameCount * 0.12 + phase) * 28 * s;
+
+  bezier(
+    -115*s, 25*s,
+    -165*s, -5*s,
+    -165*s, 60*s + wave,
+    -180*s, 80*s + wave
+  );
+
+  bezier(
+    115*s, 10*s,
+    165*s, -5*s,
+    165*s, 50*s - wave,
+    185*s, 65*s - wave
+  );
+
+  let leg = sin(frameCount * 0.14 + phase) * 14 * s;
+  line(-45*s, 180*s, -60*s + leg, 235*s);
+  line(45*s, 180*s, 65*s - leg, 235*s);
+
   pop();
 }
 
 function veFilterBo(camX, camY) {
   push();
-  let chin   = lm(152, camX, camY); // cằm
-  let maTrai = lm(234, camX, camY); // má trái = gần vai trái
-  let maPhai = lm(454, camX, camY); // má phải = gần vai phải
-  let tl     = getFaceWidth(camX, camY) / 180;
 
-  // Ước tính vị trí vai từ FaceMesh
-  // Vai = dưới cằm + ra ngoài 2 bên theo chiều rộng mặt
-  // Scale nhỏ hơn — bơ không che mặt
-  let s = tl * 0.28;
+  let chin = lm(152, camX, camY);
+  let leftCheek = lm(234, camX, camY);
+  let rightCheek = lm(454, camX, camY);
+  let tl = getFaceWidth(camX, camY) / 180;
 
-  // Vai = ra ngoài xa + xuống dưới cằm đủ để thấy "đứng trên vai"
-  // Avo body cao ~400*s tính từ đỉnh → đặt điểm neo ở phần thân giữa
-  let vaiTrX = maTrai.x - 55*tl;
-  let vaiTrY = chin.y   + 95*tl;
-  let vaiPhX = maPhai.x + 55*tl;
-  let vaiPhY = chin.y   + 95*tl;
+  // nhỏ hơn bản cũ
+  let s = tl * 0.20;
 
-  // Cute avo vai trái — phase=0
-  drawCuteAvoAR(vaiTrX, vaiTrY, s, 0);
+  // đặt bơ ra 2 bên vai, thấp hơn cằm nhưng không vào giữa ngực
+  let leftX = leftCheek.x - 95 * tl;
+  let rightX = rightCheek.x + 95 * tl;
 
-  // Cool avo vai phải — phase=PI
-  drawCoolAvoAR(vaiPhX, vaiPhY, s, PI);
+  let shoulderY = chin.y + 115 * tl;
+
+  drawCuteAvoAR(leftX, shoulderY, s, 0);
+  drawCoolAvoAR(rightX, shoulderY, s, PI);
 
   pop();
 }
-
 
 function updateParticles() {}
 
