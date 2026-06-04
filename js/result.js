@@ -12,8 +12,8 @@ let stickerThemeIcons = ["🚫","🥑","😴","😎","💕","🪐","🌿","🎵"
 // ✅ Глобальные координаты для handleResultButtons
 let _res_rx=0, _res_ry=0, _res_rw=0;
 let _res_pw2=0; 
-let _res_ph2 = 30;
-let _res_pg = 4;  
+let _res_ph2 = 38;
+let _res_pg = 10;  
 let _res_ry_frame=0;
 let _res_ry_sticker=0;
 let _res_ry_tone=0;
