@@ -82,12 +82,12 @@ function initFaceMesh(camera) {
     try {
       await faceMesh.send({ image: videoEl });
       // Hands xử lý cách 1 frame 1 để giảm lag
-      if (demFrame % 3 === 0) { // giảm tần suất hands
+      if (demFrame % 4 === 0) { // Hands chỉ cần 1/4 tốc độ FaceMesh
         await handDetector.send({ image: videoEl });
       }
     } catch (e) {}
     dangXuLy = false;
-  }, 100); // tăng 80→100ms giảm CPU
+  }, 120); // 120ms — MediaPipe không cần nhanh hơn
 }
 
 // ============================================================
