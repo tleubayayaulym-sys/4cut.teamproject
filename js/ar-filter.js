@@ -261,86 +261,115 @@ function veFilterTim(camX, camY) {
   let maPhai = lm(454, camX, camY); // má phải
   let tl     = getFaceWidth(camX, camY) / 180;
 
-  // === 1. Tim lớn bám gần đỉnh đầu (floating) ===
-  // Tim chính — to, hồng pastel, lắc nhẹ
-  let nhip = sin(frameCount * 0.05) * 0.06; // lắc
-  let mainTimX = dinh.x + 55*tl;
-  let mainTimY = dinh.y - 30*tl + sin(frameCount*0.03)*8*tl;
+  // === 1. Tim lớn bám trên đầu (từ code người dùng — drawBubbleHeart) ===
+  let nhip = sin(frameCount * 0.05) * 0.08;
+  let hx = dinh.x + 50*tl;
+  let hy = dinh.y - 30*tl + sin(frameCount * 0.03) * 6*tl;
   push();
-  fill(255, 182, 193, 230); noStroke();
-  push(); translate(mainTimX, mainTimY); rotate(nhip);
-  veTim(0, 0, 52*tl);
-  pop();
-  // Highlight trắng trên tim lớn
-  fill(255, 255, 255, 140); noStroke();
-  circle(mainTimX - 12*tl, mainTimY - 18*tl, 10*tl);
-  circle(mainTimX - 5*tl,  mainTimY - 22*tl, 5*tl);
+  translate(hx, hy);
+  scale(tl * 0.95);
+  rotate(nhip);
+  // Thân tim lớn pastel
+  fill("#ffd7df"); stroke("#d7a0aa"); strokeWeight(2);
+  beginShape();
+  vertex(0, 28);
+  bezierVertex(-45, -5, -28, -42, 0, -22);
+  bezierVertex(28, -42, 45, -5, 0, 28);
+  endShape(CLOSE);
+  // Highlight trắng
+  fill(255, 180); noStroke();
+  ellipse(-12, -14, 15, 10);
+  // Bong bóng nhỏ phía dưới
+  fill("#ffe9ef"); stroke("#d7a0aa"); strokeWeight(1.5);
+  circle(-28, 35, 14);
   pop();
 
-  // Tim vừa bên trái đầu
-  let tim2X = dinh.x - 45*tl;
-  let tim2Y = dinh.y - 20*tl + sin(frameCount*0.04 + 1.0)*6*tl;
+  // === 2. Tim vừa bên trái đầu ===
+  let hx2 = dinh.x - 50*tl;
+  let hy2 = dinh.y - 18*tl + sin(frameCount * 0.04 + 1.2) * 5*tl;
   push();
-  fill(255, 160, 180, 200); noStroke();
-  veTim(tim2X, tim2Y, 30*tl);
-  fill(255,255,255,100); circle(tim2X-7*tl, tim2Y-10*tl, 6*tl);
+  translate(hx2, hy2);
+  scale(tl * 0.65);
+  fill("#ff9fc5"); noStroke();
+  beginShape();
+  vertex(0, 20);
+  bezierVertex(-28, 0, -18, -25, 0, -12);
+  bezierVertex(18, -25, 28, 0, 0, 20);
+  endShape(CLOSE);
+  fill(255, 150); ellipse(-6, -8, 8, 5);
   pop();
 
-  // Tim nhỏ phía trên — bay lên theo frameCount
+  // === 3. Tim nhỏ bay lên xung quanh đầu (mảng danhSachTim) ===
   for (let i = 0; i < danhSachTim.length; i++) {
-    let t = danhSachTim[i];
-    let dy = (frameCount * t.toc * 0.4) % (_camH * 0.85);
-    let tx = dinh.x + t.ox * tl * 0.8;
-    let ty = dinh.y + t.oy * tl - dy - 20*tl;
-    let do_mo = map(sin(frameCount * 0.04 + t.pha), -1, 1, 100, 200);
-    fill(mauTimList[t.mau % mauTimList.length], do_mo);
-    noStroke();
-    veTim(tx, ty, t.kich * tl * 0.85);
+    let t   = danhSachTim[i];
+    let dy  = (frameCount * t.toc * 0.4) % (_camH * 0.8);
+    let tx  = dinh.x + t.ox * tl * 0.75;
+    let ty  = dinh.y + t.oy * tl - dy;
+    let alf = map(sin(frameCount * 0.04 + t.pha), -1, 1, 80, 190);
+    push();
+    translate(tx, ty);
+    scale(tl * 0.55);
+    fill(mauTimList[t.mau % mauTimList.length], alf); noStroke();
+    beginShape();
+    vertex(0, 20); bezierVertex(-28, 0, -18, -25, 0, -12);
+    bezierVertex(18, -25, 28, 0, 0, 20);
+    endShape(CLOSE);
+    pop();
   }
 
-  // === 2. Blush má — mềm mại, nhiều lớp ===
+  // === 4. Blush má mềm 2 lớp (ellipse — đã học) ===
   push(); noStroke();
-  // Lớp ngoài mờ hơn
-  fill(255, 150, 170, 50);
-  ellipse(maTrai.x + 5*tl, maTrai.y + 10*tl, 55*tl, 30*tl);
-  ellipse(maPhai.x - 5*tl, maPhai.y + 10*tl, 55*tl, 30*tl);
-  // Lớp trong đậm hơn
-  fill(255, 130, 155, 90);
-  ellipse(maTrai.x + 5*tl, maTrai.y + 10*tl, 36*tl, 20*tl);
-  ellipse(maPhai.x - 5*tl, maPhai.y + 10*tl, 36*tl, 20*tl);
+  fill(255, 145, 180, 50);
+  ellipse(maTrai.x, maTrai.y + 8*tl, 55*tl, 24*tl);
+  ellipse(maPhai.x, maPhai.y + 8*tl, 55*tl, 24*tl);
+  fill(255, 145, 180, 80);
+  ellipse(maTrai.x, maTrai.y + 8*tl, 34*tl, 15*tl);
+  ellipse(maPhai.x, maPhai.y + 8*tl, 34*tl, 15*tl);
   pop();
 
-  // === 3. Sparkle lấp lánh (for loop + sin/cos — đã học) ===
-  // Tia sáng 4 cánh xung quanh mặt
-  let sparklePos = [
-    {x: dinh.x - 80*tl, y: dinh.y + 10*tl},
-    {x: dinh.x + 80*tl, y: dinh.y + 15*tl},
-    {x: dinh.x - 30*tl, y: dinh.y - 60*tl},
-    {x: dinh.x + 40*tl, y: dinh.y - 55*tl},
-    {x: maTrai.x - 20*tl, y: maTrai.y - 10*tl},
-    {x: maPhai.x + 20*tl, y: maPhai.y - 10*tl},
+  // === 5. Mèo nhỏ bên phải đầu ===
+  let cx2 = dinh.x + 95*tl;
+  let cy2 = dinh.y + 15*tl + sin(frameCount * 0.035 + 0.5) * 4*tl;
+  push();
+  translate(cx2, cy2);
+  scale(tl * 0.55);
+  fill("#ffffff"); stroke("#dddddd"); strokeWeight(2);
+  triangle(-22,-20,-10,-42,0,-18);
+  triangle(22,-20,10,-42,0,-18);
+  ellipse(0, 0, 52, 45);
+  fill("#333"); noStroke();
+  ellipse(-10,-3,5,7); ellipse(10,-3,5,7);
+  noFill(); stroke("#333"); strokeWeight(2);
+  arc(0, 4, 14, 10, 0, PI);
+  noStroke(); fill("#ffb6c1");
+  ellipse(-17,8,10,6); ellipse(17,8,10,6);
+  pop();
+
+  // === 6. Sparkle lấp lánh (for loop + sin — đã học) ===
+  let sparkPos = [
+    {x: dinh.x - 75*tl, y: dinh.y + 5*tl},
+    {x: dinh.x + 75*tl, y: dinh.y + 8*tl},
+    {x: dinh.x - 20*tl, y: dinh.y - 55*tl},
+    {x: dinh.x + 35*tl, y: dinh.y - 60*tl},
+    {x: maTrai.x - 25*tl, y: maTrai.y - 5*tl},
+    {x: maPhai.x + 25*tl, y: maPhai.y - 5*tl},
   ];
-  for (let i = 0; i < sparklePos.length; i++) {
-    let sang = map(sin(frameCount * 0.08 + i * 1.1), -1, 1, 80, 240);
-    let sz   = (2.5 + sin(frameCount * 0.06 + i) * 1.2) * tl;
+  for (let i = 0; i < sparkPos.length; i++) {
+    let alpha = map(sin(frameCount * 0.07 + i * 1.1), -1, 1, 60, 230);
+    let sz    = (1.8 + sin(frameCount * 0.05 + i) * 0.8) * tl;
     push();
-    fill(255, 220, 230, sang); noStroke();
-    translate(sparklePos[i].x, sparklePos[i].y);
-    // Kim cương 4 cánh
-    beginShape();
-    vertex(0, -sz*3.5); vertex(sz*0.8, 0);
-    vertex(0,  sz*3.5); vertex(-sz*0.8, 0);
-    endShape(CLOSE);
-    // Tia ngang
-    beginShape();
-    vertex(-sz*3.5, 0); vertex(0, sz*0.8);
-    vertex(sz*3.5, 0);  vertex(0, -sz*0.8);
-    endShape(CLOSE);
+    translate(sparkPos[i].x, sparkPos[i].y);
+    stroke(255, 220, 235, alpha); strokeWeight(2*tl);
+    line(-sz*3, 0, sz*3, 0);
+    line(0, -sz*3, 0, sz*3);
+    noStroke(); fill(255, 255, 255, alpha);
+    circle(0, 0, sz * 1.5);
     pop();
   }
 
   pop();
 }
+
 
 // ============================================================
 // 🐱 Filter 2: Cute Cat Kawaii
