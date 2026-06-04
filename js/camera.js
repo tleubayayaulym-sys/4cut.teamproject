@@ -25,7 +25,8 @@ const MAX_PHOTOS = 8;
 function setupCamera() {
   try {
     video = createCapture(VIDEO, () => { cameraError = false; });
-    video.size(windowWidth, windowHeight);
+    // Chỉ cần 640x480 — khớp với camera box, giảm data xử lý
+    video.size(640, 480);
     video.hide();
     initFaceMesh(video);
     video.elt.onloadedmetadata = () => {
