@@ -68,7 +68,6 @@ function drawCoolAvo(x,y,s){
   bezier(-115,20,-165,-10,-160,60,-175,80);bezier(115,10,170,-10,165,50,180,55);
   line(-45,180,-60,230);line(45,180,65,230);pop();
 }
-
 function drawFrameSticker(sx,sy,sw,sh,theme){
   if(theme===0) return;
   push();
@@ -95,16 +94,18 @@ function drawFrameSticker(sx,sy,sw,sh,theme){
     };
     let list=sets[theme]||[];
     
-    fill(0); 
-    strokeWeight(0);
-    noStroke();
-    textAlign(CENTER,CENTER);
+    let ctx = (typeof pgSave !== "undefined") ? pgSave : this;
+    
+    ctx.fill(0); 
+    ctx.strokeWeight(0);
+    ctx.noStroke();
+    ctx.textAlign(CENTER,CENTER);
     
     for(let i=0;i<list.length;i++){
       let e=list[i];
       let nhip=1+sin(frameCount*0.04+i)*0.08;
-      textSize(e.sz*nhip);
-      text(e.s,sx+sw*e.x,sy+sh*e.y);
+      ctx.textSize(e.sz*nhip);
+      ctx.text(e.s,sx+sw*e.x,sy+sh*e.y);
     }
   }
   pop();
@@ -460,7 +461,7 @@ function handleResultButtons(){
     pgSave.strokeWeight(3);
     pgSave.rect(0, 0, stripW, stripH, 12);
     
-    let positions = calcPhotoPositions(0, 0, stripW, photoH, pad, gap, L);
+       let positions = calcPhotoPositions(0, 0, stripW, photoH, pad, gap, L);
     for(let i=0; i<L.count; i++){
       let {px, py, pw, ph} = positions[i];
       if(capturedPhotos[i]){
@@ -474,6 +475,11 @@ function handleResultButtons(){
         pgSave.fill(230); pgSave.noStroke(); pgSave.rect(px, py, pw, ph, 5);
       }
     }
+
+    pgSave.push();
+    drawFrameSticker(0, 0, stripW, stripH, selectedSticker); 
+    pgSave.pop();
+
     
     pgSave.push(); pgSave.noStroke(); pgSave.fill(120); pgSave.textSize(9); pgSave.textAlign(CENTER, CENTER);
     let d = new Date();
