@@ -496,45 +496,35 @@ function veFilterMeoKawaii(camX, camY) {
 }
 
 // ============================================================
-// 👓 Filter 3: Round Glasses + nơ nhỏ
-// Kính tròn vintage + nơ xanh hai bên
-// Kỹ thuật: ellipse (kính tròn), bezierVertex (nơ nhỏ)
+// 👓 Filter 3: Round Glasses 
 // ============================================================
 function veFilterKinhTron(camX, camY) {
   push();
-  // Lấy tâm 2 mắt từ FaceMesh
-  let mTO = lm(33,  camX, camY); // góc trong mắt trái
-  let mTT = lm(133, camX, camY); // góc ngoài mắt trái
-  let mPT = lm(362, camX, camY); // góc trong mắt phải
-  let mPO = lm(263, camX, camY); // góc ngoài mắt phải
+  // Получаем точки глаз из FaceMesh
+  let mTO = lm(33,  camX, camY); // внутренний угол левого глаза
+  let mTT = lm(133, camX, camY); // внешний угол левого глаза
+  let mPT = lm(362, camX, camY); // внутренний угол правого глаза
+  let mPO = lm(263, camX, camY); // внешний угол правого глаза
   let tl  = getFaceWidth(camX, camY) / 180;
 
-  // Tâm mỗi mắt
   let cx1 = (mTO.x + mTT.x) / 2;
   let cy1 = (mTO.y + mTT.y) / 2;
   let cx2 = (mPT.x + mPO.x) / 2;
   let cy2 = (mPT.y + mPO.y) / 2;
 
-  // Bán kính = nửa khoảng cách 2 góc mắt
   let r = dist(mTO.x, mTO.y, mTT.x, mTT.y) * 0.72;
 
   stroke(0);
   strokeWeight(2 * tl);
-  noFill();
+  noFill(); 
 
-  // 2 tròng tròn
   circle(cx1, cy1, r * 2);
   circle(cx2, cy2, r * 2);
 
-  // Đường nối ngắn giữa 2 tròng
-  let bx1 = cx1 + r;
-  let bx2 = cx2 - r;
-  let by  = (cy1 + cy2) / 2;
-  line(bx1, by, bx2, by);
+  line(mTO.x, mTO.y, mPT.x, mPT.y);
 
   pop();
 }
-
 // ============================================================
 // Filter cố định (khi chưa nhận diện mặt)
 // ============================================================
