@@ -424,28 +424,17 @@ function handleResultButtons(){
       return;
     }
   }
-  // Клик по кнопке Save Photo 
+    // Клик по кнопке Save Photo 
   let click_save = _res_ry_save + 6;
   if(mouseX>rx && mouseX<rx+rw && mouseY>click_save && mouseY<click_save+50){
-    
+
     currentScreen = "saved";
-    
-    if (typeof saveStripAction === "function") { 
-      saveStripAction(); 
-      return; 
-    } 
-    if (typeof savePhoto === "function") { 
-      savePhoto(); 
-      return; 
-    } 
-    if (typeof downloadStrip === "function") { 
-      downloadStrip(); 
-      return; 
-    }
-    if (typeof saveStrip === "function") { 
-      saveStrip(); 
-      return; 
-    }
+
+    if (typeof saveStripAction === "function") { saveStripAction(); return; } 
+    if (typeof savePhoto === "function") { savePhoto(); return; } 
+    if (typeof downloadStrip === "function") { downloadStrip(); return; }
+    if (typeof saveStrip === "function") { saveStrip(); return; }
+
     let L = getLayoutConfig();
     let panW = min(width*0.45,420), panX = width-panW;
     let pad = 14, gap = 5, bot = 36, availH = height-60;
@@ -462,12 +451,37 @@ function handleResultButtons(){
     let stripH = L.cols===4 ? pad*2+photoH+bot :
                  L.cols===2 ? pad*2+photoH*ceil(L.count/2)+gap*(ceil(L.count/2)-1)+bot :
                  pad*2+photoH*L.count+gap*(L.count-1)+bot;
-                 
-    let stripX = (panX)/2 - stripW/2;
-    let stripY = max((height-stripH)/2, 40);
 
-    let photoStripShot = get(stripX - 15, stripY - 15, stripW + 30, stripH + 30);
-    photoStripShot.save("photobooth-strip", "png");
+    let pgSave = createGraphics(stripW, stripH);
+    pgSave.rectMode(CORNER);
+    
+    pgSave.fill(frameColors[selectedFrame]);
+    pgSave.stroke(frameDark[selectedFrame]);
+    pgSave.strokeWeight(3);
+    pgSave.rect(0, 0, stripW, stripH, 12);
+    
+    let positions = calcPhotoPositions(0, 0, stripW, photoH, pad, gap, L);
+    for(let i=0; i<L.count; i++){
+      let {px, py, pw, ph} = positions[i];
+      if(capturedPhotos[i]){
+        pgSave.imageMode(CORNER);
+        pgSave.image(capturedPhotos[i], px, py, pw, ph);
+        
+        if(typeof applyPhotoFilterSave === "function") {
+          applyPhotoFilterSave(pgSave, px, py, pw, ph);
+        }
+      } else {
+        pgSave.fill(230); pgSave.noStroke(); pgSave.rect(px, py, pw, ph, 5);
+      }
+    }
+    
+    pgSave.push(); pgSave.noStroke(); pgSave.fill(120); pgSave.textSize(9); pgSave.textAlign(CENTER, CENTER);
+    let d = new Date();
+    let ds = d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
+    pgSave.text(ds, stripW/2, stripH-14); pgSave.pop();
+
+    pgSave.save("photobooth-strip.png");
+    pgSave.remove(); 
     
     return;
   }
