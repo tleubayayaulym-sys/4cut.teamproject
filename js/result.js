@@ -282,7 +282,13 @@ function drawResultScreen(){
   push();stroke(230);strokeWeight(1);noFill();line(panX,0,panX,height);pop();
 
   // ✅ Вычисляем координаты через общую функцию и сохраняем
-  let C=calcPanelCoords();
+    let C=calcPanelCoords();
+  
+  C.ry_sticker = C.ry_sticker - 30; 
+  C.ry_tone    = C.ry_tone - 55;    
+  C.ry_save    = C.ry_save - 80;    
+
+  // Записываем измененные координаты в глобальные переменные
   _res_rx=C.rx; _res_rw=C.rw;
   _res_pw2=C.pw2; _res_ph2=C.ph2; _res_pg=C.pg;
   _res_tw=C.tw; _res_th=C.th;
@@ -342,6 +348,7 @@ function drawResultScreen(){
     text(stickerThemeIcons[i]+" "+stickerThemeNames[i],bx+pw2/2,by+ph2/2);
     textStyle(NORMAL);pop();
   }
+
 
   // Divider
   let ry_div2=C.ry_sticker+ceil(stickerThemeNames.length/2)*(ph2+8)+4;
