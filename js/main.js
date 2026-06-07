@@ -172,7 +172,7 @@ function drawStartScreen() {
   fill("#c8b4f8"); textSize(11); textAlign(CENTER,CENTER);
   text("💝  TEAM 13", width/2, y1+16);
   fill("#444"); textSize(13);
-  text("틀레우바이 아야으름  ·  응웬 바오 담  ·  마이티투짱", width/2, y1+38);
+  text("틀레우바이 아야울름  ·  응웬 바오 담  ·  마이티투짱", width/2, y1+38);
 
   // How to use card
   let y2 = y1+hTeam+hGap2;
