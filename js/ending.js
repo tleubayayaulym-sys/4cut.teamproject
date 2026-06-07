@@ -25,7 +25,7 @@ function drawEndingScreen() {
 
   // Team members
   let members = [
-    {name:"Tleubaiy Ayayulm",    role:"Camera · UI · Screen Flow",         col:"#b3d9ff"},
+    {name:"Tleubay Ayaulym",    role:"Camera · UI · Screen Flow",         col:"#b3d9ff"},
     {name:"Nguyen Bao Dam",      role:"AR Filter · FaceMesh · Hand Pose",  col:"#b2f0e8"},
     {name:"Mai Thi Tu Trang",    role:"Result Screen · Frame · Save",       col:"#d4b3ff"},
   ];
